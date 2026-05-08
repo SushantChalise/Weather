@@ -1,0 +1,648 @@
+{
+  "scrapeDate": "2026-05-08T13:03:09.984Z",
+  "totalRecords": 1206,
+  "nepalOverlapping": 879,
+  "tierDistribution": {
+    "critical": 149,
+    "high": 332,
+    "medium": 517,
+    "low": 156,
+    "irrelevant": 52
+  },
+  "categoryDistribution": {
+    "weather_climate": 448,
+    "cryosphere": 153,
+    "hazard": 216,
+    "hydrology": 221,
+    "terrain_landcover": 163,
+    "remote_sensing": 149,
+    "route_context": 187
+  },
+  "topCritical": [
+    {
+      "rank": 1,
+      "score": 270,
+      "title": "Glacier mass balance data from Rikha Samba, Nepal",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere",
+        "hazard",
+        "hydrology"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=1972483"
+    },
+    {
+      "rank": 2,
+      "score": 258,
+      "title": "Yala glacier seasonal and annual mass balance data",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere",
+        "hazard",
+        "hydrology"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=1972482"
+    },
+    {
+      "rank": 3,
+      "score": 201,
+      "title": "The Status of Glacial Lakes in the Hindu Kush Himalaya",
+      "productUse": "snowline / glacier context",
+      "categories": [
+        "cryosphere",
+        "terrain_landcover",
+        "remote_sensing"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=35856"
+    },
+    {
+      "rank": 4,
+      "score": 193,
+      "title": "Anti Dip Slope - Hazard Mapping of Nepal's Gorkha Earthquake 2015 induced landslide Dams",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere",
+        "hazard",
+        "hydrology",
+        "terrain_landcover"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=24679"
+    },
+    {
+      "rank": 5,
+      "score": 193,
+      "title": "Geological data of Nepal's Gorkha Earthquake 2015 affected area",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere",
+        "hazard",
+        "hydrology",
+        "terrain_landcover"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=24676"
+    },
+    {
+      "rank": 6,
+      "score": 193,
+      "title": "Internal Relief Map of Nepal's Gorkha Earthquake 2015 affected area",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere",
+        "hazard",
+        "hydrology",
+        "terrain_landcover"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=24683"
+    },
+    {
+      "rank": 7,
+      "score": 193,
+      "title": "Possible Damming Site - Hazard Mapping of Nepal's Gorkha Earthquake 2015 induced landslide dams",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere",
+        "hazard",
+        "hydrology",
+        "terrain_landcover"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=24677"
+    },
+    {
+      "rank": 8,
+      "score": 188,
+      "title": "Dip Slope - Hazard Mapping of Nepal's Gorkha Earthquake 2015 induced landslide Dams",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere",
+        "hazard",
+        "hydrology",
+        "terrain_landcover"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=24682"
+    },
+    {
+      "rank": 9,
+      "score": 188,
+      "title": "Dip Normal Slope - Hazard Mapping of Nepal's Gorkha Earthquake 2015 induced landslide Dams",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere",
+        "hazard",
+        "hydrology",
+        "terrain_landcover"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=24681"
+    },
+    {
+      "rank": 10,
+      "score": 188,
+      "title": "Attitude of Geological Structural data of Nepal's Gorkha Earthquake 2015 affected area",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere",
+        "hazard",
+        "hydrology",
+        "terrain_landcover"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=24267"
+    },
+    {
+      "rank": 11,
+      "score": 187,
+      "title": "Potentially dangerous glacial lakes in the Koshi, Gandaki, and Karnali river basins of Nepal, the Tibet Autonomous Region of China, and India",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere",
+        "hazard",
+        "hydrology",
+        "terrain_landcover",
+        "remote_sensing"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=1971950"
+    },
+    {
+      "rank": 12,
+      "score": 187,
+      "title": "Glacial lakes in the Koshi, Gandaki, and Karnali river basins of Nepal, the Tibet Autonomous Region of China, and India",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere",
+        "hydrology",
+        "terrain_landcover",
+        "remote_sensing"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=1971946"
+    },
+    {
+      "rank": 13,
+      "score": 179,
+      "title": "GLOF database of High Mountain Asia",
+      "productUse": "snowline / glacier context",
+      "categories": [
+        "cryosphere",
+        "hazard",
+        "hydrology",
+        "terrain_landcover"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=1973283"
+    },
+    {
+      "rank": 14,
+      "score": 176,
+      "title": "Decadal glacier changes from 1990 to 2020 in the Hindu Kush Himalaya",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere",
+        "hydrology",
+        "terrain_landcover",
+        "remote_sensing"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=1973447"
+    },
+    {
+      "rank": 15,
+      "score": 174,
+      "title": "Status of Glaciers in Hindu Kush Himalayan (HKH) Region",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere",
+        "hydrology",
+        "terrain_landcover",
+        "remote_sensing"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=9359"
+    },
+    {
+      "rank": 16,
+      "score": 173,
+      "title": "Micromet station: Yala 1",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=1972412"
+    },
+    {
+      "rank": 17,
+      "score": 172,
+      "title": "HydroSAR Hydro30 Surface Water Extent Product of flood-prone regions in the Hindu Kush Himalaya (HKH)",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "hazard",
+        "hydrology",
+        "terrain_landcover",
+        "remote_sensing"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=1973127"
+    },
+    {
+      "rank": 18,
+      "score": 171,
+      "title": "Meteorological Data of HYCOS Automatic Weather Station at Humla, Nepal",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=18532"
+    },
+    {
+      "rank": 19,
+      "score": 171,
+      "title": "Meteorological Data of HYCOS Automatic Weather Station at Baitadi, Nepal",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=19172"
+    },
+    {
+      "rank": 20,
+      "score": 171,
+      "title": "Meteorological Data of HYCOS Automatic Weather Station at Jumla, Nepal",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=18504"
+    },
+    {
+      "rank": 21,
+      "score": 171,
+      "title": "Meteorological Data of HYCOS Automatic Weather Station at Chainpur, Nepal",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=19170"
+    },
+    {
+      "rank": 22,
+      "score": 169,
+      "title": "Micromet station: Yala 3",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere",
+        "route_context"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=1972410"
+    },
+    {
+      "rank": 23,
+      "score": 168,
+      "title": "Micromet station: Yala 2",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=1972411"
+    },
+    {
+      "rank": 24,
+      "score": 163,
+      "title": "Meteorological Data of HYCOS Automatic Weather Station at Dhankuta, Nepal",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=18403"
+    },
+    {
+      "rank": 25,
+      "score": 163,
+      "title": "Meteorological Data of HYCOS Automatic Weather Station at Okhalddhunga, Nepal",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=18456"
+    },
+    {
+      "rank": 26,
+      "score": 161,
+      "title": "Meteorological Data of HYCOS Automatic Weather Station at Korilla, Bhutan",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "hazard"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=17466"
+    },
+    {
+      "rank": 27,
+      "score": 160,
+      "title": "Glacial Lakes of Nepal 2011",
+      "productUse": "snowline / glacier context",
+      "categories": [
+        "cryosphere",
+        "hazard",
+        "hydrology",
+        "remote_sensing"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=20831"
+    },
+    {
+      "rank": 28,
+      "score": 153,
+      "title": "Glacial Lake Status after Gorkha Earthquake",
+      "productUse": "snowline / glacier context",
+      "categories": [
+        "cryosphere",
+        "hazard",
+        "route_context",
+        "remote_sensing"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=24065"
+    },
+    {
+      "rank": 29,
+      "score": 152,
+      "title": "Pluviometer: Langshisha",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=1972414"
+    },
+    {
+      "rank": 30,
+      "score": 152,
+      "title": "Pluviometer: Morimoto",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=1972413"
+    }
+  ],
+  "topHigh": [
+    {
+      "rank": 150,
+      "score": 119,
+      "title": "High resolution 10 km daily reference climate dataset of Indus, Ganges, and Bramhmaputra river basins from 1981 to 2010",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "hydrology"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=29331"
+    },
+    {
+      "rank": 151,
+      "score": 119,
+      "title": "High resolution 5 km daily reference climate dataset of upper Indus, upper  Ganges, and upper  Bramhmaputra river basins from 1981 to 2010",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "hydrology"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=29332"
+    },
+    {
+      "rank": 152,
+      "score": 119,
+      "title": "Glaciers of Nepal 1980",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere",
+        "remote_sensing"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=9349"
+    },
+    {
+      "rank": 153,
+      "score": 118,
+      "title": "Climate Scenario data from BCCR Norway (NorESM)",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=22158"
+    },
+    {
+      "rank": 154,
+      "score": 118,
+      "title": "Monthly Mean Temperature Trend (November) 1950-2000 of Hindu Kush Himalayan (HKH) Region",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=8726"
+    },
+    {
+      "rank": 155,
+      "score": 117,
+      "title": "Soil Moisture: Langshisha BC",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere",
+        "hydrology",
+        "route_context"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=1972419"
+    },
+    {
+      "rank": 156,
+      "score": 117,
+      "title": "Factor of Safety (dry condition at 2m depth) of Nepal's Gorkha Earthquake 2015 induced landslide hazard mapping data of Bahrabise, Sindhupalchok",
+      "productUse": "route hazard / safety",
+      "categories": [
+        "hazard",
+        "remote_sensing"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=24684"
+    },
+    {
+      "rank": 157,
+      "score": 117,
+      "title": "Air Quality Winter Fog Field Campaign Data for Chitwan",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "route_context"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=29455"
+    },
+    {
+      "rank": 158,
+      "score": 117,
+      "title": "Nepal's Gorkha Earthquake 2015 induced landslide data of Bahrabise, Sindhupalchok",
+      "productUse": "route hazard / safety",
+      "categories": [
+        "hazard",
+        "remote_sensing"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=24268"
+    },
+    {
+      "rank": 159,
+      "score": 117,
+      "title": "Factor of Safety ( wet condition at 3m depth) of Nepal's Gorkha Earthquake 2015 induced landslide hazard mapping data of Bahrabise, Sindhupalchok",
+      "productUse": "route hazard / safety",
+      "categories": [
+        "hazard",
+        "remote_sensing"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=24687"
+    },
+    {
+      "rank": 160,
+      "score": 117,
+      "title": "Factor of Safety (dry condition at 3m depth) of Nepal's Gorkha Earthquake 2015 induced landslide hazard mapping data of Bahrabise, Sindhupalchok",
+      "productUse": "route hazard / safety",
+      "categories": [
+        "hazard",
+        "remote_sensing"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=24685"
+    },
+    {
+      "rank": 161,
+      "score": 116,
+      "title": "Glaciers of Afghanistan 1990",
+      "productUse": "snowline / glacier context",
+      "categories": [
+        "cryosphere",
+        "terrain_landcover",
+        "remote_sensing"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=35984"
+    },
+    {
+      "rank": 162,
+      "score": 116,
+      "title": "Elevation Zones of Hindu Kush Himalayan (HKH) Region",
+      "productUse": "terrain / base map",
+      "categories": [
+        "terrain_landcover"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=1857"
+    },
+    {
+      "rank": 163,
+      "score": 116,
+      "title": "Improved daily MODIS TERRA/AQUA Snow and Randolph Glacier Inventory (RGI6.0) data for High Mountain Asia (2002-2019)",
+      "productUse": "snowline / glacier context",
+      "categories": [
+        "cryosphere",
+        "remote_sensing"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=1972585"
+    },
+    {
+      "rank": 164,
+      "score": 116,
+      "title": "Glaciers of Afghanistan 2000",
+      "productUse": "snowline / glacier context",
+      "categories": [
+        "cryosphere",
+        "terrain_landcover",
+        "remote_sensing"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=35985"
+    },
+    {
+      "rank": 165,
+      "score": 115,
+      "title": "High resolution 5 km daily future climate dataset of upper Indus, upper Ganges, and upper Bramhmaputra river basins from 2011 to 2100",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "hydrology"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=29245"
+    },
+    {
+      "rank": 166,
+      "score": 115,
+      "title": "Flood Extent in Nepal, India and Bangladesh for July 2020",
+      "productUse": "route hazard / safety",
+      "categories": [
+        "hazard",
+        "hydrology",
+        "remote_sensing"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=36038"
+    },
+    {
+      "rank": 167,
+      "score": 114,
+      "title": "Daily different contribution of total flow from HI-SPHY model for middle century(4.5)",
+      "productUse": "real-time weather / forecast",
+      "categories": [
+        "weather_climate",
+        "cryosphere"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=22293"
+    },
+    {
+      "rank": 168,
+      "score": 114,
+      "title": "Glacial Lakes of Sagarmatha National Park (SNP) Nepal",
+      "productUse": "snowline / glacier context",
+      "categories": [
+        "cryosphere",
+        "route_context"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=2161"
+    },
+    {
+      "rank": 169,
+      "score": 114,
+      "title": "Glaciers in Sagarmatha National Park (SNP) Nepal",
+      "productUse": "snowline / glacier context",
+      "categories": [
+        "cryosphere",
+        "route_context"
+      ],
+      "landingPage": "https://rds.icimod.org/Home/DataDetail?metadataId=9096"
+    }
+  ],
+  "productRecommendations": {
+    "weatherDecisionMap": {
+      "description": "Datasets directly supporting the Nepal Mountain Weather Decision Map product primitives",
+      "priorities": [
+        {
+          "primitive": "Where is good now / tomorrow?",
+          "bestSources": "Weather stations, climate baselines, meteorological AWS data"
+        },
+        {
+          "primitive": "When is the next clear window?",
+          "bestSources": "MODIS snow/cloud, climate scenarios, station AWS"
+        },
+        {
+          "primitive": "What changed in 72h?",
+          "bestSources": "Snow cover 8-day/daily, HydroSAR flood extent, landslide events"
+        },
+        {
+          "primitive": "Which route segments are affected?",
+          "bestSources": "Trail networks, settlements, lodges, landslide inventory, flood layers"
+        },
+        {
+          "primitive": "How confident is this?",
+          "bestSources": "Station network density, glacier/lake inventories for calibration"
+        }
+      ]
+    }
+  }
+}

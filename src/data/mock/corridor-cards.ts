@@ -1,0 +1,41 @@
+import { nowNPTIso } from "@/lib/npt/format-npt";
+import type { CorridorCardData } from "@/types/weather";
+
+export const MOCK_CORRIDOR_CARDS: CorridorCardData[] = [
+  {
+    corridorId: "abc",
+    title: "ABC Corridor",
+    conditionIcon: "☁",
+    conditionLabel: "Cloudy with rain in lower trail",
+    trend: "improving",
+    trendLabel: "↗ improving",
+    clearWindowSummary: "Best clear window: tomorrow 6–9 AM",
+    confidence: "forecast",
+    evidenceTier: "forecast-model",
+    timestamp: nowNPTIso(),
+  },
+  {
+    corridorId: "ebc",
+    title: "Everest Corridor",
+    conditionIcon: "⛅",
+    conditionLabel: "Partial morning visibility",
+    trend: "stable",
+    trendLabel: "→ stable",
+    clearWindowSummary: "Best clear window: tomorrow 6:10–8 AM",
+    confidence: "observed",
+    evidenceTier: "observed-satellite",
+    timestamp: nowNPTIso(),
+  },
+  {
+    corridorId: "pokhara",
+    title: "Pokhara",
+    conditionIcon: "🌧",
+    conditionLabel: "Heavy cloud — Annapurna obscured",
+    trend: "worsening",
+    trendLabel: "↘ worsening",
+    clearWindowSummary: "Next clear window: 2 days",
+    confidence: "observed",
+    evidenceTier: "observed-satellite",
+    timestamp: nowNPTIso(),
+  },
+];
