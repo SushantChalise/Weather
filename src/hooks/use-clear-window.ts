@@ -11,7 +11,8 @@ export function useClearWindow(destId: DestinationId, fallback?: ClearWindow) {
   const { data, isLoading } = useSWR<ClearWindow>(`/api/clear-window/${destId}`, fetcher, {
     refreshInterval: REFRESH_MS,
     revalidateOnFocus: false,
-    fallbackData: fallback,
+    revalidateOnMount: true,
+    dedupingInterval: 0,
   });
   return { clearWindow: data ?? fallback ?? null, isLoading };
 }

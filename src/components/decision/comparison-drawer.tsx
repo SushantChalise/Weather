@@ -182,7 +182,7 @@ export function ComparisonDrawer({ data }: Props) {
 
         {/* Footer */}
         <div className="px-5 py-3 border-t border-[var(--color-border)] shrink-0 text-xs text-[var(--color-text-muted)]">
-          Mock data — real Decision Intelligence wired in Step 4
+          Live Open-Meteo forecast · refreshes every 10 min
         </div>
       </div>
     </>

@@ -11,7 +11,8 @@ export function useDecisionStrip(fallback: DecisionStripData) {
   const { data, error } = useSWR<DecisionStripData>("/api/decision-strip", fetcher, {
     refreshInterval: REFRESH_MS,
     revalidateOnFocus: false,
-    fallbackData: fallback,
+    revalidateOnMount: true,
+    dedupingInterval: 0,
   });
   return {
     strip: data ?? fallback,

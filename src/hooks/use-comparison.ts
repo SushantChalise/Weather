@@ -9,7 +9,8 @@ export function useComparison(fallback: ComparisonDrawerData) {
   const { data } = useSWR<ComparisonDrawerData>("/api/comparison", fetcher, {
     refreshInterval: 10 * 60 * 1000,
     revalidateOnFocus: false,
-    fallbackData: fallback,
+    revalidateOnMount: true,
+    dedupingInterval: 0,
   });
   return { comparison: data ?? fallback };
 }
