@@ -1426,29 +1426,48 @@ Himawari, MODIS, Sentinel imagery is presented with:
 
 ## 17. The "don't" list
 
-Patterns we explicitly reject. These are review-blockers.
+Patterns we explicitly reject. These are review-blockers — a PR using one of these gets blocked unless the author explicitly justifies the override and gets founder approval.
+
+The list is organised into hard bans (no override) and defaults (override possible with explicit justification).
+
+### 17.1 Hard bans (no override)
 
 | Don't | Reason |
 |---|---|
 | Use red on a chart axis (gridlines, labels) | Red is reserved for warning / extreme |
 | Animate a number "counting up" | Cheap dashboard trope |
 | Use a pie chart for time-series data | Wrong tool |
-| Use a 3D chart of any kind | 3D charts are unreadable |
 | Use cursive / brush / ornamental fonts | Wrong tone |
 | Use stock photos | Always real, attributed images |
-| Show "loading" with no context | "Loading X" or skeleton |
+| Show "loading" with no context | "Loading {what}" or a skeleton |
 | Use a CAPTCHA | We have nothing to protect from bots |
 | Sell or expose user data | No analytics beyond aggregate Vercel metrics |
 | Display a cookie banner under EU rules without actually using cookies | Banner-free site is the ideal |
-| Open links in new tabs by default | The user decides |
 | Auto-play video or audio | Always opt-in |
-| Display an exit-intent popup | Disrespectful |
+| Display an exit-intent popup | Disrespectful interruption pattern |
 | Use brand colour as a background gradient | Cheap |
-| Use box shadows to simulate elevation depth deeper than 4 levels | Skeuomorphic |
 | Use uppercase for body copy | Hard to read |
 | Use justified text in body | Awkward word spacing |
 | Use a drop cap | Editorial-magazine cliché |
 | Use a "subscribe" CTA on every page | We have no newsletter |
+| **Use a dual-axis chart without explicit justification in the modal** | Dual-axis charts mislead by visual association — two unrelated quantities appear correlated when they aren't. If you genuinely need one, the source modal must explain why and warn the reader. |
+| **Use a choropleth for raw counts (use rates / per-capita instead)** | Choropleths of raw counts always look like a population map. "Number of avalanche deaths by region" colours the populated regions. Use rates per population / per area / per visit-day. |
+| **Use unlabeled smoothing or interpolation on a time series** | Smoothing changes data. Every smoothed line must be labelled "smoothed (window: N days)" so the reader knows what they're looking at. Same for interpolated values across gaps. |
+| **Use point markers from gridded data without a "grid" disclaimer** | Pinning a 25 km grid value to a point on a map implies point precision. The marker must be an enclosing polygon at the grid's resolution, OR the marker must carry a "grid: 25 km" badge. Otherwise we lie about precision. |
+
+### 17.2 Defaults (override possible with explicit justification)
+
+| Default | When override is acceptable |
+|---|---|
+| **Don't use a 3D chart for decoration** | 3D is acceptable when a 2D projection genuinely cannot communicate the relationship — e.g., elevation × year × glacier thickness for a single glacier. The override requires: a written justification on the PR, a screenshot of the 2D alternative, and an explanation of why the 2D version fails. |
+| **Don't open links in a new tab by default** | Acceptable for explicit "open in new tab" affordances (cite-this-page → Wikipedia, methodology → academic source). Internal links never. |
+| **Don't use a 5-level box shadow stack** | Acceptable for genuinely floating UI (modal stacked on tooltip on map). Most pages need ≤ 2 elevation levels. |
+
+### 17.3 Why some bans softened
+
+The earlier draft banned 3D charts absolutely. Both LLM critics flagged this as dogma over utility — a 3D drape of glacier mass balance (elevation × year × thickness) is the only way to show a thinning tongue with stable accumulation zone. The override pattern lets us keep 99% restraint while not foreclosing the 1% case where 3D earns its complexity.
+
+Same logic: "no exit-intent popup" is fine because we genuinely don't want one, but writing it as a sacred law was performative. The actual product constraint is "no manipulative interruption patterns" — which we hold to.
 
 ---
 
