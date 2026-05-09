@@ -1,10 +1,13 @@
 "use client";
 
 import useSWR from "swr";
+import { LuklaFlightCard } from "@/components/decision/lukla-flight-card";
 import { VisibilityCard } from "@/components/decision/visibility-card";
+import { YesterdayCard } from "@/components/decision/yesterday-card";
 import { ApiErrorBoundary } from "@/components/scene/api-error-boundary";
 import { CopyBriefButton } from "@/components/ui/copy-brief-button";
 import { ShareButton } from "@/components/ui/share-button";
+import { DESTINATIONS } from "@/data/destinations";
 import { VIEWPOINTS } from "@/data/viewpoints";
 import { useSelectionStore } from "@/state/selectionStore";
 import type { CorridorId, GuideBrief, SegmentCondition, ViewpointId } from "@/types/weather";
@@ -148,6 +151,21 @@ export function DestinationInsightPanel() {
             <VisibilityCard viewpointId={vp.id} viewpointName={vp.name} />
           </ApiErrorBoundary>
         )}
+        {selectedCorridor === "ebc" && (
+          <ApiErrorBoundary>
+            <LuklaFlightCard />
+          </ApiErrorBoundary>
+        )}
+        {(() => {
+          const dest = DESTINATIONS.find(
+            (d) => d.corridor === selectedCorridor && d.id === selectedCorridor,
+          );
+          return dest ? (
+            <ApiErrorBoundary>
+              <YesterdayCard destId={dest.id} destName={dest.name} />
+            </ApiErrorBoundary>
+          ) : null;
+        })()}
       </div>
     </div>
   );

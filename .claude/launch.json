@@ -4,7 +4,7 @@
     {
       "name": "weather-dev",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "npm run dev -- --port 3001"],
+      "runtimeArgs": ["/c", "cd /d C:\\Users\\ACER\\Projects\\Weather && npm run dev -- --port 3001"],
       "port": 3001
     }
   ]

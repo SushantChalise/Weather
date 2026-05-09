@@ -12,8 +12,7 @@ const CORRIDOR_TO_DEST: Record<string, DestinationId> = {
 
 export function SelectionClearWindow() {
   const { selectedCorridor } = useSelectionStore();
-  const destId: DestinationId =
-    (selectedCorridor && CORRIDOR_TO_DEST[selectedCorridor]) || "abc";
+  const destId: DestinationId = (selectedCorridor && CORRIDOR_TO_DEST[selectedCorridor]) || "abc";
   const fallback = MOCK_CLEAR_WINDOWS.find((w) => w.destinationId === destId);
   if (!fallback) return null;
   return <LiveClearWindow destId={destId} fallback={fallback} />;

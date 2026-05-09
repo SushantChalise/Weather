@@ -2,11 +2,12 @@ import { BottomSheet } from "@/components/controls/bottom-sheet";
 import { LayerToggles } from "@/components/controls/layer-toggles";
 import { TimeControl } from "@/components/controls/time-control";
 import { DestinationInsightPanel } from "@/components/decision/destination-insight-panel";
-import { SelectionClearWindow } from "@/components/decision/selection-clear-window";
 import { LiveComparisonDrawer } from "@/components/decision/live-comparison-drawer";
 import { LiveCorridorCards } from "@/components/decision/live-corridor-cards";
 import { LiveDecisionStrip } from "@/components/decision/live-decision-strip";
 import { ReplaySummaryCard } from "@/components/decision/replay-summary";
+import { SeasonalPatternCard } from "@/components/decision/seasonal-pattern-card";
+import { SelectionClearWindow } from "@/components/decision/selection-clear-window";
 import { IdleDetector } from "@/components/scene/idle-detector";
 import { LowBandwidthDetector } from "@/components/scene/low-bandwidth-detector";
 import { NepalMapClient } from "@/components/scene/nepal-map-client";
@@ -64,8 +65,8 @@ export default function Home() {
           <div className="flex flex-col gap-3 p-4">
             <LiveCorridorCards fallback={MOCK_CORRIDOR_CARDS} />
             <LiveActionButtons />
-
             <SelectionClearWindow />
+            <SeasonalPatternCard />
             {abcReplay && <ReplaySummaryCard data={abcReplay} />}
           </div>
         </aside>
@@ -76,6 +77,7 @@ export default function Home() {
         <LiveCorridorCards fallback={MOCK_CORRIDOR_CARDS} />
         <LiveActionButtons />
         <SelectionClearWindow />
+        <SeasonalPatternCard />
         {abcReplay && <ReplaySummaryCard data={abcReplay} />}
       </div>
 

@@ -85,19 +85,27 @@ function tomorrowAMCloud(hourly: OpenMeteoHourly): number {
 export function computeDecisionStrip(destinations: DestWeather[]): DecisionStripData {
   const scored = destinations.map(scoreDestination);
 
-  // Severity thresholds
   const avoidThreshold = (s: Score) => s.precip > 25 || s.wind > 60;
-  const watchThreshold = (s: Score) => s.cloud > 65 || s.precip > 2;
   const bestNowThreshold = (s: Score) => s.cloud < 45 && s.precip < 0.5;
 
-  // Mountain views destinations with best tomorrow AM cloud
-  const mountainViewDests = destinations.filter((d) => d.tripIntent === "mountain_views");
-  const bestViewItems = mountainViewDests
-    .map((d) => ({
-      d,
-      amCloud: tomorrowAMCloud(d.data.hourly),
-      name: d.name,
-    }))
+  // AVOID
+  const avoidItems = scored.filter(avoidThreshold);
+
+  // BEST NOW — or fallback to relative-best when all conditions are poor
+  const qualifyingNow = scored
+    .filter((s) => bestNowThreshold(s) && !avoidThreshold(s))
+    .sort((a, b) => a.score - b.score)
+    .slice(0, 3);
+
+  const isRelativeFallback = qualifyingNow.length === 0;
+  const bestNowSelected = isRelativeFallback
+    ? [...scored].sort((a, b) => a.score - b.score).slice(0, 2)
+    : qualifyingNow;
+
+  // BEST VIEW — tomorrow AM mountain views
+  const bestViewItems = destinations
+    .filter((d) => d.tripIntent === "mountain_views")
+    .map((d) => ({ d, amCloud: tomorrowAMCloud(d.data.hourly) }))
     .filter((x) => x.amCloud < 55)
     .sort((a, b) => a.amCloud - b.amCloud)
     .slice(0, 3)
@@ -107,10 +115,22 @@ export function computeDecisionStrip(destinations: DestWeather[]): DecisionStrip
       reason: `Clear window: tomorrow morning · ${x.amCloud.toFixed(0)}% cloud`,
     }));
 
+  // Build usedIds now that all "above watch" items are known
+  const usedIds = new Set([
+    ...avoidItems.map((s) => s.id),
+    ...bestNowSelected.map((s) => s.id),
+    ...bestViewItems.map((x) => x.destinationId),
+  ]);
+
+  // WATCH — everything not already placed
+  const watchItems = scored
+    .filter((s) => !usedIds.has(s.id))
+    .sort((a, b) => a.score - b.score)
+    .slice(0, 4);
+
+  // Assemble pills
   const pills: DecisionStripPill[] = [];
 
-  // AVOID pill (only if threshold met)
-  const avoidItems = scored.filter(avoidThreshold);
   if (avoidItems.length > 0) {
     pills.push({
       category: "avoid",
@@ -123,57 +143,25 @@ export function computeDecisionStrip(destinations: DestWeather[]): DecisionStrip
     });
   }
 
-  // BEST NOW pill
-  const bestNowItems = scored
-    .filter((s) => bestNowThreshold(s) && !avoidThreshold(s))
-    .sort((a, b) => a.score - b.score)
-    .slice(0, 3);
+  pills.push({
+    category: "best_now",
+    label: isRelativeFallback ? "BEST AVAILABLE" : "BEST NOW",
+    items: bestNowSelected.map((s) => ({
+      destinationId: s.id,
+      name: s.name,
+      reason: isRelativeFallback ? `Relatively clearest · ${s.cloud.toFixed(0)}% cloud` : s.reason,
+    })),
+  });
 
-  if (bestNowItems.length > 0) {
-    pills.push({
-      category: "best_now",
-      label: "BEST NOW",
-      items: bestNowItems.map((s) => ({ destinationId: s.id, name: s.name, reason: s.reason })),
-    });
-  }
-
-  // BEST VIEW pill (tomorrow morning mountain views)
   if (bestViewItems.length > 0) {
-    pills.push({
-      category: "best_view",
-      label: "BEST VIEW",
-      items: bestViewItems,
-    });
+    pills.push({ category: "best_view", label: "BEST VIEW", items: bestViewItems });
   }
-
-  // WATCH pill (everything not in best or avoid)
-  const usedIds = new Set([
-    ...avoidItems.map((s) => s.id),
-    ...bestNowItems.map((s) => s.id),
-    ...bestViewItems.map((x) => x.destinationId),
-  ]);
-
-  const watchItems = scored
-    .filter((s) => !usedIds.has(s.id) || watchThreshold(s))
-    .filter((s) => !usedIds.has(s.id))
-    .sort((a, b) => a.score - b.score)
-    .slice(0, 4);
 
   if (watchItems.length > 0) {
     pills.push({
       category: "watch",
       label: "WATCH",
       items: watchItems.map((s) => ({ destinationId: s.id, name: s.name, reason: s.reason })),
-    });
-  }
-
-  // Ensure at least best_now and watch are present (fallback)
-  if (!pills.find((p) => p.category === "best_now")) {
-    const topTwo = scored.sort((a, b) => a.score - b.score).slice(0, 2);
-    pills.unshift({
-      category: "best_now",
-      label: "BEST NOW",
-      items: topTwo.map((s) => ({ destinationId: s.id, name: s.name, reason: s.reason })),
     });
   }
 

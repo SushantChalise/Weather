@@ -44,7 +44,9 @@ export function ClearWindowCard({ data }: Props) {
           <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wide">
             {DEST_NAMES[data.destinationId] ?? data.destinationId}
           </span>
-          <span className="text-sm font-semibold text-[var(--color-text-primary)]">Clear Window</span>
+          <span className="text-sm font-semibold text-[var(--color-text-primary)]">
+            Clear Window
+          </span>
         </div>
         <NptBadge />
       </div>

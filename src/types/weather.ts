@@ -265,6 +265,50 @@ export type SegmentCondition = {
   evidenceTier: EvidenceTier;
 };
 
+// v1.1 types
+
+export type LuklaFlightStatus = "open" | "marginal" | "closed";
+
+export type LuklaHourWindow = {
+  hour: string; // ISO
+  status: LuklaFlightStatus;
+  cloudLow: number; // 0-100%
+  windKmh: number;
+  visibilityKm: number;
+};
+
+export type LuklaFlightWindow = {
+  currentStatus: LuklaFlightStatus;
+  statusReason: string;
+  morningHours: LuklaHourWindow[]; // 06:00–12:00 NPT
+  cloudLow: number;
+  windKmh: number;
+  visibilityKm: number;
+  timestamp: string; // ISO
+};
+
+export type YesterdayActual = {
+  destinationId: DestinationId;
+  date: string; // YYYY-MM-DD
+  peakConditionLabel: string;
+  peakConditionIcon: string;
+  maxPrecipMm: number;
+  maxWindKmh: number;
+  minTempC: number;
+  maxTempC: number;
+  clearHoursAM: number; // hours 5–11 AM with cloud < 30%
+};
+
+export type SeasonalPattern = {
+  month: number; // 1-12
+  season: "pre-monsoon" | "monsoon" | "post-monsoon" | "winter";
+  seasonLabel: string;
+  morningClearChancePct: number;
+  afternoonRainChancePct: number;
+  typicalClearHour: string; // e.g. "before 10 AM"
+  flightRiskNote: string;
+};
+
 export type GuideBrief = {
   corridorId: CorridorId;
   generatedAt: string; // ISO NPT
