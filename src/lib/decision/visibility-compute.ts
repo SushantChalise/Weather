@@ -55,16 +55,19 @@ function peakStatus(score: number): "clear" | "partly" | "obscured" {
 }
 
 function tomorrowAMScore(hourly: OpenMeteoResponse["hourly"]): number {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  // Times are bare NPT strings — parse date/hour directly (no Date needed)
+  const NPT_OFFSET_MS = (5 * 60 + 45) * 60 * 1000;
+  const nowNPT = new Date(Date.now() + NPT_OFFSET_MS);
+  const tomorrowNPT = new Date(nowNPT.getTime() + 24 * 60 * 60 * 1000);
+  const tomorrowDateStr = tomorrowNPT.toISOString().slice(0, 10);
+
   let total = 0;
   let count = 0;
   for (let i = 0; i < hourly.time.length; i++) {
-    const t = new Date(hourly.time[i] ?? "");
-    const isTomorrow =
-      t.getUTCDate() === tomorrow.getUTCDate() && t.getUTCMonth() === tomorrow.getUTCMonth();
-    const nptHour = (t.getUTCHours() * 60 + t.getUTCMinutes() + 345) / 60;
-    if (isTomorrow && nptHour >= 5 && nptHour <= 9) {
+    const t = hourly.time[i] ?? "";
+    const dateStr = t.slice(0, 10);
+    const hour = parseInt(t.slice(11, 13), 10);
+    if (dateStr === tomorrowDateStr && hour >= 5 && hour <= 9) {
       const cloud = hourly.cloud_cover[i] ?? 50;
       const precip = hourly.precipitation[i] ?? 0;
       const wind = hourly.wind_speed_10m[i] ?? 0;
