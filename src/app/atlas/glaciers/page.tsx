@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Source_Serif_4 } from "next/font/google";
 import Link from "next/link";
+import type { GlacierMarker } from "@/components/atlas/glacier-map";
+import { GlacierMap } from "@/components/atlas/glacier-map";
 import type { CitationDataset } from "@/components/ui/citation-pill";
 import { CitationPill } from "@/components/ui/citation-pill";
 import { PLACE_REGISTRY } from "@/data/places";
@@ -42,6 +44,14 @@ export const metadata: Metadata = {
 
 const glaciers = Object.entries(PLACE_REGISTRY).filter(([, entry]) => entry.class === "glacier");
 
+const glacierMarkers: GlacierMarker[] = glaciers.map(([slug, entry]) => ({
+  slug,
+  name: entry.name,
+  lat: entry.lat,
+  lon: entry.lon,
+  alt: entry.alt,
+}));
+
 export default function GlacierAtlasPage() {
   return (
     <main className="min-h-screen bg-white">
@@ -58,6 +68,10 @@ export default function GlacierAtlasPage() {
           of climate change, and most are losing mass. This atlas tracks the ones we have data for;
           more are added as ICIMOD and Hugonnet&nbsp;2021 ingestion comes online.
         </p>
+
+        <GlacierMap glaciers={glacierMarkers} />
+
+        <h2 className="font-medium text-lg text-neutral-900 mt-12 mb-4">Documented glaciers</h2>
 
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
           {glaciers.map(([slug, entry]) => (
