@@ -1,0 +1,11 @@
+{
+  "slug": "icimod-mb-preliminary",
+  "name": "ICIMOD/Hugonnet Preliminary Mass Balance (placeholder)",
+  "license": "CC BY 4.0 (Hugonnet 2021)",
+  "citation": "Hugonnet, R. et al. (2021). Accelerated global glacier mass loss in the early twenty-first century. Nature 592, 726–731.",
+  "source_url": "https://doi.org/10.1038/s41586-021-03436-0",
+  "spatial_res": "per glacier",
+  "temporal_res": "annual",
+  "schedule": "manual",
+  "scrape": { "type": "placeholder", "auth": "none" }
+}
