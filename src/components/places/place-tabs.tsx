@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import type { DestinationId } from "@/types/weather";
+import { FutureTab } from "./tabs/future-tab";
+import { Last30YearsTab } from "./tabs/last-30-years-tab";
 import { NowTab } from "./tabs/now-tab";
 import { NowVsNormalTab } from "./tabs/now-vs-normal-tab";
-import { Last30YearsTab } from "./tabs/last-30-years-tab";
-import { FutureTab } from "./tabs/future-tab";
 
 type Tab = "now" | "now-vs-normal" | "last-30-years" | "future";
 
@@ -55,9 +55,7 @@ export function PlaceTabs({ destinationId, lat, lon }: PlaceTabsProps) {
       </div>
 
       {/* Tab panels */}
-      {activeTab === "now" && (
-        <NowTab destinationId={destinationId} lat={lat} lon={lon} />
-      )}
+      {activeTab === "now" && <NowTab destinationId={destinationId} lat={lat} lon={lon} />}
       {activeTab === "now-vs-normal" && <NowVsNormalTab />}
       {activeTab === "last-30-years" && <Last30YearsTab />}
       {activeTab === "future" && <FutureTab />}

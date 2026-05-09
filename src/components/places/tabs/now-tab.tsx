@@ -26,15 +26,7 @@ function minutesAgo(isoString: string): number {
   return Math.round((Date.now() - new Date(isoString).getTime()) / 60_000);
 }
 
-function StatCard({
-  label,
-  value,
-  unit,
-}: {
-  label: string;
-  value: string | number;
-  unit: string;
-}) {
+function StatCard({ label, value, unit }: { label: string; value: string | number; unit: string }) {
   return (
     <div className="rounded-lg bg-neutral-50 border border-neutral-100 px-4 py-3">
       <p className="text-xs text-neutral-500 mb-1">{label}</p>
@@ -72,9 +64,7 @@ export function NowTab({ destinationId, lat: _lat, lon: _lon }: NowTabProps) {
   if (error || !data) {
     return (
       <div className="px-4 py-6">
-        <p className="text-sm text-red-600">
-          Weather data unavailable — please try again shortly.
-        </p>
+        <p className="text-sm text-red-600">Weather data unavailable — please try again shortly.</p>
       </div>
     );
   }
@@ -109,22 +99,10 @@ export function NowTab({ destinationId, lat: _lat, lon: _lon }: NowTabProps) {
       {/* Stats grid */}
       <div className="grid grid-cols-2 gap-3">
         {condition.temperature !== null && (
-          <StatCard
-            label="Temperature"
-            value={condition.temperature.toFixed(1)}
-            unit="°C"
-          />
+          <StatCard label="Temperature" value={condition.temperature.toFixed(1)} unit="°C" />
         )}
-        <StatCard
-          label="Cloud cover"
-          value={condition.cloud}
-          unit="%"
-        />
-        <StatCard
-          label="Precipitation"
-          value={condition.precipitation.toFixed(1)}
-          unit="mm/h"
-        />
+        <StatCard label="Cloud cover" value={condition.cloud} unit="%" />
+        <StatCard label="Precipitation" value={condition.precipitation.toFixed(1)} unit="mm/h" />
         <div className="rounded-lg bg-neutral-50 border border-neutral-100 px-4 py-3">
           <p className="text-xs text-neutral-500 mb-1">Confidence</p>
           <p className="text-sm font-medium text-neutral-700 capitalize">{condition.confidence}</p>
