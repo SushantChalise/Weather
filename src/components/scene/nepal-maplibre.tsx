@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Layer, Map as MapGL, Marker, Source } from "react-map-gl/maplibre";
 import useSWR from "swr";
 import { useHimawari } from "@/hooks/use-himawari";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Feature, LineString } from "geojson";
-import type maplibregl from "maplibre-gl";
 import type { StyleSpecification } from "maplibre-gl";
 import type { MapRef } from "react-map-gl/maplibre";
+import type { HimawariManifest } from "@/app/api/himawari/route";
 import { ABC_WAYPOINTS } from "@/data/corridors/abc";
 import { EBC_WAYPOINTS } from "@/data/corridors/ebc";
 import { DESTINATIONS } from "@/data/destinations";
@@ -65,8 +65,26 @@ function gibsDate(): string {
   return now.toISOString().slice(0, 10);
 }
 
-function buildMapStyle(): StyleSpecification {
+function buildMapStyle(himawari: HimawariManifest | null): StyleSpecification {
   const date = gibsDate();
+  const cloudSource: StyleSpecification["sources"][string] = himawari
+    ? {
+        type: "raster",
+        tiles: [`${himawari.tileBaseUrl}/${himawari.tileTemplate}`],
+        tileSize: 256,
+        maxzoom: himawari.maxZoom,
+        attribution: "JAXA · Himawari-9 B13",
+      }
+    : {
+        type: "raster",
+        tiles: [
+          `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${date}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`,
+        ],
+        tileSize: 256,
+        maxzoom: 9,
+        attribution: "NASA GIBS · MODIS Terra",
+      };
+
   return {
     version: 8,
     sources: {
@@ -85,18 +103,7 @@ function buildMapStyle(): StyleSpecification {
         ],
         tileSize: 256,
       },
-      // MODIS Terra CorrectedReflectance (TrueColor) — clouds appear white naturally.
-      // At 0.5 opacity: clear areas show crisp ESRI terrain, cloudy areas look hazy/white.
-      // Level9 = max zoom 9; JPEG format.
-      "modis-cloud": {
-        type: "raster",
-        tiles: [
-          `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${date}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`,
-        ],
-        tileSize: 256,
-        maxzoom: 9,
-        attribution: "NASA GIBS · MODIS Terra",
-      },
+      "cloud-overlay": cloudSource,
     },
     layers: [
       { id: "esri-imagery", type: "raster", source: "esri-imagery" },
@@ -107,9 +114,9 @@ function buildMapStyle(): StyleSpecification {
         paint: { "raster-opacity": 0.85 },
       },
       {
-        id: "modis-cloud",
+        id: "cloud-overlay",
         type: "raster",
-        source: "modis-cloud",
+        source: "cloud-overlay",
         paint: { "raster-opacity": 0.55 },
       },
     ],
@@ -223,36 +230,26 @@ export function NepalMapLibre({ liveConditions }: Props) {
       .filter((f): f is NonNullable<typeof f> => f !== null),
   };
 
-  // MODIS cloud overlay shown only on Clouds layer
-  const modisOpacity = activeLayer === "clouds" ? 0.55 : 0;
+  // cloud-overlay opacity: visible only on Clouds layer
+  const cloudOpacity = activeLayer === "clouds" ? 0.55 : 0;
 
-  // Update MODIS cloud overlay opacity when layer changes
+  // Keep cloud-overlay opacity in sync imperatively — avoids a full style rebuild
+  // when the layer toggle changes.
   useEffect(() => {
     const map = mapRef.current?.getMap();
     if (!map) return;
     try {
-      map.setPaintProperty("modis-cloud", "raster-opacity", modisOpacity);
+      map.setPaintProperty("cloud-overlay", "raster-opacity", cloudOpacity);
     } catch {
-      // Layer not yet initialised — MapGL will apply the style value on load
+      // Layer not yet initialised — style value applies on next load
     }
-  }, [modisOpacity]);
+  }, [cloudOpacity]);
 
-  // Swap cloud tile source when Himawari manifest arrives
+  // Build the MapLibre style once per Himawari manifest update. Passing the
+  // manifest into buildMapStyle means the cloud source URL is correct from
+  // first load and doesn't revert to MODIS on re-renders.
   const { manifest: himawariManifest } = useHimawari();
-  useEffect(() => {
-    if (!himawariManifest || activeLayer !== "clouds") return;
-    const map = mapRef.current?.getMap();
-    if (!map) return;
-    try {
-      const { tileBaseUrl, tileTemplate } = himawariManifest;
-      // Build a MapLibre tile URL — handle both {z}/{y}/{x} (GIBS/WMTS) and {z}/{x}/{y} (XYZ)
-      const tileUrl = `${tileBaseUrl}/${tileTemplate}`;
-      const src = map.getSource("modis-cloud") as maplibregl.RasterTileSource | undefined;
-      if (src && "setTiles" in src) src.setTiles([tileUrl]);
-    } catch {
-      // Source not loaded yet — the initial buildMapStyle URL is fine
-    }
-  }, [himawariManifest, activeLayer]);
+  const mapStyle = useMemo(() => buildMapStyle(himawariManifest), [himawariManifest]);
 
   // Animate pitch when tilt mode toggles
   useEffect(() => {
@@ -272,7 +269,7 @@ export function NepalMapLibre({ liveConditions }: Props) {
     <div className="w-full h-full">
       <MapGL
         ref={mapRef}
-        mapStyle={buildMapStyle()}
+        mapStyle={mapStyle}
         onError={(e) => {
           // AbortError is expected — MapLibre cancels in-flight tile fetches when
           // tiles leave the viewport. Not a real error; suppress to keep console clean.
