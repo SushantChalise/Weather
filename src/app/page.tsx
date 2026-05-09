@@ -5,7 +5,7 @@ import { DestinationInsightPanel } from "@/components/decision/destination-insig
 import { LiveComparisonDrawer } from "@/components/decision/live-comparison-drawer";
 import { LiveCorridorCards } from "@/components/decision/live-corridor-cards";
 import { LiveDecisionStrip } from "@/components/decision/live-decision-strip";
-import { ReplaySummaryCard } from "@/components/decision/replay-summary";
+import { LiveReplaySummaryCard } from "@/components/decision/live-replay-summary";
 import { SeasonalPatternCard } from "@/components/decision/seasonal-pattern-card";
 import { SelectionClearWindow } from "@/components/decision/selection-clear-window";
 import { IdleDetector } from "@/components/scene/idle-detector";
@@ -23,7 +23,7 @@ import { MOCK_CORRIDOR_CARDS } from "@/data/mock/corridor-cards";
 import { MOCK_REPLAY_SUMMARIES } from "@/data/mock/replay-summaries";
 
 export default function Home() {
-  const abcReplay = MOCK_REPLAY_SUMMARIES.find((s) => s.scopeId === "abc");
+  const abcReplayFallback = MOCK_REPLAY_SUMMARIES.find((s) => s.scopeId === "abc");
 
   return (
     <div className="flex flex-col h-screen bg-[var(--color-bg)] overflow-hidden">
@@ -67,7 +67,9 @@ export default function Home() {
             <LiveActionButtons />
             <SelectionClearWindow />
             <SeasonalPatternCard />
-            {abcReplay && <ReplaySummaryCard data={abcReplay} />}
+            {abcReplayFallback && (
+              <LiveReplaySummaryCard scopeId="abc" fallback={abcReplayFallback} />
+            )}
           </div>
         </aside>
       </div>
@@ -78,7 +80,7 @@ export default function Home() {
         <LiveActionButtons />
         <SelectionClearWindow />
         <SeasonalPatternCard />
-        {abcReplay && <ReplaySummaryCard data={abcReplay} />}
+        {abcReplayFallback && <LiveReplaySummaryCard scopeId="abc" fallback={abcReplayFallback} />}
       </div>
 
       <LiveComparisonDrawer fallback={MOCK_COMPARISON_DATA} />
