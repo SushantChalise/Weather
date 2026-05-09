@@ -152,6 +152,93 @@ function RouteLine({
   );
 }
 
+// ── overlay layer components ─────────────────────────────────────────────────
+// Defined outside the main component so TSX never sees the expression arrays.
+
+function RainLayer() {
+  return (
+    <Layer
+      id="rain-overlay"
+      type="circle"
+      paint={{
+        "circle-color": [
+          "interpolate",
+          ["linear"],
+          ["get", "precipitation"],
+          0,
+          "rgba(74,139,196,0)",
+          0.5,
+          "rgba(74,139,196,0.4)",
+          5,
+          "rgba(74,139,196,0.75)",
+          15,
+          "rgba(30,80,160,0.9)",
+        ],
+        "circle-radius": [
+          "interpolate",
+          ["linear"],
+          ["get", "precipitation"],
+          0,
+          8,
+          0.5,
+          22,
+          5,
+          48,
+          15,
+          80,
+        ],
+        "circle-blur": 0.6,
+        "circle-stroke-width": 0,
+      }}
+    />
+  );
+}
+
+function SnowLayer() {
+  return (
+    <Layer
+      id="snow-overlay"
+      type="circle"
+      filter={["==", ["get", "isHighAlt"], true]}
+      paint={{
+        "circle-color": "rgba(126,200,227,0.5)",
+        "circle-radius": 42,
+        "circle-blur": 0.65,
+        "circle-stroke-color": "rgba(126,200,227,0.9)",
+        "circle-stroke-width": 2,
+      }}
+    />
+  );
+}
+
+function TempLayer() {
+  return (
+    <Layer
+      id="temp-overlay"
+      type="circle"
+      paint={{
+        "circle-color": [
+          "interpolate",
+          ["linear"],
+          ["get", "temperature"],
+          -5,
+          "rgba(100,149,237,0.8)",
+          5,
+          "rgba(70,130,180,0.75)",
+          15,
+          "rgba(200,200,100,0.65)",
+          25,
+          "rgba(220,100,60,0.75)",
+          35,
+          "rgba(180,40,40,0.8)",
+        ],
+        "circle-radius": 36,
+        "circle-blur": 0.5,
+      }}
+    />
+  );
+}
+
 type Props = { liveConditions?: DestinationCondition[] | null };
 
 const TOPDOWN_PITCH = 0;
@@ -182,9 +269,46 @@ export function NepalMapLibre({ liveConditions }: Props) {
     ? (cards.find((c) => c.corridorId === "ebc")?.tomorrowAMCloud ?? 80)
     : (cards.find((c) => c.corridorId === "ebc")?.currentCloud ?? 80);
 
-  const condByDest = new globalThis.Map(
-    (liveConditions ?? MOCK_DESTINATION_CONDITIONS).map((c) => [c.destinationId, c]),
-  );
+  const activeLayer = useWorldStore((s) => s.activeLayer);
+  const conditions = liveConditions ?? MOCK_DESTINATION_CONDITIONS;
+  const condByDest = new globalThis.Map(conditions.map((c) => [c.destinationId, c]));
+
+  // Build GeoJSON for data-driven overlay layers (rain / snow / temperature)
+  const overlayGeoJSON = {
+    type: "FeatureCollection" as const,
+    features: conditions
+      .map((c) => {
+        const dest = DESTINATIONS.find((d) => d.id === c.destinationId);
+        if (!dest) return null;
+        return {
+          type: "Feature" as const,
+          properties: {
+            precipitation: c.precipitation,
+            cloud: c.cloud,
+            temperature: c.temperature ?? 15,
+            altitude: dest.altitude,
+            isHighAlt: dest.altitude > 3500,
+          },
+          geometry: { type: "Point" as const, coordinates: [dest.lon, dest.lat] },
+        };
+      })
+      .filter((f): f is NonNullable<typeof f> => f !== null),
+  };
+
+  // MODIS cloud overlay shown only on Clouds layer
+  const modisOpacity = activeLayer === "clouds" ? 0.55 : 0;
+
+  // Update MODIS cloud overlay opacity when layer changes
+  useEffect(() => {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    // setPaintProperty may fire before the layer is loaded; guard with try/catch
+    try {
+      map.setPaintProperty("modis-cloud", "raster-opacity", modisOpacity);
+    } catch {
+      // Layer not yet initialised — MapGL will apply the style value on load
+    }
+  }, [modisOpacity]);
 
   // Animate pitch when tilt mode toggles
   useEffect(() => {
@@ -227,6 +351,13 @@ export function NepalMapLibre({ liveConditions }: Props) {
       >
         <RouteLine id="abc-route" waypoints={ABC_WAYPOINTS} color={cloudToColor(abcCloud)} />
         <RouteLine id="ebc-route" waypoints={EBC_WAYPOINTS} color={cloudToColor(ebcCloud)} />
+
+        {/* Data-driven overlay layers — shown instead of MODIS on non-cloud layers */}
+        <Source id="weather-points" type="geojson" data={overlayGeoJSON}>
+          {activeLayer === "rain" && <RainLayer />}
+          {activeLayer === "snow" && <SnowLayer />}
+          {activeLayer === "temperature" && <TempLayer />}
+        </Source>
 
         {DESTINATIONS.map((dest) => {
           const cond = condByDest.get(dest.id);

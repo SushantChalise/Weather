@@ -13,6 +13,9 @@ export const MOCK_DESTINATION_CONDITIONS: DestinationCondition[] = [
     confidence: "observed",
     evidenceTier: "observed-satellite",
     timestamp: ts,
+    cloud: 10,
+    precipitation: 0,
+    temperature: 18,
   },
   {
     destinationId: "chitwan",
@@ -23,6 +26,9 @@ export const MOCK_DESTINATION_CONDITIONS: DestinationCondition[] = [
     confidence: "observed",
     evidenceTier: "observed-satellite",
     timestamp: ts,
+    cloud: 15,
+    precipitation: 0,
+    temperature: 28,
   },
   {
     destinationId: "ebc",
@@ -33,6 +39,9 @@ export const MOCK_DESTINATION_CONDITIONS: DestinationCondition[] = [
     confidence: "observed",
     evidenceTier: "observed-satellite",
     timestamp: ts,
+    cloud: 40,
+    precipitation: 0,
+    temperature: 2,
   },
   {
     destinationId: "poon-hill",
@@ -43,6 +52,9 @@ export const MOCK_DESTINATION_CONDITIONS: DestinationCondition[] = [
     confidence: "forecast",
     evidenceTier: "forecast-model",
     timestamp: ts,
+    cloud: 35,
+    precipitation: 0,
+    temperature: 8,
   },
   {
     destinationId: "abc",
@@ -53,6 +65,9 @@ export const MOCK_DESTINATION_CONDITIONS: DestinationCondition[] = [
     confidence: "forecast",
     evidenceTier: "forecast-model",
     timestamp: ts,
+    cloud: 90,
+    precipitation: 3.5,
+    temperature: 5,
   },
   {
     destinationId: "langtang",
@@ -63,6 +78,9 @@ export const MOCK_DESTINATION_CONDITIONS: DestinationCondition[] = [
     confidence: "forecast",
     evidenceTier: "forecast-model",
     timestamp: ts,
+    cloud: 85,
+    precipitation: 1.2,
+    temperature: 4,
   },
   {
     destinationId: "kathmandu",
@@ -73,6 +91,9 @@ export const MOCK_DESTINATION_CONDITIONS: DestinationCondition[] = [
     confidence: "observed",
     evidenceTier: "observed-satellite",
     timestamp: ts,
+    cloud: 75,
+    precipitation: 0,
+    temperature: 22,
   },
   {
     destinationId: "pokhara",
@@ -83,5 +104,8 @@ export const MOCK_DESTINATION_CONDITIONS: DestinationCondition[] = [
     confidence: "observed",
     evidenceTier: "observed-satellite",
     timestamp: ts,
+    cloud: 95,
+    precipitation: 5.8,
+    temperature: 20,
   },
 ];

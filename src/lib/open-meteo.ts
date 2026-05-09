@@ -153,5 +153,8 @@ export function conditionFromHourly(
     confidence,
     evidenceTier,
     timestamp: fetchedAt,
+    cloud: Math.round(cloud),
+    precipitation: parseFloat(precip.toFixed(1)),
+    temperature: temp !== null ? parseFloat(temp.toFixed(1)) : null,
   };
 }

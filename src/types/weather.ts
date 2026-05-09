@@ -148,6 +148,10 @@ export type DestinationCondition = {
   confidence: ConfidenceLevel;
   evidenceTier: EvidenceTier;
   timestamp: string; // ISO with +05:45
+  // Numeric values for map layer rendering
+  cloud: number; // 0–100
+  precipitation: number; // mm/h
+  temperature: number | null; // °C, null if unavailable
 };
 
 export type ClearWindowQuality = "best" | "good" | "watch" | "cloudy" | "poor";
