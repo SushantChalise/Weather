@@ -57,19 +57,19 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-himawari-pip-${{ hashFiles('scripts/requirements-himawari.txt') }}
+          key: ${{ runner.os }}-himawari-pip-${{ hashFiles('scripts/ingestion/himawari/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-himawari-pip-
 
       - name: Install Python dependencies
         if: steps.freshness.outputs.skip != 'true'
-        run: pip install -r scripts/requirements-himawari.txt
+        run: pip install -r scripts/ingestion/himawari/requirements.txt
 
       - name: Generate Himawari tiles (Python)
         if: steps.freshness.outputs.skip != 'true'
         env:
           AWS_DEFAULT_REGION: us-east-1
-        run: python scripts/himawari_pipeline.py
+        run: python scripts/ingestion/himawari/pipeline.py
 
       # ── Node.js: upload via @vercel/blob SDK ───────────────────────────────
       - name: Install Node dependencies
@@ -80,7 +80,7 @@ jobs:
         if: steps.freshness.outputs.skip != 'true'
         env:
           BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
-        run: node scripts/himawari_upload.mjs
+        run: node scripts/ingestion/himawari/upload.mjs
 
       - name: Summary
         if: always()
