@@ -8,7 +8,7 @@
  */
 
 import { readFileSync, readdirSync, statSync } from "fs";
-import { join } from "path";
+import { join, relative } from "path";
 import { put } from "@vercel/blob";
 
 const OUTPUT_DIR = "./himawari-output";
@@ -36,7 +36,9 @@ let uploaded = 0;
 
 for (const tilePath of tiles) {
   // Convert local path to blob pathname: himawari/{ts}/{z}/{x}/{y}.png
-  const rel = tilePath.replace(`${tileDir}/`, "").replace(/\\/g, "/");
+  // path.relative() normalises both sides so the ./prefix discrepancy from
+  // path.join stripping "./" never causes a missed replacement.
+  const rel = relative(tileDir, tilePath).replace(/\\/g, "/");
   const blobPathname = `himawari/${timestamp}/${rel}`;
 
   const data = readFileSync(tilePath);
