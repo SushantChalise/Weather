@@ -227,7 +227,17 @@ These are inherited from v1 — they continue to drive the trekker decision stri
 | `--color-good` | `#6B9E6B` | Sage green — "Good" recommendation |
 | `--color-watch` | `#8B8B8B` | Grey — "Watch" pill, uncertain |
 | `--color-poor` | `#5B7FA5` | Steel blue — "Poor" condition |
-| `--color-avoid` | `#C45B4A` | Muted red — "Avoid" pill, hazard |
+| `--color-avoid` | `#A93C2C` | Deep red — "Avoid" pill, hazard. Distinctly darker than the warm-strong-anomaly red below. |
+
+**Resolving the Decision / Anomaly red collision:**
+
+Earlier drafts had Avoid (`#C45B4A`) and warm-strong-anomaly (`#C45B4A`) at the same hex. On a map showing trekker decisions overlaid on temperature anomalies, this read as ambiguous: was a red pixel a hazard or a 2σ deviation? Both LLM critics flagged this as a blocker.
+
+The resolution:
+- **Avoid is now a deeper red** (`#A93C2C`) — visibly different and only used in the trekker pillar, never on climate anomaly maps
+- **Warm-strong-anomaly stays at the lighter hex** (`#C45B4A`) — only used on anomaly visualisations
+- **Iconography is mandatory wherever Avoid red appears** — a hazard glyph next to the colour, never colour alone
+- **The two palettes never coexist on the same surface.** Trekker decision strip and climate anomaly map are different page archetypes; they render on different routes; they cannot share a canvas.
 
 ### 5.4 Anomaly palette (new)
 
