@@ -18,7 +18,7 @@ export type CameraMode = "topdown" | "tilt";
 
 export type TimeMode = "now" | "tomorrow_am" | "afternoon" | "last_24h";
 
-export type LayerId = "clouds" | "rain" | "snow" | "current" | "temperature";
+export type LayerId = "clouds" | "snow" | "current";
 
 export type SeverityLevel = "best" | "good" | "watch" | "poor" | "avoid";
 

@@ -152,48 +152,6 @@ function RouteLine({
   );
 }
 
-// ── overlay layer components ─────────────────────────────────────────────────
-// Defined outside the main component so TSX never sees the expression arrays.
-
-function RainLayer() {
-  return (
-    <Layer
-      id="rain-overlay"
-      type="circle"
-      paint={{
-        "circle-color": [
-          "interpolate",
-          ["linear"],
-          ["get", "precipitation"],
-          0,
-          "rgba(74,139,196,0)",
-          0.5,
-          "rgba(74,139,196,0.4)",
-          5,
-          "rgba(74,139,196,0.75)",
-          15,
-          "rgba(30,80,160,0.9)",
-        ],
-        "circle-radius": [
-          "interpolate",
-          ["linear"],
-          ["get", "precipitation"],
-          0,
-          8,
-          0.5,
-          22,
-          5,
-          48,
-          15,
-          80,
-        ],
-        "circle-blur": 0.6,
-        "circle-stroke-width": 0,
-      }}
-    />
-  );
-}
-
 function SnowLayer() {
   return (
     <Layer
@@ -206,34 +164,6 @@ function SnowLayer() {
         "circle-blur": 0.65,
         "circle-stroke-color": "rgba(126,200,227,0.9)",
         "circle-stroke-width": 2,
-      }}
-    />
-  );
-}
-
-function TempLayer() {
-  return (
-    <Layer
-      id="temp-overlay"
-      type="circle"
-      paint={{
-        "circle-color": [
-          "interpolate",
-          ["linear"],
-          ["get", "temperature"],
-          -5,
-          "rgba(100,149,237,0.8)",
-          5,
-          "rgba(70,130,180,0.75)",
-          15,
-          "rgba(200,200,100,0.65)",
-          25,
-          "rgba(220,100,60,0.75)",
-          35,
-          "rgba(180,40,40,0.8)",
-        ],
-        "circle-radius": 36,
-        "circle-blur": 0.5,
       }}
     />
   );
@@ -273,7 +203,7 @@ export function NepalMapLibre({ liveConditions }: Props) {
   const conditions = liveConditions ?? MOCK_DESTINATION_CONDITIONS;
   const condByDest = new globalThis.Map(conditions.map((c) => [c.destinationId, c]));
 
-  // Build GeoJSON for data-driven overlay layers (rain / snow / temperature)
+  // GeoJSON for the Snow overlay — only needs altitude flag
   const overlayGeoJSON = {
     type: "FeatureCollection" as const,
     features: conditions
@@ -282,13 +212,7 @@ export function NepalMapLibre({ liveConditions }: Props) {
         if (!dest) return null;
         return {
           type: "Feature" as const,
-          properties: {
-            precipitation: c.precipitation,
-            cloud: c.cloud,
-            temperature: c.temperature ?? 15,
-            altitude: dest.altitude,
-            isHighAlt: dest.altitude > 3500,
-          },
+          properties: { isHighAlt: dest.altitude > 3500 },
           geometry: { type: "Point" as const, coordinates: [dest.lon, dest.lat] },
         };
       })
@@ -354,9 +278,7 @@ export function NepalMapLibre({ liveConditions }: Props) {
 
         {/* Data-driven overlay layers — shown instead of MODIS on non-cloud layers */}
         <Source id="weather-points" type="geojson" data={overlayGeoJSON}>
-          {activeLayer === "rain" && <RainLayer />}
           {activeLayer === "snow" && <SnowLayer />}
-          {activeLayer === "temperature" && <TempLayer />}
         </Source>
 
         {DESTINATIONS.map((dest) => {
