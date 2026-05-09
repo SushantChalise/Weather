@@ -1,21 +1,21 @@
 import { NextResponse } from "next/server";
 
-export const revalidate = 120; // 2 min — pipeline runs every 30 min
+export const revalidate = 120; // 2 min
 
 export type HimawariManifest = {
   satellite: string;
   band: string;
-  capturedAt: string; // ISO UTC
-  processedAt: string; // ISO UTC
+  capturedAt: string;
+  processedAt: string;
   ageMinutes: number;
   tileBaseUrl: string;
-  tileTemplate: string; // "{z}/{x}/{y}.png"
+  tileTemplate: string;
   minZoom: number;
   maxZoom: number;
-  bbox: [number, number, number, number]; // [west, south, east, north]
+  bbox: [number, number, number, number];
 };
 
-// Fallback: MODIS Terra today (always available, ~60-90 min lag after 06:00 UTC)
+// Fallback: today's MODIS Terra from GIBS (always available after 06:00 UTC)
 function modisManifest(): HimawariManifest & { source: "modis-fallback" } {
   const now = new Date();
   const useToday = now.getUTCHours() >= 6;
@@ -31,8 +31,9 @@ function modisManifest(): HimawariManifest & { source: "modis-fallback" } {
     capturedAt,
     processedAt: `${date}T06:30:00Z`,
     ageMinutes,
-    tileBaseUrl: `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${date}/GoogleMapsCompatible_Level9`,
-    tileTemplate: "{z}/{y}/{x}.jpg", // GIBS uses {y}/{x} order
+    tileBaseUrl:
+      `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${date}/GoogleMapsCompatible_Level9`,
+    tileTemplate: "{z}/{y}/{x}.jpg",
     minZoom: 1,
     maxZoom: 9,
     bbox: [78, 23, 92, 33],
@@ -41,31 +42,33 @@ function modisManifest(): HimawariManifest & { source: "modis-fallback" } {
 }
 
 export async function GET() {
-  // Try to fetch the Himawari manifest from Vercel Blob
-  const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+  // Vercel Blob public files are at {storeId}.public.blob.vercel-storage.com
+  // The storeId is embedded in the token (4th segment when split by "_")
+  const token = process.env.BLOB_READ_WRITE_TOKEN;
+  const storeId = token?.split("_")[3];
 
-  if (blobToken) {
+  if (storeId) {
     try {
-      const res = await fetch("https://blob.vercel-storage.com/himawari/manifest.json", {
-        headers: { Authorization: `Bearer ${blobToken}` },
-        next: { revalidate: 120 },
-      });
+      const manifestUrl =
+        `https://${storeId}.public.blob.vercel-storage.com/himawari/manifest.json`;
+      const res = await fetch(manifestUrl, { next: { revalidate: 120 } });
 
       if (res.ok) {
         const manifest = (await res.json()) as HimawariManifest;
-        // If manifest is > 90 min old, also return MODIS as fallback info
+        const ageMinutes = Math.floor(
+          (Date.now() - new Date(manifest.capturedAt).getTime()) / 60_000,
+        );
         return NextResponse.json({
-          himawari: manifest,
-          isStale: manifest.ageMinutes > 45,
+          himawari: { ...manifest, ageMinutes },
+          isStale: ageMinutes > 45,
           source: "himawari-9",
         });
       }
     } catch {
-      // Blob not configured or unavailable — fall through to MODIS
+      // Blob store not seeded yet — fall through to MODIS
     }
   }
 
-  // No Himawari tiles yet — return MODIS as the active cloud source
   return NextResponse.json({
     himawari: modisManifest(),
     isStale: true,

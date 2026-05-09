@@ -65,7 +65,9 @@ BT_DEEP  = 240   # below → fully opaque white (deep convective cloud)
 
 # Vercel Blob REST API
 BLOB_TOKEN = os.environ.get("BLOB_READ_WRITE_TOKEN", "")
-BLOB_API   = "https://blob.vercel-storage.com"
+# Correct Vercel Blob REST API endpoint (from SDK source):
+# PUT https://vercel.com/api/blob/?pathname={path}
+BLOB_API   = "https://vercel.com/api/blob"
 
 
 # ── S3 helpers ────────────────────────────────────────────────────────────────
@@ -251,16 +253,25 @@ def generate_tiles(rgba: np.ndarray, out_dir: Path) -> list[tuple]:
 # ── Vercel Blob upload ────────────────────────────────────────────────────────
 
 def _blob_put(path: str, data: bytes, ctype: str) -> str:
+    """
+    Upload bytes to Vercel Blob via the REST API.
+    URL format: PUT https://vercel.com/api/blob/?pathname={path}
+    Access and overwrite go in headers, not the URL.
+    """
+    params = {"pathname": path}
     resp = requests.put(
-        f"{BLOB_API}/{path}",
+        f"{BLOB_API}/",
+        params=params,
         data=data,
         headers={
             "Authorization": f"Bearer {BLOB_TOKEN}",
             "Content-Type": ctype,
             "x-api-version": "7",
+            "x-vercel-blob-access": "public",
+            "x-add-random-suffix": "0",
             "x-allow-overwrite": "1",
         },
-        timeout=30,
+        timeout=60,
     )
     if not resp.ok:
         print(f"  Blob PUT {path!r} → {resp.status_code}: {resp.text[:500]}")

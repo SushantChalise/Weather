@@ -55,11 +55,10 @@ jobs:
 
           token = os.environ["BLOB_READ_WRITE_TOKEN"]
           try:
-              r = requests.get(
-                  "https://blob.vercel-storage.com/himawari/manifest.json",
-                  headers={"Authorization": f"Bearer {token}"},
-                  timeout=10,
-              )
+              # Public blobs are at {storeId}.public.blob.vercel-storage.com — no auth needed
+              store_id = token.split("_")[3] if len(token.split("_")) > 3 else ""
+              url = f"https://{store_id}.public.blob.vercel-storage.com/himawari/manifest.json"
+              r = requests.get(url, timeout=10)
               if r.status_code == 200:
                   m = r.json()
                   age = m.get("ageMinutes", 9999)
