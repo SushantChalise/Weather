@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { BottomSheet } from "@/components/controls/bottom-sheet";
 import { LayerToggles } from "@/components/controls/layer-toggles";
 import { TimeControl } from "@/components/controls/time-control";
@@ -34,6 +35,12 @@ export default function Home() {
           <span className="sm:hidden">Nepal Weather</span>
         </h1>
         <div className="flex items-center gap-3">
+          <Link
+            href="/places/ebc"
+            className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors px-2 py-1 rounded"
+          >
+            Places
+          </Link>
           <NptClock />
           <button
             type="button"
