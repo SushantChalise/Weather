@@ -120,7 +120,7 @@ function summariseDay(
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ scopeId: string }> }) {
   const { scopeId } = await params;
-  const scope = SCOPE_COORDS[scopeId] ?? SCOPE_COORDS["abc"];
+  const scope = SCOPE_COORDS[scopeId] ?? SCOPE_COORDS.abc;
   if (!scope) return NextResponse.json({ error: "Unknown scope" }, { status: 404 });
 
   const dates = [daysAgoUTC(1), daysAgoUTC(2), daysAgoUTC(3)];

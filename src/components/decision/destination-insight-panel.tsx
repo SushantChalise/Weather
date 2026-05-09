@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import useSWR from "swr";
 import { LuklaFlightCard } from "@/components/decision/lukla-flight-card";
 import { VisibilityCard } from "@/components/decision/visibility-card";
@@ -141,8 +142,14 @@ function EvidenceSnapshotGrid({ summary }: { summary: ReplaySummary }) {
             className="flex flex-col rounded border border-[var(--color-border)] overflow-hidden"
           >
             {snap.thumbUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={snap.thumbUrl} alt={snap.label} className="w-full h-12 object-cover" />
+              <Image
+                src={snap.thumbUrl}
+                alt={snap.label}
+                width={256}
+                height={48}
+                className="w-full h-12 object-cover"
+                unoptimized
+              />
             ) : (
               <div className="h-12 bg-[var(--color-surface-alt)] flex items-center justify-center text-xl">
                 {snap.quality === "best" ? "🌄" : snap.quality === "worst" ? "🌧" : "⛅"}

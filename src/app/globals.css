@@ -18,6 +18,9 @@
   --color-cloud: #B8B8B8;
   --color-sunrise: #E8A84C;
 
+  /* Accent — primary CTA, matches BEST NOW gold */
+  --color-accent: #B8862E;
+
   /* Neutral palette */
   --color-bg: #FAFAF8;
   --color-surface: #FFFFFF;
