@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { Layer, Map as MapGL, Marker, Source } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Feature, LineString } from "geojson";
@@ -11,6 +12,19 @@ import { MOCK_DESTINATION_CONDITIONS } from "@/data/mock/destination-conditions"
 import { NEPAL_CENTER } from "@/data/nepal-bbox";
 import { useSelectionStore } from "@/state/selectionStore";
 import type { CorridorId, DestinationCondition, HaloColor } from "@/types/weather";
+
+// MapLibre throws AbortError as an unhandled Promise rejection when it cancels
+// in-flight tile fetches (normal behaviour on pan/zoom). Suppress it globally
+// so Next.js DevTools doesn't report it as an error.
+function useSupressMapLibreAbortErrors() {
+  useEffect(() => {
+    const handler = (e: PromiseRejectionEvent) => {
+      if (e.reason?.name === "AbortError") e.preventDefault();
+    };
+    window.addEventListener("unhandledrejection", handler);
+    return () => window.removeEventListener("unhandledrejection", handler);
+  }, []);
+}
 
 const HALO_COLORS: Record<HaloColor, string> = {
   gold: "#D4A843",
@@ -122,6 +136,7 @@ function RouteLine({
 type Props = { liveConditions?: DestinationCondition[] | null };
 
 export function NepalMapLibre({ liveConditions }: Props) {
+  useSupressMapLibreAbortErrors();
   const { set } = useSelectionStore();
   const condByDest = new globalThis.Map(
     (liveConditions ?? MOCK_DESTINATION_CONDITIONS).map((c) => [c.destinationId, c]),
@@ -131,6 +146,12 @@ export function NepalMapLibre({ liveConditions }: Props) {
     <div className="w-full h-full">
       <MapGL
         mapStyle={buildMapStyle()}
+        onError={(e) => {
+          // AbortError is expected — MapLibre cancels in-flight tile fetches when
+          // tiles leave the viewport. Not a real error; suppress to keep console clean.
+          if (e.error?.name === "AbortError") return;
+          console.error("MapLibre error:", e.error);
+        }}
         initialViewState={{
           longitude: NEPAL_CENTER.lon,
           latitude: NEPAL_CENTER.lat,
