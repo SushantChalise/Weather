@@ -140,27 +140,38 @@ Neither requires expertise. Both get a real answer to a real question. That's th
 
 These are the rules we hold ourselves to. They are extracted from the audit above. Every PR review checks against them.
 
+The earlier draft had 11 principles; both LLM critics flagged that several collapsed into each other (calm / restraint / beauty-functional were really one cluster about visual discipline). This revision collapses to a tighter set and adds three operational principles that were missing.
+
 > **3.1 Place-first, not data-first.** Users meet datasets through places (Khumbu, Kathmandu, Kanchenjunga), never through dataset names (ERA5, CMIP6, MOD10A1). The data infrastructure is plumbing; the place is the destination.
 
-> **3.2 Source-attributed, no exceptions.** Every chart, every number, every map layer carries a clickable source pill. The pill opens a modal with dataset name, version, license, citation, and methodology link. If we can't attribute it, we don't ship it.
+> **3.2 Source-attributed, container-level.** Every chart, table, and map layer carries a clickable source pill at the container level — not on every number. The pill opens a modal with dataset name, version, license, citation, and methodology link. If we can't attribute it, we don't ship it. (See §9.1 for granularity rules.)
 
-> **3.3 Honest about uncertainty.** Confidence bands on every projection. Plain-language disclaimers when grid resolution is finer than the data. Uncertainty is a first-class UI element, not a footnote. Never a single line for a CMIP6 projection — always model spread.
+> **3.3 Operational honesty.** Be honest about three things: **uncertainty** (confidence bands on every projection, plain-language resolution disclaimers), **freshness** (visible staleness when data is older than expected), and **gaps** (missing data rendered as a break in the line, never smoothed over). Climate data is incomplete; the design must tell the truth about that.
 
-> **3.4 Narrative-bound.** Charts live inside place stories, not free-floating dashboards. The Himalaya makes sense as places that are changing, not as graphs.
+> **3.4 Comparative utility.** Every visible value should answer "compared to what?" A temperature is a number; a temperature compared to the 30-year baseline is a story. Default presentation is comparative. Raw values are an opt-in.
 
-> **3.5 Mobile-first, low-bandwidth-aware.** Trekkers carry phones, not laptops. Many of our users are on 2G–3G, intermittent. Every chart must work at 375px wide and load under 2s on simulated 3G. The product must degrade gracefully, not break.
+> **3.5 Narrative-bound, with a researcher's escape hatch.** Default presentation is place-bound storytelling: charts live inside place pages or featured stories. But researchers need free-floating analytical surfaces too — the Visualisation archetype (§8.4) provides this. The two coexist; we don't force a researcher to read narrative copy to get a chart.
 
-> **3.6 Calm.** No flashing, no urgency-bait, no countdown timers, no pop-ups, no ads, no tracking pixels. The Himalaya doesn't shout; we don't shout.
+> **3.6 Mobile-first, low-bandwidth-aware.** Trekkers carry phones, not laptops. Many of our users are on 2G–3G, intermittent. Every chart must work at 375px wide and load under 2s on simulated 3G. The product must degrade gracefully, not break.
 
-> **3.7 Restraint over ornament.** When in doubt, remove. A chart with one less line is a better chart. A page with one less component is a better page.
+> **3.7 Calm restraint.** Visual and tonal discipline as a single principle: no flashing, no urgency-bait, no countdown timers, no pop-ups, no ads, no tracking pixels, no decorative ornamentation. When in doubt, remove. A chart with one less line is a better chart. The Himalaya doesn't shout; we don't shout.
 
 > **3.8 Cartographic sensibility.** Maps and charts inherit from cartography (NACIS, Swiss style, ColorBrewer) — not from dashboard tools. Hillshade, contour, topology, elevation tints are first-class. We are an atlas.
 
-> **3.9 Editorial weight without editorial dependence.** Match the typography and density of National Geographic, NYT graphics, OurWorldInData. Don't depend on having an editorial staff.
+> **3.9 Editorial weight without editorial dependence.** Match the typography and density of National Geographic, NYT graphics, OurWorldInData. Don't depend on having an editorial staff. *Operational note:* match means "the chart is screenshot-ready and self-contained," not "we publish weekly articles."
 
 > **3.10 Speak two languages.** The product reads at two depths. A trekker glancing at a place page sees a single answer in 2 seconds. A researcher exploring the same page can drill 5 layers deep without leaving it. One surface, not two products.
 
-> **3.11 Beauty is functional.** Beautiful design isn't decoration on top of useful — it earns trust, encourages exploration, and gets the work shared. Beauty is part of the value proposition.
+> **3.11 Scope discipline.** What we will not build is as design-relevant as what we will. The "don't" list (§17) and the explicit non-goals in PRODUCT.md §13 are part of the design system. A new feature that doesn't fit either gets deferred or rejected, not merged.
+
+### Acknowledged tensions
+
+The principles do not all coexist comfortably. Pretending they do is the path to inconsistency. Two tensions matter:
+
+| Tension | Resolution |
+|---|---|
+| **§3.5 narrative-bound vs §3.10 two languages** | Narrative is the default surface; the Visualisation archetype is the explicit escape hatch for researchers. Both exist; neither is hidden. |
+| **§3.6 mobile-first vs §3.9 editorial weight** | Mobile gets decision-density (single answer, source pill, secondary detail collapsed). Desktop gets editorial density (the same content with breathing room and side-context). Same content, different breakpoint expressions. |
 
 ---
 
