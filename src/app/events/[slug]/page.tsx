@@ -14,10 +14,15 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: EventPageProps): Promise<Metadata> {
   const { slug } = await params;
   const event = HISTORICAL_EVENTS.find((e) => e.slug === slug);
-  if (!event) return {};
+  if (!event) return { title: "Event Not Found — Himalayan Atlas" };
+  const title = `${event.name} — Himalayan Atlas`;
+  const description =
+    event.summary.length > 160 ? `${event.summary.slice(0, 157)}...` : event.summary;
   return {
-    title: `${event.name} — Himalayan Atlas`,
-    description: event.summary,
+    title,
+    description,
+    openGraph: { title, description, type: "website" },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
