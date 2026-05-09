@@ -1,11 +1,18 @@
 "use client";
 
-import { useSatellite } from "@/hooks/use-satellite";
+import { useHimawari } from "@/hooks/use-himawari";
 
 export function StaleSatelliteBanner() {
-  const { isStale, ageMinutes } = useSatellite();
+  const { manifest, isStale, source } = useHimawari();
 
-  if (!isStale) return null;
+  if (!isStale || !manifest) return null;
+
+  const ageMinutes = manifest.ageMinutes;
+  const satelliteName = source === "himawari-9" ? "Himawari-9" : "MODIS Terra";
+  const updateNote =
+    source === "himawari-9"
+      ? "Updating every 30 min."
+      : "Daily overpass — next update after 06:30 UTC.";
 
   return (
     <div
@@ -15,8 +22,8 @@ export function StaleSatelliteBanner() {
     >
       <span aria-hidden="true">⚠</span>
       <span>
-        Satellite view is <strong>{ageMinutes} min old</strong> — forecast model used instead.
-        Updating every 30 min.
+        {satelliteName} view is <strong>{ageMinutes} min old</strong> — forecast model used instead.{" "}
+        {updateNote}
       </span>
     </div>
   );

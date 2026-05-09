@@ -1,0 +1,95 @@
+name: Himawari-9 Cloud Tile Pipeline
+
+on:
+  schedule:
+    # Every 30 minutes — Himawari updates every 10 min, 30 min is sufficient
+    # and keeps well inside GitHub Actions free-tier (2,000 min/month)
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Force reprocess even if recent tile exists"
+        type: boolean
+        default: false
+
+jobs:
+  process:
+    name: Download → Reproject → Tile → Upload
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── Python environment ──────────────────────────────────────────────
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-himawari-pip-${{ hashFiles('scripts/requirements-himawari.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-himawari-pip-
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements-himawari.txt
+
+      # ── Skip if already fresh (< 25 min old) unless forced ─────────────
+      - name: Check manifest freshness
+        id: freshness
+        if: ${{ !inputs.force }}
+        env:
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+        run: |
+          python - <<'EOF'
+          import os, requests, json
+          from datetime import datetime, timezone
+
+          token = os.environ["BLOB_READ_WRITE_TOKEN"]
+          try:
+              r = requests.get(
+                  "https://blob.vercel-storage.com/himawari/manifest.json",
+                  headers={"Authorization": f"Bearer {token}"},
+                  timeout=10,
+              )
+              if r.status_code == 200:
+                  m = r.json()
+                  age = m.get("ageMinutes", 9999)
+                  processed = m.get("processedAt", "")
+                  if processed:
+                      from datetime import timedelta
+                      proc = datetime.fromisoformat(processed.replace("Z", "+00:00"))
+                      mins_since = (datetime.now(timezone.utc) - proc).total_seconds() / 60
+                      if mins_since < 25:
+                          print(f"Manifest is {mins_since:.0f} min old — skipping")
+                          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+                              f.write("skip=true\n")
+                          raise SystemExit(0)
+          except SystemExit:
+              raise
+          except Exception as e:
+              print(f"Freshness check failed ({e}) — proceeding")
+          EOF
+
+      # ── Run pipeline ────────────────────────────────────────────────────
+      - name: Run Himawari pipeline
+        if: steps.freshness.outputs.skip != 'true'
+        env:
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+          # AWS credentials not needed — bucket is public
+          AWS_DEFAULT_REGION: us-east-1
+        run: python scripts/himawari_pipeline.py
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ "${{ steps.freshness.outputs.skip }}" = "true" ]; then
+            echo "⏭️  Skipped — manifest is fresh"
+          else
+            echo "✅  Pipeline complete"
+          fi

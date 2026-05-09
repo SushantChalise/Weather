@@ -3,8 +3,10 @@
 import { useEffect, useRef } from "react";
 import { Layer, Map as MapGL, Marker, Source } from "react-map-gl/maplibre";
 import useSWR from "swr";
+import { useHimawari } from "@/hooks/use-himawari";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Feature, LineString } from "geojson";
+import type maplibregl from "maplibre-gl";
 import type { StyleSpecification } from "maplibre-gl";
 import type { MapRef } from "react-map-gl/maplibre";
 import { ABC_WAYPOINTS } from "@/data/corridors/abc";
@@ -228,13 +230,29 @@ export function NepalMapLibre({ liveConditions }: Props) {
   useEffect(() => {
     const map = mapRef.current?.getMap();
     if (!map) return;
-    // setPaintProperty may fire before the layer is loaded; guard with try/catch
     try {
       map.setPaintProperty("modis-cloud", "raster-opacity", modisOpacity);
     } catch {
       // Layer not yet initialised — MapGL will apply the style value on load
     }
   }, [modisOpacity]);
+
+  // Swap cloud tile source when Himawari manifest arrives
+  const { manifest: himawariManifest } = useHimawari();
+  useEffect(() => {
+    if (!himawariManifest || activeLayer !== "clouds") return;
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    try {
+      const { tileBaseUrl, tileTemplate } = himawariManifest;
+      // Build a MapLibre tile URL — handle both {z}/{y}/{x} (GIBS/WMTS) and {z}/{x}/{y} (XYZ)
+      const tileUrl = `${tileBaseUrl}/${tileTemplate}`;
+      const src = map.getSource("modis-cloud") as maplibregl.RasterTileSource | undefined;
+      if (src && "setTiles" in src) src.setTiles([tileUrl]);
+    } catch {
+      // Source not loaded yet — the initial buildMapStyle URL is fine
+    }
+  }, [himawariManifest, activeLayer]);
 
   // Animate pitch when tilt mode toggles
   useEffect(() => {
