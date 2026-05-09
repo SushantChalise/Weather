@@ -1,5 +1,6 @@
 "use client";
 
+import { AnomalyBadge } from "@/components/ui/anomaly-badge";
 import { DataAgeBadge } from "@/components/ui/data-age-badge";
 import { NptBadge } from "@/components/ui/npt-badge";
 import { formatNPTTimeOnly } from "@/lib/npt/format-npt";
@@ -28,9 +29,11 @@ function amIcon(cloud: number): string {
   return "☁";
 }
 
-type Props = { data: CorridorCardData };
+type AnomalyData = { delta: number; normal: number };
 
-export function CorridorCard({ data }: Props) {
+type Props = { data: CorridorCardData; anomaly?: AnomalyData };
+
+export function CorridorCard({ data, anomaly }: Props) {
   const { set } = useSelectionStore();
   const timeMode = useWorldStore((s) => s.timeMode);
 
@@ -100,6 +103,13 @@ export function CorridorCard({ data }: Props) {
 
       {/* Condition */}
       <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{displayLabel}</p>
+
+      {/* Temperature anomaly */}
+      {anomaly !== undefined && (
+        <div className="mt-0.5">
+          <AnomalyBadge delta={anomaly.delta} />
+        </div>
+      )}
 
       {/* Clear window / AM summary */}
       <p className="mt-1 text-sm font-medium text-[var(--color-text-primary)]">{displayClear}</p>
