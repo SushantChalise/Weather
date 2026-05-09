@@ -1,626 +1,326 @@
-# Data Sources, Caching, Preprocessing, and Provenance
+# Data — Sources, Ingestion, Validation, Provenance
 
-Operational reality of the data layer. What we fetch, how we cache it, what breaks if we don't, and how every displayed value traces back to a source.
+Operational source-of-truth for everything in `obs.*`, `cryo.*`, `proj.*`, `events.*`, and `photos.*` schemas. What we ingest, how often, where it comes from, what license, what validates it, and what breaks if it disappears.
+
+If this conflicts with PRODUCT.md §6, PRODUCT.md wins on the *what*; this file wins on the *how*.
 
 ---
 
-## Sources — complete inventory
+## 1. Data principles
 
-| Purpose | Source | Resolution | Cadence | Access | License / cap |
+These are mandatory. PR review checks each.
+
+1. **Ingested, never live-fetched.** Every dataset lands in our database via a scraper. The frontend reads our database, never a third-party API at request time. (Exception: per-user real-time forecast lookups via Open-Meteo, capped and cached.)
+2. **Version-pinned with provenance.** Each row carries `source_dataset_id`, `source_version`, `ingested_at`, `license`, and `citation`. We can reproduce any chart from raw archives.
+3. **Validated before serve.** Every ingestion run validates schema, checks expected ranges, compares to last successful run, and refuses to overwrite if validation fails.
+4. **License-respected.** Every dataset has a license field in `datasets`. Display attribution per source's terms. Remove anything we cannot license cleanly.
+5. **Long-term durable.** Source URLs change, APIs deprecate, governments rotate keys. Our copy of the data does not. Cold archive copies of source data live in object storage under `archive/<dataset_slug>/<version>/`.
+
+---
+
+## 2. Source classes — the inventory
+
+13 classes, ordered by build sequence (see BUILD_PLAN.md).
+
+### A. ICIMOD Regional Data Service — the foundation
+
+**1,206 datasets cataloged** in `output/icimod-rds-all.json` and `output/icimod-rds-ranked.csv` (879 spatially overlap Nepal). The catalog was scraped via `scripts/scrape-icimod-rds.mjs`.
+
+**License posture:** majority CC BY 4.0 — usable with attribution. A handful are non-commercial. Per-dataset licenses live in `datasets.license`.
+
+**The 12 anchoring ICIMOD datasets:**
+
+| # | Dataset (slug) | Coverage | Update | License | Why it's gold |
 |---|---|---|---|---|---|
-| Cloud imagery (prototype) | RAMMB SLIDER → Himawari-9 | ~2km visible | 10 min | HTTP scrape | Free, attribution; URL scheme unstable |
-| Cloud imagery (production) | NOAA/JMA AWS Open Data → Himawari-9 | Band-dependent (0.5–2km) | 10 min full-disk | S3 `--no-sign-request` | Free, no auth, archive to 2015 |
-| Forecast (primary) | Open-Meteo (wraps ECMWF IFS + GFS + ICON) | ~11km (IFS), ~25km (GFS) | Hourly out to 7d | REST API | Free non-commercial; **10k req/day, 5k/hour, 600/min** |
-| Forecast (fallback) | NOAA GFS direct (NOMADS) | 0.25° (~28km) | 6-hourly runs | HTTP/GRIB download | Free, no rate limit, no auth |
-| Pressure-level cloud, geopotential | Open-Meteo (ECMWF pressure levels) | ~11km | Hourly | REST API | Same cap as above |
-| Precipitation history (NRT) | NASA IMERG (GPM) | 0.1° (~11km) | Half-hourly NRT, 4h latency | NASA Earthdata (free account) | Free, attribution |
-| Official weather warnings | DHM Nepal (dept. of hydrology/meteorology) | National / regional bulletins | As issued (poll every 15 min) | Public website scrape or RSS | Free, government data |
-| Visual terrain DEM | Copernicus GLO-30 | 30m | Static | AWS Open Data | Free, attribution |
-| Hydrology DEM (bare-earth) | FABDEM | 30m | Static | University of Bristol | **CC BY-NC-SA 4.0 — non-commercial only** |
-| Historical reanalysis (seasonal baselines) | ERA5 (via CDS API) | 0.25° (~28km) | Monthly climatology | Copernicus CDS (free account) | Free, attribution, Copernicus license |
-| Post-event snowline validation | Sentinel-2 L2A | 10m optical | 5-day revisit | Copernicus Browser / STAC | Free, attribution |
-| Sun position (sunrise/golden hour) | `suncalc` (npm) | Computed per lat/lon | Instant | Local compute | MIT |
+| 1 | `icimod-rikha-samba-mb` — Glacier mass balance, Hidden Valley / Mustang | 2011–present, annual | When ICIMOD publishes | CC BY 4.0 | Decade of direct in-situ measurement |
+| 2 | `icimod-yala-mb` — Glacier mass balance, Langtang | 2011–present, biannual | When published | CC BY 4.0 | Seasonal-split mass balance |
+| 3 | `icimod-decadal-glacier-changes-1990-2020` | 1990, 2000, 2010, 2020 snapshots | One-off | CC BY 4.0 | Time-lapse base for Glacier Atlas |
+| 4 | `icimod-glaciers-nepal-1980` | 1980 baseline | Static | CC BY 4.0 | The "before" picture |
+| 5 | `icimod-status-glaciers-hkh` | 2018 snapshot | Static | CC BY 4.0 | Pan-region inventory, citation-friendly |
+| 6 | `icimod-glacial-lakes-koshi-gandaki-karnali` + 3 sister inventories | Multi-year, multi-basin | Periodic | CC BY 4.0 | GLOF Watch List foundation |
+| 7 | `icimod-hydrosar-hydro30` — Surface water extent | Daily, 30m, 2022– | Daily | CC BY 4.0 with attribution | Monsoon-season flood mapping |
+| 8 | `icimod-hycos-aws-network` — Humla, Baitadi, Jumla, Chainpur, Dhankuta, Okhaldhunga, Korilla (Bhutan) | Hourly, multi-year | Real-time-ish | Mixed CC | Ground-truth point validation |
+| 9 | `icimod-yala-micromet-1/2/3` + `pluviometer-langshisha` + `pluviometer-morimoto` | Hourly, multi-year | Real-time-ish | CC BY 4.0 | Finest-grained alpine micrometeorology in Nepal |
+| 10 | `icimod-gorkha-2015-landslide-hazard` (8 sister datasets, 30m) | Static, 2015 event | One-off | CC BY 4.0 | Anchors Historical Event Archive |
+| 11 | `icimod-cmip6-south-asia` | 2015–2100 | When updated | Non-commercial (varies by model) | Saves months of GRIB / NetCDF wrangling |
+| 12 | `icimod-hi-sphy-mid-century-4.5` — Hydrology projections | Static | One-off | CC BY 4.0 | Rare downscaled HKH-specific hydrology |
 
-### Source selection rationale
+**Access pattern:** ICIMOD RDS datasets have stable landing pages (`https://rds.icimod.org/Home/DataDetail?metadataId=NNNN`) with downloadable assets. Our scraper reads metadata + downloads the asset, computes a content hash, and only re-runs the load if the hash changed.
 
-**Why Open-Meteo, not raw ECMWF/GFS?** Open-Meteo wraps the best available global models (ECMWF IFS 0.25°, GFS 0.25°, ICON 0.125°, MétéoFrance ARPEGE) behind a single free REST API with automatic model selection. We get ECMWF-class accuracy without managing GRIB downloads, format conversion, or model-run scheduling. The tradeoff: Open-Meteo's rate cap (10k/day) makes caching non-optional.
+### B. Long-term reanalysis — climate baseline backbone
 
-**Why GFS direct as fallback?** If Open-Meteo's cap is exhausted, NOAA's GFS NOMADS server has no rate limit. Resolution is coarser (0.25° vs Open-Meteo's best-of-breed blending) but sufficient for Watch/Avoid decisions. We never hit GFS in normal operation — it's the backstop.
+| Dataset (slug) | Variables | Resolution | Coverage | Cadence | Access | License |
+|---|---|---|---|---|---|---|
+| `era5-land` | t2m, tp, sf, sd, swh, geopotential, fl | 0.1° (~9km) | 1950–present, hourly | Monthly batch | Copernicus CDS API (free, registration) | Copernicus license |
+| `era5` | All ERA5-Land + ocean + upper-air | 0.25° | 1940–present, hourly | Monthly batch | Copernicus CDS API | Copernicus license |
+| `chirps-v2` | Daily precipitation, gauge-blended | 0.05° (~5km) | 1981–present | Daily | THREDDS / Google Earth Engine | CC BY 3.0 |
+| `terraclimate` | Temp, precip, water balance, monthly | ~4km | 1958–present, monthly | Monthly | Direct NetCDF / GEE | Open |
+| `cru-ts-v4` | T, precip, vapor pressure | 0.5° | 1901–present, monthly | Annual | UEA CRU portal | Open |
+| `merra2` | T, precip, wind, aerosol, hourly | 0.5° × 0.625° | 1980–present | Monthly | NASA GES DISC | Free |
+| `jra-3q` | All-variable Japanese reanalysis | 40km | 1947–present, 6-hourly | When released | JMA portal | Free with login |
+| `aphrodite` | Asian gauge-only precipitation | 0.25° | 1951–2015, daily | One-off | DIAS Japan | Free |
 
-**Why DHM?** Nepal's Department of Hydrology and Meteorology is the only authority that issues official weather warnings, flood bulletins, and road-closure notices for Nepal. The Decision Strip's "Avoid" pill requires an official-warning trigger — DHM is that trigger. No foreign model can substitute for local government alerts.
+**Why ERA5 + CHIRPS as the core:** ERA5 underestimates orographic precipitation in the Himalaya by 30–50% (Khadka et al. 2022). CHIRPS is gauge-blended and corrects this. We use ERA5 for temperature / wind / radiation / freezing level; CHIRPS for precipitation. State this honestly in source attribution.
 
-**Why ERA5?** Seasonal baselines ("is this October cloudier than average for ABC?") need multi-year climatology. Open-Meteo's historical endpoint covers recent years; ERA5 covers 1940–present at consistent quality. We pre-compute monthly normals per destination once, not per request.
+### C. Real-time satellite
 
-**Why IMERG, not just Open-Meteo precipitation?** IMERG is satellite-observed, half-hourly, globally consistent. Open-Meteo precipitation is model-forecast. For the "What changed in 72h?" primitive, observed precipitation is more trustworthy than hindcast. For forward-looking precipitation (route ribbons), Open-Meteo is better.
+| Dataset (slug) | What | Resolution | Cadence | Access | License |
+|---|---|---|---|---|---|
+| `himawari-9-b13` (existing) | Thermal IR cloud | ~2km | 10 min | AWS Open Data, no auth | Free |
+| `himawari-9-rgb` (planned) | True-colour day cloud | ~0.5–2km | 10 min | AWS Open Data | Free |
+| `gpm-imerg` | Precipitation | ~10km | 30 min, NRT | NASA GES DISC | Free |
+| `sentinel-1` | All-weather radar | 5–20m | ~6 day | Copernicus / AWS | Open |
+| `sentinel-2` | Optical | 10–60m | ~5 day | Copernicus / AWS | Open |
+| `sentinel-5p-tropomi` | NO₂ / SO₂ / CO / O₃ / aerosol | 7×3.5km | Daily | Copernicus / GEE | Open |
+| `firms-viirs` | Active fires | 375m | Sub-hourly | NASA FIRMS API | Free |
+| `firms-modis` | Active fires | 1km | Sub-hourly | NASA FIRMS API | Free |
+| `mod10a1` | MODIS Terra Snow Cover | 500m | Daily | NASA NSIDC | Free |
+| `myd10a1` | MODIS Aqua Snow Cover | 500m | Daily | NASA NSIDC | Free |
+| `mod11a1` | MODIS LST | 1km | Daily | NASA LP DAAC | Free |
+| `mod13q1` | MODIS NDVI/EVI | 250m | 16-day | NASA LP DAAC | Free |
 
-**Why Sentinel-2 is not critical path:** Snowline is computed from Open-Meteo geopotential (model). Sentinel-2 provides post-event optical validation ("was the snowline actually where we said it was?"). Valuable for calibration, not for real-time display.
+### D. Climate projections
 
----
+| Dataset (slug) | Variables | Resolution | Coverage | Access | License |
+|---|---|---|---|---|---|
+| `nex-gddp-cmip6` | T, precip, daily, bias-corrected | ~25km | 1950–2100 | NASA NEX, AWS Open Data | Free |
+| `cmip6-raw` | All CMIP6 variables | ~100km, varies | 2015–2100 | Pangeo / ESGF | Free |
+| `cordex-core-sa` | Dynamically downscaled | ~25km | 1950–2100 | ESGF, IITM Pune | Free |
+| `worldclim-future` | Bioclimatic | ~1km | 2021–2100, monthly | WorldClim portal | Free |
+| `ipcc-ar6-atlas` | Regional summaries | Coarse | Aggregated | IPCC Atlas | Free |
+| `icimod-cmip6-south-asia` | Regional CMIP6 | Regional | 2015–2100 | ICIMOD RDS | Non-commercial varies by model |
 
-## What Open-Meteo actually gives us (model transparency)
+**Pragmatic stack:** start with `icimod-cmip6-south-asia` (pre-processed) + `nex-gddp-cmip6` (NASA's bias-corrected daily downscaled). Always show 3 scenarios (SSP1-2.6 / 2-4.5 / 5-8.5) with model spread (p10 / p90 across models). Never a single line.
 
-Open-Meteo's `forecast` endpoint automatically selects the best-resolution model available:
+### E. Cryosphere — beyond ICIMOD
 
-| Model | Provider | Resolution | Runs | Notes |
+| Dataset (slug) | What | Coverage | Access | License |
 |---|---|---|---|---|
-| ECMWF IFS | ECMWF (European) | 0.25° / ~28km, 0.1° HRES | 00Z, 12Z | Gold standard for global NWP |
-| GFS | NOAA (US) | 0.25° / ~28km | 00Z, 06Z, 12Z, 18Z | Fastest update cycle |
-| ICON | DWD (German) | 0.125° / ~13km | 00Z, 06Z, 12Z, 18Z | Best raw resolution we get for free |
-| ARPEGE | MétéoFrance | 0.1° / ~11km (Europe focus) | 00Z, 06Z, 12Z, 18Z | Less relevant for Nepal |
+| `hugonnet-2021` | Glacier elevation change | 2000–2019, global | Theia / direct | CC BY 4.0 |
+| `brun-2017-hma` | HMA glacier mass balance | 2000–2016 | Direct download | CC BY 4.0 |
+| `farinotti-2019-thickness` | Global ice thickness | Static | WGMS | CC BY 4.0 |
+| `rgi-v7` | Glacier outlines | Static | NSIDC | CC BY 4.0 |
+| `glims` | Multi-snapshot outlines | Multi-decade | NSIDC | CC BY 4.0 |
+| `wgms-mb-bulletin` | Direct mass balance | 50+ years | WGMS portal | Free with attribution |
+| `avhrr-snow-pp` | Polar Pathfinder snow | 1981–present | NSIDC | Free |
+| `nasa-hma-snow-reanalysis` | Daily SWE, 90m | 1985–present | NASA | Free |
+| `amsr2-swe` | Microwave SWE | Daily | JAXA G-Portal | Free |
+| `grace-grace-fo` | Total water mass change | 2002–present, monthly | NASA / GFZ | Free |
 
-**Nepal-specific accuracy caveat:** All global models struggle with Himalayan terrain. A 28km grid cell averages across enormous altitude differences. The Pokhara valley floor (800m) and Annapurna I summit (8,091m) can fall in adjacent cells. This is why:
-- We use **pressure-level** data (not surface-level) for altitude-stratified cloud rendering
-- We calibrate snowline against the FABDEM bare-earth DEM, not model terrain
-- Confidence labels exist for a reason — "Forecast" is honest about model limitations
+**Killer dataset for snow line:** `nasa-hma-snow-reanalysis` is daily SWE at 90m back to 1985 — the highest-resolution long-record snow product for the region.
 
-**Parameters we fetch from Open-Meteo:**
+### F. Hydrology
 
-| Parameter | Used for |
+| Dataset (slug) | What | Access | License |
+|---|---|---|---|
+| `gldas` | Land data assimilation | NASA GES DISC | Free |
+| `glofas` | Global flood awareness | Copernicus | Free |
+| `pekel-jrc-gsw` | Global Surface Water | EC JRC, GEE | Open |
+| `hydrosheds` | River network, watersheds | WWF | CC BY |
+| `hydrolakes` | Global lake inventory | WWF | CC BY |
+| `nepal-dhm-stations` | Real-time + historical river levels | DHM portal (scrape) | Government data, attribution |
+
+### G. Air quality
+
+| Dataset (slug) | What | Access | License |
+|---|---|---|---|
+| `tropomi-no2` | Tropospheric NO₂ | Copernicus, GEE | Open |
+| `tropomi-aerosol` | Aerosol index, AOD | Copernicus, GEE | Open |
+| `modis-aod` | Aerosol optical depth | NASA LAADS | Free |
+| `firms-fires` (already in C) | Active fires | NASA FIRMS API | Free |
+| `openaq-stations` | Ground-station PM2.5 | OpenAQ API | CC BY 4.0 |
+| `cams-forecasts` | Aerosol + ozone forecasts | Copernicus ADS | Open |
+| `nepal-doe-aqi` | National AQI authority | Manual scrape | Government data |
+
+### H. Topography
+
+| Dataset (slug) | What | Resolution | Access |
+|---|---|---|---|
+| `fabdem` (existing) | Bare-earth DEM | 30m | Open data |
+| `glo-30` (existing) | Copernicus DEM | 30m | Free |
+| `nasadem` | Improved SRTM | 30m | NASA |
+| `aw3d30` | ALOS World 3D | 30m | JAXA |
+| `aster-gdem-v3` | ASTER global DEM | 30m | NASA |
+
+### I. Vegetation / land cover
+
+| Dataset (slug) | What | Access |
+|---|---|---|
+| `mod13q1` (in C) | MODIS NDVI/EVI | NASA |
+| `esa-worldcover` | 10m global land cover | Open |
+| `esa-cci-lc` | 300m, 1992–present | Open |
+| `hansen-gfc` | Global Forest Change | Direct |
+
+### J. Disasters / hazards
+
+| Dataset (slug) | What | Access |
+|---|---|---|
+| `usgs-eq-catalog` | Earthquakes | API |
+| `emsc-events` | Cross-validation | API |
+| `gdacs-alerts` | Global disaster alerts | RSS / API |
+| `em-dat` | Disaster losses 1900+ | Free with registration |
+
+### K. Photo archives
+
+Onboarded via dedicated scrapers + human curation (per the user's directive). Each photo gets a manifest entry with provenance, capture time, license, and source.
+
+| Source | Strategy |
 |---|---|
-| `cloud_cover`, `cloud_cover_low/mid/high` | Cloud shell alpha, Clear Window |
-| `precipitation`, `precipitation_probability` | Rain layer, route ribbons, Decision Strip |
-| `snowfall`, `snow_depth` | Snow layer |
-| `temperature_2m` | Temperature layer |
-| `wind_speed_10m`, `wind_direction_10m`, `wind_gusts_10m` | Wind overlay, severity threshold |
-| `cape` | Thunderstorm signal for severity |
-| `geopotential_height_500hPa/700hPa/850hPa` | Altitude-stratified cloud rendering, freezing level |
-| `freezing_level_height` | Route-aware snowline |
-| `weather_code` | Fallback condition icon |
+| `nasa-worldview-gibs` | API for satellite snapshots from 2000+ |
+| `usgs-earthexplorer` | Login + scraper for Landsat 1972+ |
+| `esa-heritage` | Login + scraper for early satellite |
+| `royal-geographical-society` | Manual curation, paid licensing for hero photos |
+| `mountain-heritage-trust` | Direct request, free with attribution |
+| `alpine-club-london` | Direct request |
+| `university-theses` | Open access |
+| `public-domain-expedition-photos` | Wikimedia Commons + national archives |
 
----
+### L. Population / exposure
 
-## DHM integration — official Nepal weather authority
-
-**Source:** Department of Hydrology and Meteorology, Government of Nepal (https://www.dhm.gov.np)
-
-**What DHM provides (free, public):**
-- Daily weather forecast bulletins (national + regional)
-- Severe weather warnings (heavy rainfall, thunderstorm, flood)
-- River flood bulletins (Narayani, Koshi basins)
-- Seasonal forecasts
-
-**Integration approach:**
-```
-src\lib\dhm\
-├── scrape-bulletin.ts     Poll DHM bulletin page every 15 min
-├── parse-warning.ts       Extract severity, region, validity period
-├── warning-types.ts       Typed warning structure
-└── dhm-region-map.ts      Map DHM regions → our destination/corridor IDs
-```
-
-**Warning structure:**
-```typescript
-type DHMWarning = {
-  id: string;
-  type: "heavy_rain" | "thunderstorm" | "flood" | "landslide" | "snowfall";
-  severity: "advisory" | "watch" | "warning";
-  regions: string[];
-  issuedAt: string;         // NPT
-  validUntil: string;       // NPT
-  text: string;             // original Nepali/English
-  affectedCorridors: Array<"abc" | "ebc">;
-  affectedDestinations: string[];
-};
-```
-
-**Why every 15 min, not every 5?** DHM bulletins update 2–4 times/day, with ad-hoc severe weather alerts. Polling every 15 min catches alerts within 15 min of issuance — fast enough for the "Avoid" pill, which is not life-safety infrastructure. Polling every 5 min wastes cycles and risks getting IP-blocked.
-
-**Graceful failure:** If DHM scrape fails, the Decision Strip still works — it just can't trigger the official-warning condition for "Avoid." The severity note changes to "Warning source unavailable."
-
----
-
-## Seasonal baselines (ERA5 pre-computed)
-
-Nepal's weather is dominated by the Asian monsoon. The product should contextualize current conditions against seasonal norms.
-
-**Pre-computed once (offline), stored as static JSON:**
-```
-public\data\seasonal\
-├── abc-monthly-normals.json
-├── ebc-monthly-normals.json
-├── pokhara-monthly-normals.json
-└── ...per destination
-```
-
-**Structure per destination:**
-```typescript
-type MonthlyNormal = {
-  month: number;              // 1–12
-  avgCloudCoverPercent: number;
-  avgPrecipitationMmDay: number;
-  avgTemperature2mC: number;
-  avgFreezingLevelM: number;
-  typicalClearWindowHours: number;
-  monsoonIntensity: "none" | "pre" | "active" | "post";
-};
-```
-
-**Source:** ERA5 monthly averages (1991–2020 climatology) for each destination's grid cell, fetched once via the Copernicus CDS API. This is a one-time data preparation task, not a runtime fetch.
-
-**How this surfaces in the product:**
-- Replay summary can say "cloudier than average for October" instead of just "cloudy"
-- Comparison Drawer can note "Mustang is typically drier than ABC in June" (monsoon shadow)
-- Guide Brief can include seasonal context: "ABC in early May: pre-monsoon, expect afternoon buildup"
-
----
-
-## Caching is a hard requirement
-
-Open-Meteo's 10k req/day cap is reached fast without caching. The whole Decision Intelligence Layer computes server-side, and results are edge-cached. The client hits our API, never the upstream sources directly.
-
-| Layer | Caching strategy | TTL | Why this TTL |
-|---|---|---|---|
-| Satellite frames | GitHub Actions cron → CDN; client never hits Himawari | — | Pipeline output |
-| Open-Meteo forecast | Next.js route handler cache | 1h | Model runs every 6h; 1h cache is fresh enough |
-| Open-Meteo historical | Next.js route handler cache | 24h | Historical data doesn't change |
-| GFS fallback | Next.js route handler cache | 6h | Only fetched if Open-Meteo cap exhausted |
-| NASA IMERG | Pre-fetched per corridor | 30 min | NRT has 4h latency; 30 min cache is fine |
-| DHM warnings | Server-side poll cache | 15 min | Bulletins update 2–4×/day |
-| Decision Strip | Edge-cached, server-computed | 10 min | Must feel responsive to weather changes |
-| Clear Window | Edge-cached per destination/viewpoint | 10 min | Same reasoning |
-| Comparison ranking | Edge-cached per trip-intent category | 10 min | Same |
-| Route Ribbon | Edge-cached per corridor + time mode | 10 min | Same |
-| Replay summary + evidence snapshots | Edge-cached | 30 min | 72h window shifts slowly |
-| Mountain Visibility Index | Edge-cached | 10 min | Cloud mask changes fast |
-| Regional snowline | Edge-cached | 30 min | Freezing level shifts slowly |
-| Guide Brief JSON | Edge-cached (`/api/brief/[corridor]`) | 10 min | Must be fresh at 6 AM guide check |
-| GLO-30 / FABDEM tiles | Static in CDN | Forever | Terrain doesn't change |
-| ERA5 seasonal normals | Static in CDN | Forever | Pre-computed climatology |
-
-**Request budget (worst-case daily):**
-
-| Source | Requests/day | Notes |
+| Dataset (slug) | What | Access |
 |---|---|---|
-| Open-Meteo forecast | ~600 | 7 destinations × 2 corridors × ~40 hourly refreshes + headroom |
-| Open-Meteo pressure levels | ~200 | 4 shells × ~50 refreshes |
-| Open-Meteo historical | ~50 | 72h queries, long TTL |
-| DHM | ~96 | 1 req / 15 min |
-| NASA IMERG | ~48 | Pre-fetched, 30 min TTL |
-| GFS fallback | 0 (unless cap hit) | Emergency only |
-| **Total** | **~994** | **Well under 10k/day cap** |
+| `worldpop-100m` | Population grid | Portal |
+| `ghs-pop` | Global Human Settlement | EC JRC |
+| `hot-osm-buildings` | Building footprints | HOT export |
+| `osm-overpass` | Trails, lodges, roads | API |
+| `nepal-cbs-census` | Demographics | CBS Nepal |
 
----
+### M. Tibet / China-side data
 
-## Decision Intelligence cadences
-
-| Primitive | Cadence | Source signals |
+| Dataset (slug) | What | Access |
 |---|---|---|
-| Decision Strip | 10 min | Latest satellite + Open-Meteo forecast + DHM warnings + severity rules |
-| Clear Window | 10 min | Forward 12h forecast + LoS + recent satellite + sunrise (suncalc) |
-| Comparison Drawer (per intent) | 10 min | Composite of all destination signals within intent category |
-| Route Ribbon (per time mode) | 10 min | Per-segment Open-Meteo + IMERG + regional snowline |
-| Replay summary | 30 min | 72h archive (regenerated when oldest frame ages out) |
-| Mountain Visibility | 10 min | Cloud mask along LoS + humidity + precip |
-| Confidence labels | Inline per response | Source freshness flags |
-| Regional snowline | 30 min | Open-Meteo geopotential per region |
-
-All decision intelligence primitives compute server-side. **Never client-side** — too expensive and burns API quota.
+| `tpdc-third-pole-env-db` | Tibetan plateau climate, glaciers | Beijing portal |
+| `nasa-hma-family` | Region-wide products (snow, glacier, climate) | NASA |
+| `jaxa-amsr2` | Microwave SWE | JAXA |
+| `cma-reanalysis` | Where accessible | CMA portal |
 
 ---
 
-## Severity thresholds for "Avoid"
+## 3. Per-dataset ingestion specs
 
-The Decision Strip uses "Avoid" only when at least one applies:
+Every dataset has a `manifest.json` at `scripts/ingestion/<slug>/manifest.json` with this minimum structure:
 
-| Trigger | Threshold | Source |
+```json
+{
+  "slug": "era5-land",
+  "name": "ERA5-Land",
+  "publisher": "Copernicus / ECMWF",
+  "license": "Copernicus license",
+  "license_url": "https://...",
+  "citation": "Hersbach et al. 2023, ERA5 monthly averaged data on single levels from 1940 to present, Copernicus Climate Change Service (C3S) Climate Data Store (CDS), DOI: 10.24381/cds.f17050d7",
+  "doi": "10.24381/cds.f17050d7",
+  "source_url": "https://cds.climate.copernicus.eu/...",
+  "download_pattern": "...",
+  "spatial_resolution": "0.1 degree (~9km)",
+  "temporal_resolution": "hourly",
+  "temporal_coverage": "1950-present",
+  "variables": ["t2m", "tp", "sf", "sd", "geopotential_height_500hPa", "freezing_level"],
+  "bbox": [60, 15, 105, 40],
+  "ingestion_cadence": "monthly",
+  "validation_rules": [
+    { "rule": "schema_match", "expected_columns": ["..."] },
+    { "rule": "value_range", "variable": "t2m", "min": -60, "max": 60, "unit": "C" }
+  ],
+  "load_pattern": "upsert",
+  "load_target": "obs_weather_daily",
+  "primary_key": ["time", "place_id", "variable", "source_id"]
+}
+```
+
+The manifest is the contract between the ingestion pipeline and the application. Changing it requires bumping `source_version` and re-running validation against historical data.
+
+---
+
+## 4. Validation strategy
+
+Each ingestion's `validate.py` runs four checks. Any failure short-circuits the workflow and preserves the last good copy.
+
+| Check | What it does |
+|---|---|
+| **Schema diff** | Compare current columns / types to manifest. Fail on drift. |
+| **Range bounds** | Per-variable min/max from manifest. Fail on values outside (e.g., t2m outside [-60, +60] C). |
+| **Diff vs last** | Compare value distribution to last successful run. Fail if > 50% of values changed unexpectedly (catches source corruption). |
+| **Freshness** | If source advertises a publication date, fail if our pull predates the advertised "should be available by". |
+
+Output: `validation_report.json` artifact uploaded by every workflow run.
+
+---
+
+## 5. Caching strategy
+
+| Cache layer | TTL | Purpose |
 |---|---|---|
-| Sustained precipitation | > 25 mm/h for ≥ 2 forecast hours | Open-Meteo |
-| Sustained wind | > 60 km/h (≈ Beaufort 8+) | Open-Meteo |
-| Official warning | DHM active bulletin (severity = "warning") | DHM scrape |
-| Flash flood risk | Computed score above threshold (Phase 2; always false in v1) | Placeholder |
-| Severe thunderstorm | CAPE > 2000 J/kg + cloud cover > 90% | Open-Meteo |
+| Postgres materialised views | refreshed on ingestion cron | Heavy aggregates (Now vs Normal, monthly climatology) |
+| Vercel ISR | 10 min — 24 h depending on route | Page-level cache |
+| Vercel Edge cache | varies | Geographic edge |
+| Browser cache (HTTP) | 1 h charts, 24 h static | Re-visit performance |
+| Service worker (future) | 1 day | Offline last-good place page |
 
-Anything below = "Watch", not "Avoid". The severity vocabulary matters — "Avoid Annapurna" must mean something.
-
----
-
-## Sunrise weighting in Clear Window
-
-`suncalc` computes sunrise / sunset / golden-hour times per destination lat/lon, returned in NPT.
-
-**Algorithm:**
-1. Compute hourly weather quality for next 12h
-2. For each hour, mark `isDaylight`, `isSunrise`, `isGoldenHour`
-3. Pre-dawn hours (`!isDaylight`) are dropped from window selection **unless** the destination has explicit pre-dawn value (Sarangkot, Poon Hill, Kala Patthar — for catching sunrise from a high vantage)
-4. The longest contiguous run of `good` or `best` daylight hours = `next` window
-5. UI renders the timeline with a sun icon at the sunrise hour
-
-A clear window at 2 AM is suppressed unless the destination's product specifically values it.
+**Cache invalidation**: ingestion runs that successfully load new data trigger an ISR purge for affected routes (via Vercel API). Materialised views are refreshed within the same workflow.
 
 ---
 
-## Confidence labels — the trust layer
+## 6. Failure modes per source
 
-### Source freshness thresholds
-
-| Source | Fresh | Caution | Stale |
-|---|---|---|---|
-| Himawari satellite | < 30 min | 30–45 min | **> 45 min → "Stale"** |
-| Open-Meteo forecast | within ±3h of model run | 3–6h | **> 6h → "Stale"** |
-| DHM warning | within validity period | — | **past validity → discarded** |
-| IMERG NRT | < 4h | 4–8h | > 8h |
-| FABDEM (static) | n/a | n/a | n/a |
-| Derived (LoS × cloud, snow type combos) | n/a | n/a | Always "Estimated" |
-
-**Card rule:** the displayed label is the **worst** among contributing signals. A card combining a fresh satellite frame with a stale model run shows "Low confidence" or "Stale", not "Observed".
-
-**Why so strict on satellite > 45 min:** mountain weather can shift faster than the next satellite frame arrives. A "Now" reading older than 45 minutes can mislead a user about a developing storm. Better to show "Stale" honestly than imply currency.
-
-### Confidence scoring (per-response)
-
-Each API response includes a confidence object:
-
-```typescript
-type ConfidenceBreakdown = {
-  overall: "observed" | "forecast" | "estimated" | "low" | "stale";
-  satellite: { age: number; status: "fresh" | "caution" | "stale" };
-  model: { age: number; status: "fresh" | "caution" | "stale" };
-  warning: { active: boolean; source: "dhm" | "none" };
-  derivedSignals: string[];
-  explanation: string;
-};
-```
-
-The explanation field is a one-line plain-language summary: *"Satellite 12 min ago · Model 2h old · No active warnings"*.
-
----
-
-## Satellite preprocessing pipeline
-
-GitHub Actions cron, every 10 minutes. Output is static texture files served from CDN.
-
-```
-src\lib\satellite-preprocess\
-├── fetch-himawari.ts         RAMMB (prototype) → AWS bucket (production)
-├── crop-nepal-bbox.ts        Crop full-disk to Nepal bbox + 100km buffer
-├── cloud-mask.ts             Band-difference cloud detection
-├── altitude-bin.ts           Combine with Open-Meteo pressure levels → 4 shells
-├── compress-ktx2.ts          GPU-friendly compressed textures
-├── evidence-snapshot.ts      Generate cropped thumbnails for replay summaries
-└── manifest.ts               Timestamps, bands, validity, freshness, provenance
-```
-
-**Output per cron run:**
-- 4 KTX2 textures (one per altitude shell)
-- 1 manifest JSON with NPT timestamp, source, validity, freshness, input sources hash
-- Atomic swap: write to `/satellite/staging/`, then move to `/satellite/current/`
-
-**Himawari band selection for Nepal:**
-
-| Band | Wavelength | Use |
+| Source | Common failure | Fallback |
 |---|---|---|
-| B03 (visible) | 0.64 µm | Cloud texture (daytime only) |
-| B08 (WV) | 6.2 µm | Upper-level moisture, high cloud detection |
-| B13 (IR) | 10.4 µm | Cloud-top temperature → altitude estimation (24h) |
-| B14 (IR) | 11.2 µm | Cloud detection (24h), difference with B13 for thin cirrus |
-| B16 (IR) | 13.3 µm | CO₂ absorption, complements cloud-top altitude |
+| **ICIMOD RDS** | Page redirect / metadata schema change | Validation fails, last good preserved, manifest updated manually |
+| **Copernicus CDS (ERA5)** | API maintenance windows | Workflow retries with backoff; if persistent, monthly schedule absorbs delay |
+| **NASA Earthdata** | Auth token expiry | Rotate token; re-run |
+| **Open-Meteo** | Rate limit | Falls back to cached forecast in Postgres (last hourly snapshot) |
+| **Vercel Blob** | Quota exceeded | Workflow fails loudly; archive cleanup script to free space |
+| **Himawari S3** | Bucket reorganisation (rare) | Manifest updated, scraper adapts |
+| **OpenAQ** | Station goes offline | Visible in source attribution UI ("station offline since X") |
 
-Daytime (B03 available): visible + IR composite. Nighttime: IR-only (B13/B14 difference + B08).
-
----
-
-## Replay archive (72h rolling)
-
-```
-\public\satellite\
-├── current\          (latest frame, 4 shells, manifest)
-├── archive\
-│   ├── 2026-05-08T04-50\
-│   ├── 2026-05-08T05-00\
-│   └── ...           (rolling 72h, 432 entries max)
-├── snapshots\
-│   ├── abc\
-│   │   ├── best.jpg          (lowest cloud-mask coverage in window)
-│   │   ├── worst.jpg         (highest cloud-mask coverage in window)
-│   │   ├── current.jpg       (most recent significant frame)
-│   │   └── labels.json       (timestamps + labels for the 3 above)
-│   ├── ebc\
-│   ├── pokhara\
-│   └── ...
-└── index.json
-```
+**Honest staleness > silent fallback**: the user always sees when data is degraded. This is part of the trust mechanism.
 
 ---
 
-## Evidence snapshot generation (deterministic)
+## 7. Storage cost projections
 
-> **Naming note (2026-05-08):** "Evidence" replaces the earlier "Proof" terminology across all docs and types. Satellite snapshots, model output, and rain history are *evidence* — they support a recommendation but do not constitute ground truth. Ground truth requires field observation (webcam, guide report, lodge photo, official observation). The Evidence Ledger tags every claim with its source tier.
+Rough estimates for the first year:
 
-Algorithm — runs every 30 min per scope:
+| Data class | Estimated size |
+|---|---|
+| ERA5 daily aggregates, 100 places, 30 years, 10 vars | ~10 MB (compact in Postgres after aggregation) |
+| ERA5 raw archive (cold) | ~50 GB across HKH crop, 1991–present |
+| CHIRPS daily, 100 places, 30 years | ~5 MB aggregated; ~20 GB raw cold |
+| CMIP6 NEX-GDDP summaries | ~20 MB summaries; ~100 GB raw cold |
+| MODIS Snow tiles | ~1 GB hot (rolling 30 days) |
+| Himawari tiles | ~100 MB hot (rolling 24 h) |
+| Glacier outlines (PostGIS) | ~50 MB |
+| Glacial lakes | ~5 MB |
+| Photos archive | ~500 MB (curated photos in Blob) |
+| Total Postgres hot | ~500 MB year 1 (within Neon free tier of 0.5 GB — we'll cross over by end of year 1, plan migration) |
+| Total Vercel Blob warm | ~5 GB year 1 |
+| Total cold object storage | ~200 GB year 1 (R2 free tier covers 10 GB; pay ~$3/month for the rest) |
 
-1. Iterate 72h archive, computing cloud-mask coverage % per frame for the scope's bbox
-2. **Best:** frame with **minimum** coverage
-3. **Worst:** frame with **maximum** coverage
-4. **Current:** most recent frame, label its quality based on its coverage value
-5. Crop preprocessed Himawari to scope bbox, resize to 320×240, JPEG quality 75
-6. Generate plain-language label: relative time + quality (`"Yesterday 6:30 AM · Clear"`)
-
-**Why deterministic matters:** the same input archive + scope must always produce the same 3 snapshots. Otherwise the evidence layer feels arbitrary, not systematic.
-
----
-
-## Evidence Ledger — data provenance chain
-
-Every API response carries a provenance manifest. This is the accountability mechanism.
-
-```typescript
-type EvidenceManifest = {
-  responseId: string;
-  computedAt: string;                   // NPT
-  sources: Array<{
-    id: string;                         // "himawari-b13", "openmeteo-forecast", "dhm-warning", etc.
-    fetchedAt: string;                  // NPT when we fetched it
-    sourceTimestamp: string;            // timestamp of the data itself
-    age: number;                        // seconds between sourceTimestamp and computedAt
-    status: "fresh" | "caution" | "stale";
-    url?: string;                       // original source URL (for debugging, not displayed)
-  }>;
-  decisions: Array<{
-    field: string;                      // "decisionStrip.bestNow", "clearWindow.next", etc.
-    derivedFrom: string[];              // source IDs that contributed
-    confidence: string;                 // the label applied
-  }>;
-};
-```
-
-**Where this lives:**
-- Every `/api/*` JSON response includes a `_evidence` field with the manifest
-- The satellite manifest.json includes input hashes so a snapshot can be traced to its source frame
-- The Guide Brief plaintext footer includes: `Updated: 06:10 NPT · Himawari 06:00 · ECMWF 03:00 · Confidence: medium`
-
-**Why this is lightweight, not a database:** The evidence manifest is generated per-response and served inline. No SQL tables, no append-only logs, no storage tiers. The CDN edge cache is the only "storage" — manifests expire with their parent responses. If we need historical auditing later, we add it then.
-
-**What this enables:**
-- A user can see exactly which sources informed their Decision Strip
-- A guide sharing a Brief can show the data was fresh at the time
-- We can detect and display when a stale source dragged down confidence
-- Debugging source failures is trivial — check the manifest
+Crossing Neon's free tier triggers a migration plan: either upgrade to paid Neon (~$19/mo for 10 GB) or migrate to Vercel Postgres / Supabase. The schema is portable; migration is a script.
 
 ---
 
-## Plain-language replay summary
+## 8. License compliance & attribution display
 
-```
-src\lib\replay\summarize.ts
-```
+Every data display surface — chart, number, map layer — must carry attribution per source's terms. The `<SourceAttributionPill>` component (described in ARCHITECTURE.md §10) is the implementation.
 
-**Inputs:**
-- 72h cloud archive (per scope bbox)
-- 72h IMERG precipitation aggregated per route segment
-- Open-Meteo historical winds, temperature, freezing level
-- Sunrise / sunset times from `suncalc` (NPT)
-- ERA5 seasonal normals for the current month (optional — enriches context)
+Per source:
 
-**Output:**
-```typescript
-type ReplaySummary = {
-  scopeId: string;
-  windowStart: string;     // NPT
-  windowEnd: string;
-  cloudBuildupPattern: string;
-  bestVisibilityWindow: string;
-  rainEvents: Array<{ segment?: string; intensity: "light" | "moderate" | "heavy"; count: number }>;
-  trendForecast: "improving" | "stable" | "worsening";
-  trendReasoning: string;
-  seasonalContext?: string;     // "Cloudier than average for early May"
-  evidenceSnapshots: Array<{ timestamp: string; thumbUrl: string; label: string; quality: "best" | "worst" | "current" }>;
-};
-```
+| License class | Display requirement |
+|---|---|
+| **CC BY 4.0** | "Source: <Publisher>, <Dataset>, <Year>." Click → modal with full citation + DOI + license link |
+| **Open / public domain** | "Source: <Publisher>, <Dataset>." |
+| **Copernicus license** | Full Copernicus attribution per their template |
+| **Non-commercial** | Clearly labelled; product is non-commercial; include the restriction in citation modal |
+| **Government data** | Per government terms (usually attribution + no claim of endorsement) |
+
+The `MethodologyPage` route (`/methodology/<dataset_slug>`) is a per-dataset citation page — the canonical citation home for journalists / Wikipedia editors.
 
 ---
 
-## Snow layer data assembly (route-aware)
+## 9. What this document deliberately does NOT do
 
-Per-region freezing level computation:
-
-| Signal | Source | Refresh |
-|---|---|---|
-| Precipitation type (rain vs snow) | Open-Meteo | Hourly |
-| Freezing level / 0°C isotherm altitude | Open-Meteo geopotential, queried per region | Hourly |
-| Terrain elevation | FABDEM (static) | Never |
-| Route segment altitudes | `src\data\corridors\*.ts` (static) | Never |
-| Seasonal baseline freezing level | ERA5 monthly normals (static) | Never |
-
-Regions defined in `src\data\regions.ts` (e.g. `annapurna_south`, `everest_khumbu`, `langtang`, `manaslu`, `dolpo_mustang`).
-
-The Snowline contour is rendered per-region: a polyline tracing the terrain altitude that equals each region's freezing-level altitude.
-
-The route's elevation profile is intersected by the corridor's regional snowline → label *"You cross the snowline at MBC"*.
-
-**Validation approach:** When Sentinel-2 passes over a corridor after a snowfall event, compare the observed snow-cover edge against our computed snowline from that day's Open-Meteo geopotential. This is a periodic calibration check, not a real-time input. Log discrepancies for model-bias correction.
-
----
-
-## NPT timezone enforcement
-
-All API responses emit ISO 8601 with `+05:45` offset. Server formats display strings using:
-
-```typescript
-const formatNPT = (iso: string): string =>
-  new Date(iso).toLocaleString("en-GB", {
-    timeZone: "Asia/Kathmandu",
-    hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short",
-  });
-```
-
-Client UI components always pass timestamps through this formatter. A small "NPT" indicator appears next to every visible time.
-
-The browser's local timezone is **never** used for display.
-
----
-
-## Low-bandwidth mode
-
-**Detection:**
-- `navigator.connection.effectiveType` returns `slow-2g` / `2g` / `3g` → engage
-- Initial document fetch > 3 seconds → engage
-- Manual toggle in settings → user override
-
-**Behavior:**
-- WebGL canvas paused; static rendered Nepal map served as a single PNG (~80KB, generated server-side from GLO-30)
-- Satellite textures not loaded
-- Replay 72h replaced by the text summary only — no scrubber, no thumbnails
-- Decision Strip + cards + Clear Window remain (text-only)
-- All animations paused
-- Total payload target: **< 130KB** (decision JSON + base map PNG)
-
-The decision must load in **under 2s on 2G**. The product is still useful even when the map can't render.
-
----
-
-## Idle animation pause
-
-`src\lib\performance\idle-monitor.ts`:
-
-- Tracks pointer / touch / keyboard / scroll events
-- After 30s of no input → `worldStore.idle = true`
-- R3F components subscribe to `idle` and pause animation frames (cloud drift, replay autoplay, wind particles)
-- User input flips `idle` back to `false`
-
-Justification: smartphones drain rapidly in cold; trekkers need the device for emergency communication and photos. WebGL animation is the largest GPU draw in this product.
-
----
-
-## Attribution requirements (visible to user)
-
-App footer:
-- Himawari-9 imagery: JMA / NOAA
-- Weather forecast: Open-Meteo (ECMWF, GFS, ICON)
-- Official warnings: Department of Hydrology and Meteorology, Nepal
-- Copernicus DEM: ESA / EU
-- FABDEM: University of Bristol (CC BY-NC-SA)
-- Precipitation: NASA GPM / IMERG
-- Climatology: ERA5 / Copernicus Climate Change Service
-- Sun calculations: `suncalc`
-
----
-
-## License path if commercialized
-
-FABDEM is **CC BY-NC-SA 4.0**. If the product ever monetizes:
-- Replace FABDEM with a bare-earth-corrected GLO-30 derivative we generate ourselves
-- The `TerrainSource` abstraction makes this a config swap, not a rewrite
-- Estimated effort: 1–2 days
-
-Until then, v1 is non-commercial.
-
----
-
-## Cost — this is a free product
-
-| Item | Cost | Notes |
-|---|---|---|
-| Vercel hosting | Free tier (hobby) | Sufficient for MVP traffic |
-| GitHub Actions (satellite cron) | Free tier (2,000 min/month) | 10-min cron × 6 runs/hour × 24h × 30d = 4,320 min → need optimization or paid tier |
-| Open-Meteo | Free | 10k/day cap, non-commercial |
-| NOAA GFS | Free | No limits |
-| NASA IMERG | Free | Earthdata account required |
-| DHM | Free | Public government data |
-| ERA5 (CDS) | Free | One-time bulk download for normals |
-| Copernicus GLO-30 | Free | One-time download |
-| FABDEM | Free non-commercial | One-time download |
-| Sentinel-2 | Free | Periodic validation only |
-| Himawari AWS bucket | Free | `--no-sign-request` S3 |
-
-**Total operational cost: $0/month** at MVP scale (Vercel free tier + free data sources). GitHub Actions minutes are the only potential constraint — optimize satellite pipeline to run in under 2 min per invocation, or batch to every 20 min instead of every 10 min during low-traffic hours.
-
-**Scaling note:** If traffic exceeds Vercel's free tier (100GB bandwidth/month), move to Vercel Pro ($20/month) or self-host on a €5/month Hetzner VPS. The architecture doesn't assume cloud infrastructure — it's a Next.js app with static satellite assets and edge-cached API routes.
-
----
-
-## Failure modes and fallbacks
-
-| Failure | Detection | Fallback | User-visible |
-|---|---|---|---|
-| RAMMB tile timeout (prototype) | HTTP 5xx / timeout | Last-cached frame | "Stale" badge |
-| AWS Himawari bucket error | S3 error / empty response | Last-cached frame | "Stale" badge |
-| Open-Meteo cap exhausted | HTTP 429 | GFS direct fallback (coarser) + warning | "Forecast source: GFS (lower resolution)" footer |
-| Open-Meteo 5xx | HTTP 5xx | 1h-cached response + GFS fallback | "Forecast may be delayed" footer |
-| DHM scrape fails | Timeout / parse error | Omit official-warning trigger from Decision Strip | "Warning source unavailable" note |
-| GitHub Actions cron skipped | Missing manifest timestamp | Last-good manifest, extend staleness | Older NPT timestamp |
-| Single Himawari band missing | Missing file in fetch | Other bands work; affected layer disabled | Toggle disabled with reason |
-| FABDEM tile corrupt | Checksum mismatch | GLO-30 fallback (lower fidelity, canopy included) | None |
-| IMERG NRT delayed | Data age > 8h | Open-Meteo precipitation fills gap | Replay summary notes source swap |
-| Decision Strip computation fails | Exception in compute | Last-good Decision Strip from cache | Older NPT timestamp on strip |
-| Clear Window pattern detection fails | No pattern found in data | Falls back to "next 12h timeline" without pattern claim | Confidence drops to "Low" |
-| Evidence snapshot generation fails | Exception or empty archive | Replay shows summary text only, no thumbs | None — graceful degradation |
-| Stale satellite > 45 min | Manifest timestamp check | Continues showing last frame, downgrades label | **Visible warning, not silent** |
-| Slow connection detected | Network API + timing heuristic | Auto-engage Low-bandwidth mode | Banner: "Low-bandwidth mode active" |
-| User idle > 30s | Input event timeout | Animations pause | None (resumes on interaction) |
-| ERA5 data unavailable | Missing static file | Omit seasonal context from summaries | None — context is additive |
-
-Every failure mode keeps the product functional with degraded confidence. We never show a blank map. We never silently lie about freshness.
-
----
-
-## Data freshness display
-
-Three timestamps always visible (collapsed on mobile, expanded on desktop) — **all NPT**:
-
-```
-Himawari frame: 04:50 NPT (8 min ago)
-Forecast model: 03:00 NPT (ECMWF IFS · 1h 58m ago)
-Local time:     04:58 NPT
-```
-
-**Desktop expanded view adds:**
-```
-DHM bulletin:   04:00 NPT (58 min ago)
-Precipitation:  04:30 NPT (IMERG · 28 min ago)
-```
-
-Trekkers and guides making decisions need to know freshness. Hiding it behind a tooltip is wrong.
-
----
-
-## Guide Brief data structure (v1 backend, v1.1 UI)
-
-API endpoint shipping in v1 even though export UI is v1.1:
-
-```
-GET /api/brief/[corridor]?date=YYYY-MM-DD&format=json|text
-```
-
-```typescript
-type GuideBrief = {
-  corridorId: "abc" | "ebc";
-  date: string;                                 // NPT date
-  decisionStrip: DecisionStripResponse;         // server API shape (see ARCHITECTURE.md)
-  corridorCard: CorridorCardData;               // see src/types/weather.ts
-  segments: RouteRibbon["segments"];            // see ARCHITECTURE.md §RouteRibbon
-  clearWindows: ClearWindow[];                  // hero viewpoints in this corridor
-  evidenceSnapshots: ReplaySummary["evidenceSnapshots"]; // see ARCHITECTURE.md §ReplaySummary
-  // Field-report layer is v2; v1 returns evidenceTier: "no-field-report" by default
-  plainTextBrief: string;                       // WhatsApp-pasteable
-  _evidence: EvidenceManifest;                        // data provenance
-  generatedAt: string;                          // NPT
-};
-```
-
-A guide can `curl` this endpoint at 6 AM and paste the `plainTextBrief` into a client message. v1.1 wraps it in an export UI (image / WhatsApp link / PDF).
-
-Example `plainTextBrief`:
-```
-ABC Weather Brief — Tomorrow (NPT)
-Best movement window: 6–10 AM
-Lower trail: wet around Chhomrong–Bamboo (18mm last 24h)
-Snow concern: above MBC after afternoon
-Mountain view: best before 8:30 AM
-Pattern: clouds build from south after late morning (3 days in a row)
-Season: typical for early May pre-monsoon
-Updated: 06:10 NPT · Himawari 06:00 · ECMWF 03:00 · Confidence: medium
-```
-
----
-
-## What this document deliberately does NOT include
-
-**No multi-tier storage architecture.** We're on Vercel, not AWS. Edge cache + CDN static files + Next.js route caching is the entire storage story. If usage scales past Vercel's limits, we add a caching layer then.
-
-**No SQL schema for data management.** Satellite frames are files. API responses are computed and cached. There is no database in v1. The product is stateless except for the CDN.
-
-**No WMO validation framework.** We validate with acceptance tests (see ARCHITECTURE.md) and Sentinel-2 spot-checks. Formal meteorological validation is for institutions with ground-truth stations.
-
-**No cost tiers above $0/month.** Every source is free. Every service is free-tier or free-with-account. If we outgrow free tiers, the fix is a $20/month Vercel upgrade, not a $800/month cloud bill.
-
-**No optical flow nowcasting, monsoon front tracking, or AI oracle.** Those are v2. See PRODUCT.md §18.4.
+- Specify per-table SQL — that's PRODUCT.md §11
+- Define the build sequence — that's BUILD_PLAN.md
+- Describe component-level UI — that's DESIGN.md
+- Enumerate features — that's PRODUCT.md
+- Define commit / branch / CI conventions — that's CONTRIBUTING.md
