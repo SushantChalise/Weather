@@ -1,0 +1,46 @@
+name: Open-Meteo Historical Backfill
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"  # Mondays at 06:00 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: openmeteo-historical-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backfill:
+    name: Backfill 5y of daily Open-Meteo data into Postgres
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Verify DATABASE_URL is set
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "DATABASE_URL secret missing"
+            exit 1
+          fi
+          echo "DATABASE_URL is set ($(echo $DATABASE_URL | cut -c1-20)…)"
+
+      - name: Run Open-Meteo historical backfill
+        run: npx tsx scripts/ingestion/openmeteo-historical/run.ts
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "Workflow finished — check logs above for row counts."
