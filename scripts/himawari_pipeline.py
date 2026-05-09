@@ -258,10 +258,13 @@ def _blob_put(path: str, data: bytes, ctype: str) -> str:
             "Authorization": f"Bearer {BLOB_TOKEN}",
             "Content-Type": ctype,
             "x-api-version": "7",
+            "x-allow-overwrite": "1",
         },
         timeout=30,
     )
-    resp.raise_for_status()
+    if not resp.ok:
+        print(f"  Blob PUT {path!r} → {resp.status_code}: {resp.text[:500]}")
+        resp.raise_for_status()
     return resp.json()["url"]
 
 
