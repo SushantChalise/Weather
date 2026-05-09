@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { EventDetail } from "@/components/events/event-detail";
 import { HISTORICAL_EVENTS } from "@/data/events";
+import { PLACE_REGISTRY } from "@/data/places";
 
 type EventPageProps = {
   params: Promise<{ slug: string }>;
@@ -34,8 +35,32 @@ export default async function EventPage({ params }: EventPageProps) {
     notFound();
   }
 
+  // JSON-LD structured data — content sourced entirely from static typed registry (no user input)
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: event.name,
+    startDate: event.timeStart,
+    description: event.summary,
+  };
+  if (event.timeEnd) jsonLd.endDate = event.timeEnd;
+  const firstPlaceSlug = event.affectedPlaces[0];
+  if (firstPlaceSlug && PLACE_REGISTRY[firstPlaceSlug]) {
+    const p = PLACE_REGISTRY[firstPlaceSlug];
+    jsonLd.location = {
+      "@type": "Place",
+      name: p.name,
+      geo: { "@type": "GeoCoordinates", latitude: p.lat, longitude: p.lon },
+    };
+  }
+
   return (
     <main className="min-h-screen bg-white">
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD script — statically typed registry data, no user input
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <EventDetail event={event} />
     </main>
   );
