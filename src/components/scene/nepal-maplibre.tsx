@@ -1,16 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Layer, Map as MapGL, Marker, Source } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Feature, LineString } from "geojson";
 import type { StyleSpecification } from "maplibre-gl";
+import type { MapRef } from "react-map-gl/maplibre";
 import { ABC_WAYPOINTS } from "@/data/corridors/abc";
 import { EBC_WAYPOINTS } from "@/data/corridors/ebc";
 import { DESTINATIONS } from "@/data/destinations";
 import { MOCK_DESTINATION_CONDITIONS } from "@/data/mock/destination-conditions";
 import { NEPAL_CENTER } from "@/data/nepal-bbox";
 import { useSelectionStore } from "@/state/selectionStore";
+import { useWorldStore } from "@/state/worldStore";
 import type { CorridorId, DestinationCondition, HaloColor } from "@/types/weather";
 
 // MapLibre throws AbortError as an unhandled Promise rejection when it cancels
@@ -135,16 +137,38 @@ function RouteLine({
 
 type Props = { liveConditions?: DestinationCondition[] | null };
 
+const TOPDOWN_PITCH = 0;
+const TILT_PITCH = 55;
+const TILT_ZOOM_DELTA = -0.5; // zoom out slightly when tilted for context
+
 export function NepalMapLibre({ liveConditions }: Props) {
   useSupressMapLibreAbortErrors();
   const { set } = useSelectionStore();
+  const cameraMode = useWorldStore((s) => s.cameraMode);
+  const mapRef = useRef<MapRef>(null);
+
   const condByDest = new globalThis.Map(
     (liveConditions ?? MOCK_DESTINATION_CONDITIONS).map((c) => [c.destinationId, c]),
   );
 
+  // Animate pitch when tilt mode toggles
+  useEffect(() => {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    const isTilt = cameraMode === "tilt";
+    const currentZoom = map.getZoom();
+    map.easeTo({
+      pitch: isTilt ? TILT_PITCH : TOPDOWN_PITCH,
+      zoom: isTilt ? currentZoom + TILT_ZOOM_DELTA : currentZoom - TILT_ZOOM_DELTA,
+      duration: 700,
+      easing: (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2),
+    });
+  }, [cameraMode]);
+
   return (
     <div className="w-full h-full">
       <MapGL
+        ref={mapRef}
         mapStyle={buildMapStyle()}
         onError={(e) => {
           // AbortError is expected — MapLibre cancels in-flight tile fetches when
@@ -156,6 +180,8 @@ export function NepalMapLibre({ liveConditions }: Props) {
           longitude: NEPAL_CENTER.lon,
           latitude: NEPAL_CENTER.lat,
           zoom: 7.2,
+          pitch: 0,
+          bearing: 0,
         }}
         maxBounds={[
           [78.0, 24.5],
