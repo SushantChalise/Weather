@@ -1,6 +1,8 @@
 "use client";
 
 import useSWR from "swr";
+import { CitationPill } from "@/components/ui/citation-pill";
+import { OPEN_METEO } from "@/data/datasets";
 import type { DestinationCondition, DestinationId } from "@/types/weather";
 
 type WeatherApiResponse = {
@@ -111,6 +113,11 @@ export function NowTab({ destinationId, lat: _lat, lon: _lon }: NowTabProps) {
 
       {/* Plain summary */}
       <p className="text-sm text-neutral-600">{condition.plainSummary}</p>
+
+      {/* Source attribution */}
+      <div className="flex justify-end">
+        <CitationPill dataset={OPEN_METEO} />
+      </div>
     </div>
   );
 }
