@@ -1549,4 +1549,117 @@ Specific to design changes:
 
 ---
 
+## 21. Enforcement mechanisms — making this a system, not a manifesto
+
+Both LLM critics converged on the same single biggest weakness: without enforcement, this document is a manifesto, and design systems decay in solo projects. Manifestos don't constrain reality; tooling does.
+
+This section specifies the tooling and process that converts the principles, components, and prohibitions in §1–§20 into checkable, blockable, automatic constraints.
+
+### 21.1 Code-level type contracts
+
+Design rules expressed in TypeScript types fail the build when violated. This is the strongest enforcement.
+
+| Rule from this doc | Type-level enforcement |
+|---|---|
+| Every chart has provenance (§9.1) | `<Chart>` requires a `provenance: Provenance` prop. Missing prop → TypeScript error. |
+| Every chart shipping a projection has uncertainty bands (§3.3) | `<ProjectionChart>` requires an `uncertainty: UncertaintyBand` prop. |
+| Comparison sentence on every Time Machine chart (§11.7) | `<ClimateTimeMachine>` requires a `comparisonSentence: string` (or generator function) prop. |
+| Source attribution at container level, not on every number (§9.1) | `<DataNumber>` accepts no source prop — its container provides it via React context. Inline `<Source>` outside containers throws a runtime warning in dev. |
+| Voice patterns from `src/copy/voice.ts` (§11.7) | Empty/error/loading/stale/offline state components consume from `voice.ts` exports; freelanced strings flagged by ESLint custom rule. |
+
+### 21.2 Linting
+
+| Lint rule | Enforces |
+|---|---|
+| `atlas/no-hex-in-component` | Hex colours forbidden in component files; only design-token references allowed. Tailwind classes resolved at build. |
+| `atlas/no-arbitrary-spacing` | Tailwind arbitrary values (`p-[13px]`) forbidden. Must use scale tokens. |
+| `atlas/no-display-light-below-56px` | Tailwind class `font-light text-display` allowed; `font-light text-3xl` and below flagged (per §6.3). |
+| `atlas/source-attribution-required` | Custom rule: any chart-class component must render a `<SourceAttributionPill>` or carry a `data-attribution-handled-elsewhere` attribute (with a comment explaining where). |
+| `atlas/anomaly-palette-needs-iconography` | Custom rule: `--anomaly-warm-strong` usage outside `<AnomalyMap>` flagged. Inside `<AnomalyMap>`, requires paired `<HatchPattern>`. |
+| `atlas/no-3d-without-justification` | Custom rule: any import from `three` / `@react-three/*` in a chart component requires a `// design-override-3d: <reason>` comment on the file. |
+
+These are custom Biome / ESLint rules; the rule definitions live at `src/lint/atlas-rules/`.
+
+### 21.3 Storybook + visual regression
+
+Storybook is the source-of-truth implementation surface for every component documented here. Every component in §9 has:
+
+- A Storybook entry showing default state, hover, focus, disabled, dark mode (when shipped), reduced motion
+- Visual regression snapshots via Chromatic (free tier) or Playwright + Percy
+- Accessibility checks via `@storybook/addon-a11y` — surfaces violations in the Storybook UI before merge
+
+Storybook is published to `storybook.himalayan-atlas.com` (subdomain) so reviewers can interact with components without a local dev server.
+
+### 21.4 Accessibility CI smoke tests
+
+Per `.github/workflows/ci.yml`, a fourth job: `a11y`. Runs `@axe-core/playwright` against:
+- The home page
+- One representative place page (EBC)
+- One Visualisation page (Climate Time Machine for ABC)
+- One Story page
+- One Methodology page
+- The Geospatial Discovery page
+
+Threshold: zero serious / critical violations. Moderate violations file an issue automatically (don't block merge but become tracked debt).
+
+### 21.5 Performance regression gate
+
+Lighthouse CI on every PR. Performance budget from §14:
+
+| Metric | Threshold |
+|---|---|
+| LCP | < 2.0 s |
+| TTI | < 3.0 s |
+| CLS | < 0.05 |
+| Page weight | < 200 KB |
+| Lighthouse Performance score | > 90 |
+
+PR with regression beyond 5% on any metric is blocked.
+
+### 21.6 PR checklist
+
+Every PR template (`.github/pull_request_template.md`) includes a checkbox section:
+
+```
+## Design system checklist (DESIGN.md)
+
+For PRs that touch components, copy, charts, maps, or any user-facing surface:
+
+- [ ] Does this introduce a new design token (colour, spacing, type)?
+      If yes: documented in DESIGN.md and added to Tailwind config
+- [ ] Does this introduce a new component?
+      If yes: §9 entry + Storybook entry + accessibility row in §13.8
+- [ ] Does this introduce a new copy pattern?
+      If yes: added to src/copy/voice.ts, not freelanced
+- [ ] Source attribution: container-level pill present (or explicitly waived)
+- [ ] Uncertainty bands: present on all projection charts
+- [ ] Missing data: rendered as a gap, not smoothed (if applicable)
+- [ ] Voice: copy comes from src/copy/voice.ts (if applicable)
+- [ ] Accessibility: §13.8 coverage matrix updated for any new component
+- [ ] Performance: Lighthouse not regressed beyond 5% (CI confirms)
+- [ ] Hard ban (§17.1) override: NO. If you think you need an override, get founder approval first.
+```
+
+This is template, not optional. The PR template enforces by being the first thing the author sees.
+
+### 21.7 Quarterly design audit
+
+Once per quarter, a half-day audit:
+- Walk every page
+- Compare against DESIGN.md
+- File issues for drift
+- Update DESIGN.md if reality has correctly diverged from spec
+
+Anti-rot mechanism. The system stays alive only if someone notices when it's not.
+
+### 21.8 What enforcement explicitly does NOT do
+
+- Does not replace human design judgement on novel components
+- Does not block urgent fixes (hotfix branches bypass design checklist with a follow-up issue)
+- Does not enforce subjective principles (§3.7 calm restraint can't be linted; it's PR-review judgement)
+
+Enforcement catches the easy violations so human attention can focus on the hard ones.
+
+---
+
 *The Himalaya doesn't shout; we don't shout. Every choice in this document is a decision to build calm, beautiful, honest software for a region that deserves it.*
