@@ -1090,6 +1090,88 @@ Last updated: 4 hours ago.
 - Show the timestamp
 - Disable interactions that require fresh data
 
+### 11.6 Missing data — broken line, never smoothed
+
+Climate data is incomplete. Himalayan station records have gaps. Satellites have outages. Historical reanalyses have missing years. The design must tell the truth about this.
+
+**Rule: never smooth over a gap.** A line chart with missing values renders the line broken at the gap, with a visible marker on the time axis that data is missing. We do not interpolate, we do not bridge with a dashed line, we do not pretend continuous coverage where there isn't any.
+
+```
+Khumbu seasonal mass balance (m w.e.)
+
+   0 ┤ ●
+     │  ╲
+  −1 ┤   ●         ●
+     │    ╲       ╱
+  −2 ┤     ●     ●            ●─●
+     │           [missing]   ╱
+  −3 ┤                      ●
+     └────────────────────────────────
+      2011  2013  2015  2017  2019  2021
+
+Years 2014–2016: glacier inaccessible due to 2015 Gorkha earthquake aftermath.
+```
+
+**Components:**
+- Solid line connects only consecutive measured points
+- Gap is rendered as visible whitespace, not a dashed extrapolation
+- Below the chart: a brief explainer of why the data is missing (when known)
+- Source pill includes "with gaps" qualifier when applicable
+
+**For the Climate Time Machine** specifically: when the selected year has missing months, the bold line for that year is segmented; missing months are blank slots on the x-axis with a "no data" tick mark.
+
+**For maps**: when a place has no data for the selected variable / time, the marker is rendered in `--color-text-muted` with a small "no data" badge. Never a default colour that implies a value.
+
+### 11.7 Voice sentence patterns
+
+The voice (§4.2) is operational only when patterns are concrete. Per LLM critique, "calm specialist" as adjective fails in error and empty states because there's no template to fall back to.
+
+Per state, the canonical sentence patterns:
+
+**Loading**
+- "Loading {dataset} climatology…"
+- "Computing {metric} for {place}…"
+- "Fetching the last {duration} of satellite imagery…"
+
+**Empty**
+- "No {place class} in this region with {variable} data {temporal qualifier}."
+- "We don't have {variable} for {place} before {year}."
+- *Always followed by a constructive suggestion in a separate sentence: "Try {expanded scope} or {alternative}."*
+
+**Error**
+- "We couldn't load {what} for {context}."
+- *Then:* "This usually means {plain-language cause}."
+- *Then:* "Try again in a few seconds. If it persists, check status."
+- Never "Sorry," never "Oops," never "Unfortunately."
+
+**Stale**
+- "{Data type} is {duration} old — older than usual."
+- *Optional:* "Updates resume automatically." (no CTA — the user can't fix it)
+- The age is always shown in concrete units, never "data may be stale."
+
+**Offline**
+- "You're offline. Showing cached version of this page."
+- *Then:* "Last updated: {duration} ago."
+- *Disable* interactions that require fresh data; do not display them as broken.
+
+**Comparison sentence (used on every Climate Time Machine, Trek Window Shift, In Your Lifetime)**
+- "{place} {variable} for {period}: {value}{unit}, {direction} the {baseline-period} average by {delta}{unit}."
+- Example: "ABC October temperature for 2026: −3.2 °C, above the 1991–2020 average by 1.4 °C."
+
+**Trend statement (for headlines on stories or charts)**
+- "{place} has {direction} {amount} of its {baseline-year} {metric}."
+- Example: "Khumbu Glacier has lost 30% of its 1985 area."
+
+**Uncertainty caveat (sub-text on every projection)**
+- "{Range} across {N} {model type}. Baseline {baseline-period}."
+- Example: "5–95th percentile across 12 climate models. Baseline 1991–2020."
+
+**Resolution caveat (auto-shown when grid is finer than data)**
+- "{Resolution} grid — {scale} interpretation requires {alternative source type}."
+- Example: "9 km grid — village-scale interpretation requires station data."
+
+These patterns are stored as i18n string templates in `src/copy/voice.ts` and consumed by components — not freelanced. Adding a new state requires adding a pattern to `voice.ts`, which gets PR-reviewed.
+
 ---
 
 ## 12. Content design
