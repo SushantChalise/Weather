@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Nepal Mountain Weather Decision Map
 
-## Getting Started
+Real-time mountain weather decision tool for Nepal. Compare conditions across destinations (Everest Base Camp, ABC, Poon Hill, Pokhara, Kathmandu, Jomsom, Chitwan, Lukla), see clear-window forecasts, and choose better travel windows — with visible evidence and confidence labels.
 
-First, run the development server:
+**Live:** https://weather-ruby-iota-35.vercel.app
 
-```bash
+---
+
+## Tech stack
+
+- **Framework:** Next.js 15 (App Router) + TypeScript strict
+- **Map:** MapLibre GL + React Three Fiber for terrain
+- **Data:** Open-Meteo (forecast), MODIS Terra (true-colour fallback), Himawari-9 B13 (10.4 µm thermal IR clouds)
+- **State / fetching:** Zustand + SWR
+- **Tile pipeline:** Python (`scripts/himawari_pipeline.py`) → Vercel Blob, refreshed every 30 min by GitHub Actions
+- **Hosting:** Vercel (auto-deploy from `main`)
+- **Lint / format:** Biome
+- **Type safety:** TypeScript strict + `noUncheckedIndexedAccess`
+
+---
+
+## Quick start
+
+```powershell
+npm install
+Copy-Item .env.local.example .env.local
+# Fill in HIMAWARI_STORE_ID (find it in the Vercel dashboard → Storage → blob store)
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Other scripts:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```powershell
+npm run typecheck    # tsc --noEmit
+npm run build        # next build
+npm run lint         # biome check --write src/
+npm run format       # biome format --write src/
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Documentation
 
-To learn more about Next.js, take a look at the following resources:
+| Document | What |
+|---|---|
+| [PRODUCT.md](PRODUCT.md) | Product spec, personas, feature tiers |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | System design, data flows, schemas |
+| [DESIGN.md](DESIGN.md) | Design system: colors, typography, components |
+| [DATA.md](DATA.md) | Data sources, scrapers, pipelines |
+| [BUILD_PLAN.md](BUILD_PLAN.md) | Implementation roadmap |
+| [STEP1.md](STEP1.md) | Step 1 — scaffolding + first decision UI |
+| [SETUP.md](SETUP.md) | One-time project scaffolding spec |
+| [**CONTRIBUTING.md**](CONTRIBUTING.md) | **Required reading before opening a PR — branch model, CI, commit rules** |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Contributing
 
-## Deploy on Vercel
+All changes go through a pull request. CI must pass before merge. No direct pushes to `main`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow, pre-flight checklist, and recovery procedure for broken builds.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## License
+
+Private project. All rights reserved.
