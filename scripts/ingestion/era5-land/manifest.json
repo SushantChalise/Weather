@@ -1,0 +1,11 @@
+{
+  "slug": "era5-land",
+  "name": "ERA5-Land",
+  "license": "Copernicus",
+  "citation": "Muñoz Sabater, J. (2019). ERA5-Land hourly data from 1950 to present. Copernicus Climate Data Store.",
+  "source_url": "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land",
+  "spatial_res": "0.1°",
+  "temporal_res": "hourly",
+  "schedule": "0 6 * * 1",
+  "scrape": { "type": "cds-api", "auth": "CDS_API_KEY env var" }
+}
