@@ -31,8 +31,7 @@ function modisManifest(): HimawariManifest & { source: "modis-fallback" } {
     capturedAt,
     processedAt: `${date}T06:30:00Z`,
     ageMinutes,
-    tileBaseUrl:
-      `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${date}/GoogleMapsCompatible_Level9`,
+    tileBaseUrl: `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${date}/GoogleMapsCompatible_Level9`,
     tileTemplate: "{z}/{y}/{x}.jpg",
     minZoom: 1,
     maxZoom: 9,
@@ -49,8 +48,7 @@ export async function GET() {
 
   if (storeId) {
     try {
-      const manifestUrl =
-        `https://${storeId}.public.blob.vercel-storage.com/himawari/manifest.json`;
+      const manifestUrl = `https://${storeId}.public.blob.vercel-storage.com/himawari/manifest.json`;
       const res = await fetch(manifestUrl, { next: { revalidate: 120 } });
 
       if (res.ok) {

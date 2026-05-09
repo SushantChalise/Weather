@@ -1,0 +1,20 @@
+# Pin LF line endings in the working tree across all platforms.
+# Biome's formatter expects LF; this prevents Windows checkouts (with
+# core.autocrlf=true) from diverging.
+* text=auto eol=lf
+
+# Binary assets — never touch these
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.zip binary
+
+# Windows-only scripts keep CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
