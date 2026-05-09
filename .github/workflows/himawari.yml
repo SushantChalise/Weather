@@ -72,6 +72,10 @@ jobs:
         run: python scripts/himawari_pipeline.py
 
       # ── Node.js: upload via @vercel/blob SDK ───────────────────────────────
+      - name: Install Node dependencies
+        if: steps.freshness.outputs.skip != 'true'
+        run: npm ci --ignore-scripts
+
       - name: Upload tiles to Vercel Blob (Node.js)
         if: steps.freshness.outputs.skip != 'true'
         env:
