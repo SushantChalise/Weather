@@ -1,0 +1,11 @@
+{
+  "slug": "openmeteo-aq",
+  "name": "Open-Meteo Air Quality",
+  "license": "CC BY 4.0",
+  "citation": "Open-Meteo.com — Air Quality API (CAMS European model).",
+  "source_url": "https://open-meteo.com/en/docs/air-quality-api",
+  "spatial_res": "~10 km",
+  "temporal_res": "daily (hourly aggregated)",
+  "schedule": "0 8 * * *",
+  "scrape": { "type": "http", "auth": "none" }
+}
