@@ -11,6 +11,7 @@
     "check": "biome check src/ && npx tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx scripts/db/migrate.ts",
+    "db:seed-places": "tsx scripts/db/seed-places.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
