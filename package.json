@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
     "lint": "biome check --write src/",
     "format": "biome format --write src/",
     "check": "biome check src/ && npx tsc --noEmit",
@@ -49,6 +51,9 @@
     "eslint-config-next": "15.5.18",
     "tailwindcss": "^4.2.4",
     "tsx": "^4.21.0",
-    "typescript": "5.5"
+    "typescript": "5.5",
+    "vitest": "^1.6.0",
+    "@vitest/ui": "^1.6.0",
+    "@playwright/test": "^1.45.0"
   }
 }
