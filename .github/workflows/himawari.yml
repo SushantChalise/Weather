@@ -12,11 +12,14 @@ on:
         type: boolean
         default: false
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # suppress Node.js 20 deprecation warnings
+
 jobs:
   process:
     name: Download → Reproject → Tile → Upload
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15  # satpy + pyresample first-install takes ~3 min (cached after)
 
     steps:
       - name: Checkout
