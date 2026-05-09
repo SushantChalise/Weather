@@ -333,6 +333,13 @@ def main():
         print("ERROR: BLOB_READ_WRITE_TOKEN not set", file=sys.stderr)
         sys.exit(1)
 
+    # Diagnostic: show token structure without revealing the actual value
+    parts = BLOB_TOKEN.split("_")
+    store_id = _blob_store_id()
+    print(f"Token: {len(parts)} segments, lengths={[len(p) for p in parts]}")
+    print(f"Inferred storeId (index 3): len={len(store_id)}, prefix={store_id[:4]}...")
+    print(f"Token prefix: {BLOB_TOKEN[:20]}...")
+
     t0 = time.time()
     print("=== Himawari-9 B13 Pipeline ===")
 
