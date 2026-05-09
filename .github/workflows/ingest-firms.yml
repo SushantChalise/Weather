@@ -1,0 +1,23 @@
+name: FIRMS Cache Warm
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"  # every 6 hours
+  workflow_dispatch:
+
+concurrency:
+  group: firms-warm-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  warm:
+    name: Warm /api/fires Vercel cache
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Hit /api/fires for HKH bbox
+        run: |
+          curl -fsSL --max-time 30 "https://himalayan-atlas.vercel.app/api/fires?days=1" -o /tmp/fires.json
+          echo "Response size: $(wc -c < /tmp/fires.json) bytes"
+          # Quick sanity check that it's JSON with detections array
+          node -e "const d = require('/tmp/fires.json'); if (!Array.isArray(d.detections)) { console.error('No detections array'); process.exit(1); } console.log(\`\${d.detections.length} detections\`);"
