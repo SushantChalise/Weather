@@ -1,0 +1,11 @@
+{
+  "slug": "openmeteo-historical",
+  "name": "Open-Meteo Historical Weather",
+  "license": "CC BY 4.0",
+  "citation": "Open-Meteo.com — Historical Weather API (blends ERA5 + CHIRPS + stations).",
+  "source_url": "https://open-meteo.com/en/docs/historical-weather-api",
+  "spatial_res": "~9 km",
+  "temporal_res": "daily",
+  "schedule": "0 8 * * 1",
+  "scrape": { "type": "http", "auth": "none" }
+}
