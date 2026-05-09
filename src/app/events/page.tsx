@@ -6,6 +6,18 @@ export const metadata: Metadata = {
   title: "Historical Climate Events — Himalayan Atlas",
   description:
     "Archive of significant weather and climate events in the Himalayas, with linked meteorological data.",
+  openGraph: {
+    title: "Historical Climate Events — Himalayan Atlas",
+    description:
+      "Archive of significant weather and climate events in the Himalayas, with linked meteorological data.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Historical Climate Events — Himalayan Atlas",
+    description:
+      "Archive of significant weather and climate events in the Himalayas, with linked meteorological data.",
+  },
 };
 
 export default function EventsPage() {

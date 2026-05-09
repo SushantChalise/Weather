@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PlaceHeader } from "@/components/places/place-header";
 import { PlaceTabs } from "@/components/places/place-tabs";
@@ -7,6 +8,23 @@ import type { Destination, DestinationId } from "@/types/weather";
 type PlacePageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export async function generateMetadata({ params }: PlacePageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const entry = PLACE_REGISTRY[slug];
+  if (!entry) {
+    return { title: "Place Not Found — Himalayan Atlas" };
+  }
+  const location = entry.region ?? entry.country;
+  const title = `${entry.name} — Himalayan Atlas`;
+  const description = `Live weather, climate trends, and historical data for ${entry.name}, ${location}.`;
+  return {
+    title,
+    description,
+    openGraph: { title, description, type: "website" },
+    twitter: { card: "summary_large_image", title, description },
+  };
+}
 
 /** DestinationId values that the weather API supports */
 const WEATHER_DESTINATION_IDS = new Set<string>([
