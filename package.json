@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx scripts/db/migrate.ts",
     "db:seed-places": "tsx scripts/db/seed-places.ts",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:openmeteo-historical": "tsx --env-file=.env.local scripts/ingestion/openmeteo-historical/run.ts"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
