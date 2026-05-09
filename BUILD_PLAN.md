@@ -1,105 +1,149 @@
-# Build Plan
+# Build Plan — Himalayan Atlas
 
-**Principle:** customer-visible UI first; real data second; decision intelligence third; advanced 3D last. The product must be testable with real users from step 2 onward.
+**Status:** v2.0 — vibecoding plan, hour-paced
+**Replaces:** v1 trekker-tool 8-step plan (mostly shipped; preserved in git history)
 
-The risk this plan avoids: spending weeks on terrain mesh and 4-shell cloud physics before the product answers the customer's question. If the v1 demo never reaches step 6, the product still ships and is useful.
+This plan is the operational sequence behind PRODUCT.md §9. One row = one substantive PR, roughly one hour of pair-programming with Claude Code.
+
+**Principle:** ship the smallest thing that is real and undeniable, then expand. No feature lands without source attribution and uncertainty bands. No PR merges without CI green.
 
 ---
 
-## Sequence
+## Hour 0 — Foundation
 
-| Step | Deliverable | Acceptance gate |
+| # | Output | Acceptance gate |
 |---|---|---|
-| **1** | **Static clean Nepal map shell** — top-down GLO-30 shaded relief, 7 destination markers + 2 trail entries with placeholder halo + icon + label, Decision Strip UI (3 pills, mock data), three customer cards (mock), layer toggle UI (visual only), time slider UI with sunrise marker (visual only), Compare button, mobile 3-zone layout with bottom-sheet for layers, NPT timestamp formatter wired | Non-technical user identifies Pokhara, Everest, ABC and reads the layout in under 5 seconds. The Decision Strip is the most visible element. All times show NPT indicator. |
-| **2** | **Mock weather + mock decisions** — fake cloud / rain / snow textures from deterministic mock data; Current Conditions per destination from JSON; mock 72h replay with mock summary + mock evidence snapshots; mock Decision Strip with all severity levels (Best / Watch / Avoid); mock Clear Window timeline with sunrise; mock Comparison Drawer split by trip intent (mountain views / trekking / lowland); mock confidence labels on every card | User-test: a customer interprets the map's weather story AND can name a destination they should go to in under 5 seconds. Decision Strip pills expand on tap. Comparison Drawer is swipeable on mobile. |
-| **3A** | **Real forecast + cards (no satellite yet)** — Open-Meteo forecast (cloud / rain / temperature / pressure-level cloud cover); per-destination Current Conditions from real API; FABDEM-driven **route-aware snowline** for Snow layer; Confidence labels wired to model-data freshness (Forecast / Estimated / Low / Stale on >6h model); auto-refresh every 10 min; NPT formatter end-to-end; **Evidence tier system** — every card shows source tier alongside confidence | Cards show real forecast within 1 min of API response. Snowline per region resolved correctly. `field-reported` tier never appears in v1; `no-field-report` is the visible default for trail conditions. Aged model triggers "Stale" warning. |
-| **3B** | **Himawari satellite pipeline** — preprocessed Himawari cloud overlay; cloud-mask aggregation per scope; 72h archive with deterministic best/worst/current evidence snapshots; manifest.json with input hashes; **stale "Now" downgrade when satellite > 45 min**; Evidence Ledger inline `_evidence` field on every API response | Live Himawari overlay aligns with terrain landmarks. Same archive + scope produces identical 3 snapshots. Aged satellite data triggers visible warning. `_evidence` manifest visible in API responses for debugging. |
-| **4** | **Decision Intelligence Layer** — real Decision Strip computation (Best / Best View / Watch [/ Avoid only on severe]); real Clear Window primitive with **sunrise weighting and daylight filter**; real Comparison Drawer with **per-intent ranking** (mountain views / trekking / lowland, no apples-to-oranges); plain-language route translation (no millimeter rainfall) | Decision Strip updates within 10 min of source change. Clear Window detects "clouds build after X AM" pattern across 7 days of test data. Pre-dawn windows filtered unless destination has explicit pre-dawn value. Comparison Drawer never mixes Chitwan with EBC. |
-| **5** | **Route intelligence + decision-to-action** — ABC + EBC Route Detail mode; **route ribbons with time-mode toggle** (Now / Tomorrow AM / Afternoon / Last 24h); per-segment cards with plain-language ("damp", "slippery", "fresh snow risk") tagged with Evidence tier (`forecast` / `observed-satellite` / `no-field-report`); snowline crossing point shown on elevation profile; 72h history with auto-generated summary + 3 **deterministic** evidence snapshots (best / worst / current); Destination Insight Panel for all 8 destinations; **Guide Brief JSON endpoint** + **plaintext Copy button** (image / WhatsApp / PDF deferred to v1.1); **[Compare] [Share] [Copy Brief]** action buttons on every panel | Click ABC card → Route Detail with weather-ribbon route line. Time-mode toggle re-renders ribbon within 500ms. Click Pokhara → Insight Panel shows real history + summary + 3 evidence snapshots, with snowline crossing point visible if applicable. `curl /api/brief/abc` returns valid GuideBrief JSON. Copy Brief button copies plaintext to clipboard with toast confirmation. Share button opens native share sheet (mobile) or copies frozen-state URL (desktop). |
-| **6** | **Advanced 3D / tilt mode** — 4-shell altitude cloud rendering; peak occlusion verified; cinematic tilt camera with smooth transition; performance tier auto-detection; **idle animation pause** (30s no interaction) | On tilt, Annapurna and Everest peaks visibly puncture the cloud deck. Mid-tier device sustains 25 FPS in tilt mode. Tier-Low fallback renders one composite shell. Animations pause within 30s of no interaction. |
-| **7** | **Mountain Visibility cards + low-bandwidth mode** — line-of-sight pre-computed for 8 hero viewpoints; cloud obstruction sampling along LoS; Mountain Visibility card in Insight Panels; **low-bandwidth mode** (auto + manual): static map fallback, paused animations, text-only Decision Strip + cards; payload < 130KB on engaged | Manual sanity test: cloudy frame → score < 30; clear frame → score > 70. Low-bandwidth mode renders Decision Strip + cards in < 2s on simulated 2G. |
-| **8** | **Hardening** — full validation suite passing; mobile layout polish across all surfaces; source attribution visible; data fallback paths exercised; staleness badges working | All acceptance tests in ARCHITECTURE.md pass. Snapdragon 7-class device sustains 25–30 FPS through Overview, Route Detail, and Insight Panel. |
+| 0a | Provision Postgres on Neon (free tier). Add `DATABASE_URL` to local `.env.local` and Vercel env. | `psql $DATABASE_URL -c "SELECT version();"` returns Postgres version |
+| 0b | Install Prisma or Drizzle. Drop schema from PRODUCT.md §11 (`places`, `datasets`, `obs_weather_daily`, `obs_climatology`, `cryo_glacier_outlines`, `cryo_glacier_mass_balance`, `proj_cmip6_summaries`, `events_historical`, `photos_archive`). Enable PostGIS + TimescaleDB extensions. | `\dt` shows tables; `SELECT PostGIS_Full_Version();` works; `SELECT extversion FROM pg_extension WHERE extname='timescaledb';` returns version |
+| 0c | Migrate the 8 existing trekking destinations + 2 cities into the `places` table with PostGIS point geometries. | `SELECT slug, ST_AsText(geom) FROM places;` returns 10 rows |
+| 0d | Establish `scripts/ingestion/_template/` with the 4-stage pattern (`scrape.py`, `validate.py`, `transform.py`, `load.py`, `manifest.json`, `README.md`) and shared utilities under `_shared/`. | Template directory exists; one-line README explains usage |
+| 0e | Update `.github/workflows/himawari.yml` to fit the new pattern (`scripts/ingestion/himawari/`). Existing pipeline keeps running. | Workflow runs end-to-end on push, manifest still updated in Vercel Blob |
+
+**Acceptance gate for hour 0:** Postgres alive, schema in place, places migrated, ingestion template in place, existing Himawari pipeline still healthy.
 
 ---
 
-## Why this order
+## Hour 1–4 — First real ingestion + first place page
 
-Steps 1–2 prove the UX is readable with mock data. Step 3 plugs real data in (with the staleness rule and route-aware snowline added). **Step 4 is the Decision Intelligence Layer** — where the product earns its framing. Step 5 layers route-specific intelligence on top, with the Guide Brief data structure ready (UI in v1.1). Steps 6–7 add technical depth and operational rigor (3D occlusion, low-bandwidth, idle pause). Step 8 hardens.
-
-If the team gets stuck at step 6 (3D tilt is the hardest part), the product still demos at step 5 with: clean top-down view of real data, real Decision Strip, real Clear Window with sunrise, real Comparison Drawer split by intent (with Jomsom rain-shadow alternative), plain-language route ribbons with time mode, 72h replay with deterministic evidence snapshots, Guide Brief API + Copy/Share/Compare action buttons. **That's a shippable v1 by itself.**
-
-The 3A/3B split (forecast first, satellite second) means a real-data demo lands earlier — Step 3A is shippable on its own without the Himawari pipeline. The Evidence tier system from 3A is what makes the cards honest even before satellite imagery is wired in 3B.
-
----
-
-## Acceptance gate philosophy
-
-Every step has a customer-readable acceptance test, not just a technical one. *"Can a non-technical user identify a destination they should go to in under 5 seconds"* is the gate. *"Does the cloud shell render correctly"* is necessary but not sufficient.
-
-If a step's deliverable passes its technical test but fails its customer test, the step is not done.
-
----
-
-## Estimated effort (rough)
-
-| Step | Estimated days |
-|---|---|
-| 1 — Static shell | 3–4 |
-| 2 — Mock overlays + mock decisions | 3–4 |
-| 3A — Real forecast + cards + Evidence tier | 3–4 |
-| 3B — Himawari satellite pipeline + 72h archive | 4–5 |
-| 4 — Decision Intelligence Layer (sunrise, per-intent ranking) | 5–7 |
-| 5 — Route intelligence + Guide Brief + Compare/Share/Copy | 6–8 |
-| 6 — 3D / tilt + idle pause | 6–8 |
-| 7 — Visibility cards + low-bandwidth mode | 5–6 |
-| 8 — Hardening | 4–5 |
-| **Total v1** | **39–51 days** |
-
-One-developer estimates. Treat as orientation, not commitment.
-
----
-
-## v1.1 — Trust + Ops Layer (after v1 ships)
-
-| Item | Estimated days | Why |
+| # | Output | Acceptance gate |
 |---|---|---|
-| Guide mode toggle (lens) | 1–2 | Activates the LensConfig already shipped in v1 |
-| Guide Brief export — image / WhatsApp deep link / PDF | 3–4 | Plaintext copy already in v1 (§20.3); these are richer formats |
-| **Forecast Accuracy Ledger** | 3–4 | Yesterday's predictions scored against today's archive — turns "trust us" into "watch our hit rate". Plumbing exists from 3B's 72h archive |
-| **Lukla Flight Window card** | 2–3 | Dedicated EBC corridor card: low cloud + wind window for morning flights. Decision support, not airline operations |
-| **Seasonal Pattern Card** | 2–3 | ERA5-based "ABC in May: clear mornings, cloud after late morning" — pre-trip planning surface |
-| **Save Alert** (browser push, localStorage) | 2 | §20.2 — closes Save in the action loop |
-| **Offline last-synced brief (PWA)** | 3–4 | Service worker caches last Guide Brief; field-usable when offline |
-| Expanded Destination Insight (more historical depth) | 3 | |
-| Wind layer toggle activation | 2 | |
-
-## v1.2 — Segmentation
-
-| Item | Estimated days |
-|---|---|
-| Photographer / Flight / Hotel lenses | 3–5 |
-| 8+ viewpoints per corridor | 2–3 |
-| Composite Experience Score (only if formula validated by user feedback) | 3 |
-| Multi-language (English / Nepali) | 4–6 |
-
-## v2 — Community + Advanced
-
-- **Structured Field Reports** — verified guide / lodge / operator confirmation layer (auth, moderation, photo upload, rate limiting). Activates the `field-reported` Evidence tier already reserved in v1. Unlocks "Verified by local report" on route-condition cards. UGC infrastructure is its own product surface; deliberately deferred from v1.1.
-- More corridors (Manaslu / Mardi / extended Mustang)
-- AI oracle · Flash flood model · Monsoon front tracker · Optical flow nowcasting
+| 1 | First real ingestion: ICIMOD Glacier Mass Balance for **Rikha Samba**. Single-file CSV from RDS portal. Validate, transform, load into `cryo_glacier_mass_balance`. | `SELECT * FROM cryo_glacier_mass_balance WHERE place_id = (SELECT id FROM places WHERE slug='rikha-samba');` returns rows; manifest committed |
+| 2 | Add **Yala** glacier mass balance ingestion (same pattern). Add Yala glacier place. | Yala rows exist; same script reused with different config |
+| 3 | First place page template: 4-tab spine (Now / Now vs Normal / Last 30 years / Future) wired for one trekking destination (EBC) using existing data + `Now vs Normal` from a nearby ICIMOD AWS station (e.g. Okhaldhunga HYCOS) | EBC page loads at `/places/ebc`; tabs render; data shown with source citations |
+| 4 | Source attribution UI component (clickable pill: dataset name → modal with version, license, citation, methodology link). Used on every chart and number on the EBC page. | Click any number / chart → modal appears with full provenance |
 
 ---
 
-## What this plan deliberately does NOT do
+## Hour 5–8 — ERA5 backbone + Climate Time Machine
 
-- Start with terrain pipeline complexity before there's a customer-readable UI
-- Mix engineering and product validation in the same step
-- Front-load 4-shell cloud physics
-- Build all corridors before validating one
-- Build Decision Intelligence and 3D in parallel — Decision Intelligence is the product, 3D is the polish
-- Add wind, optical flow, monsoon tracker, or flash flood — all v2
-- Ship a Mountain Visibility Index without Clear Window supporting it
-- Ship Comparison Drawer that mixes trip intents
-- Ship a hero composite Experience Score before the formula is validated
-- Ship the lens selector UI before two lenses earn their place
-- Show local-browser timestamps anywhere — always NPT
+| # | Output | Acceptance gate |
+|---|---|---|
+| 5 | ERA5 ingestion pipeline (Copernicus CDS API). Cron monthly. Crops to HKH bbox, daily aggregates, loads into `obs_weather_daily`. | `SELECT COUNT(*) FROM obs_weather_daily WHERE source_id = (SELECT id FROM datasets WHERE slug='era5-land');` returns >100,000 rows for 5 places × 5 variables × 30 years |
+| 6 | Pre-compute 30-year climatology (1991–2020 baseline) for ~10 places × 5 variables. Materialised view `obs_climatology`. | `SELECT * FROM obs_climatology WHERE place_id = (SELECT id FROM places WHERE slug='abc') LIMIT 10;` returns rows |
+| 7 | CHIRPS ingestion (precipitation backbone — gauge-blended, corrects ERA5 orographic bias). | CHIRPS source registered, daily precip loaded for 10 places, 1981–present |
+| 8 | **Climate Time Machine** for one place / one variable end-to-end: ABC, October temperature. 30-year climatology + current overlay + decade slider, with confidence bands. | `/visualizations/climate-time-machine?place=abc&variable=temp&month=10` renders an interactive chart, mobile-responsive, screenshot-shareable |
+
+---
+
+## Hour 9–12 — First viral artifact
+
+| # | Output | Acceptance gate |
+|---|---|---|
+| 9 | "Now vs Normal" anomaly card on every existing destination card (homepage). | Every corridor card shows "today is X above/below 30-year October average" with source attribution |
+| 10–11 | **Trek Window Shift Index** for EBC October: % clear days by decade (1990s, 2000s, 2010s, 2020s). Single chart, polished. Uses ERA5 cloud cover. | Chart renders; uncertainty bands honest; ready to screenshot |
+| 12 | Permanent URL for the Trek Window Shift Index chart. SVG + PNG export. Embed code generator (HTML iframe + image fallback). | Chart has stable URL `/charts/trek-window-shift/ebc-october`; embed button copies a snippet |
+
+---
+
+## Hour 13–24 — First glacier page
+
+| # | Output | Acceptance gate |
+|---|---|---|
+| 13 | Glacier place class added: schema enrichments, page template, navigation. | `places.class = 'glacier'` is a valid value; sidebar shows Glaciers section |
+| 14 | Hugonnet et al. 2021 ingestion — global glacier elevation change 2000–2019 (per-glacier numbers). | `cryo_glacier_mass_balance` has Hugonnet-derived rows for HKH glaciers |
+| 15 | Randolph Glacier Inventory v7 ingestion — canonical outlines into `cryo_glacier_outlines`. | RGI outlines for top 50 HKH glaciers in PostGIS |
+| 16 | Khumbu glacier place page: extent over time, mass balance (Hugonnet), ice thickness placeholder | `/places/khumbu-glacier` loads with all 4+1 tabs (Now / Normal / Trend / Future / Health) |
+| 17–18 | First Vanishing Photo Archive slider — Khumbu Icefall: 1953 (Hillary expedition photo, public domain) vs current Sentinel-2 view. Image hosting in Vercel Blob, source manifest. | Slider renders on Khumbu page; old/new comparison works on mobile |
+| 19–20 | Yala + Rikha Samba glacier pages with full ICIMOD mass balance time series visualised. | Both pages load; mass balance chart shows 10+ years of data |
+| 21–22 | ICIMOD "Decadal glacier changes 1990–2020 in HKH" ingestion — outline snapshots per decade for top HKH glaciers. | `cryo_glacier_outlines` has 1990, 2000, 2010, 2020 snapshots for ≥10 glaciers |
+| 23–24 | Glacier Atlas overview page linking the documented glaciers, with HKH-wide map of glacier locations + per-glacier health summary card. | `/atlas/glaciers` lists ≥10 documented glaciers with summary cards |
+
+---
+
+## Hour 25–40 — In Your Lifetime + breadth
+
+| # | Output | Acceptance gate |
+|---|---|---|
+| 25–28 | "In Your Lifetime" feature: birth year input, personalised Nepal climate change story (temperature change, precipitation shift, glacier retreat in Khumbu, monsoon timing change since user's birth year). Uses ERA5 + glacier data. | Feature works for birth years 1950–2010; mobile-friendly; shareable |
+| 29–32 | Monsoon Tracker: onset / withdrawal / cumulative this year vs 30-year normal. Uses ERA5 / CHIRPS. | Live page updates daily; shows current monsoon progress vs typical |
+| 33–34 | Sentinel-5P TROPOMI ingestion (NO₂, aerosol). | Daily NO₂ tiles in Vercel Blob; AQ table populated |
+| 35–36 | NASA FIRMS ingestion (active fires, hourly during fire season). | Fire detections in `events.active`; map layer toggleable |
+| 37 | OpenAQ ingestion for Kathmandu + Pokhara stations (hourly PM2.5). | AQ stations registered as places; PM2.5 time series queryable |
+| 38–40 | Air Quality module: place pages for Kathmandu + Pokhara get the AQ tab (PM2.5 trend, NO₂ heat map, smoke source attribution) | Both city pages load with full AQ context |
+
+---
+
+## Hour 41–60 — Historical Event Archive + storytelling
+
+| # | Output | Acceptance gate |
+|---|---|---|
+| 41–43 | Historical Event Archive scaffolding: schema (PRODUCT.md §11 already), event listing page, event detail template. | `/events` lists events; `/events/{slug}` renders detail page |
+| 44–46 | First 3 events: 2014 Annapurna blizzard, 2015 Gorkha quake aftermath weather, 2021 Melamchi flood. Each tied to weather data on those days, plus photos and ICIMOD landslide data where applicable. | Three event pages render with data, narrative, and source citations |
+| 47–48 | Snow Line Tracker: real-time snow line elevation vs climatology. Uses HMA Snow Reanalysis (NASA) + MODIS Snow Cover. | Snow line chart on relevant glacier / corridor pages |
+| 49–52 | More Vanishing Photo Archive sliders: 4 additional pairs (Annapurna South Face, Imja Tsho 2000 vs today, Lhotse face, etc.) | 5 paired sliders live; archive index page |
+| 53–55 | River system: Koshi at Chatara place page. Includes flow seasonality, snowmelt contribution, climate-projected change. | Page loads; uses Nepal DHM flow data + GRACE total water mass |
+| 56–58 | NEX-GDDP-CMIP6 ingestion (climate projections, daily downscaled, ~25km). Pre-compute period summaries for 25 places. | Projections in `proj_cmip6_summaries` for 3 SSP scenarios × 3 periods × 5 variables × 25 places |
+| 59–60 | Future tab populated for top 5 trek destinations and top 3 glacier pages. Always with model spread + uncertainty. | Future tab renders; never single-line projections |
+
+---
+
+## Hour 61–80 — HKH expansion (Tier-2 places)
+
+| # | Output | Acceptance gate |
+|---|---|---|
+| 61–65 | Karakoram glaciers: Baltoro, Hispar, Biafo, Siachen, Batura. Each gets a glacier page populated from RGI + Hugonnet + GLIMS. | 5 Karakoram glacier pages live |
+| 66–70 | Indian Himalayan glaciers: Gangotri, Pindari, Bara Shigri, Zemu, Milam. | 5 Indian glacier pages live |
+| 71–73 | Tibet / north-face: Rongbuk, Kangshung, Kharta. Engage TPDC where data accessible; otherwise use RGI + Hugonnet. | 3 Tibet glacier pages live |
+| 74–76 | Major rivers: Indus, Ganges, Brahmaputra full reach (multiple sample points each). | River system pages with multi-point flow + headwater context |
+| 77–80 | Iconic peaks: Everest, K2, Annapurna I, Kanchenjunga, Manaslu, Dhaulagiri. Climbing window tab (jet stream, freezing level, summit-day climatology). | Peak pages live; climbing-window tab populated for 6 peaks |
+
+---
+
+## Hour 81+ — Distribution + ongoing
+
+| # | Output | Acceptance gate |
+|---|---|---|
+| 81–85 | Wikipedia citation push: become a cited source on 5 climate-of-Nepal Wikipedia pages. Pre-prepare embeddable charts with permanent URLs. | 5 Wikipedia citations live; analytics show referrer traffic |
+| 86–90 | Embeddable widgets for Tier-A charts (Climate Time Machine, Trek Window Shift, In Your Lifetime). HTML iframe + JSON-LD for SEO. | Embed code generator works; first external embed live (climate journalist or blogger) |
+| 91–95 | Outreach: identify and contact 10 climate / mountain journalists, geography departments, and trekking operator publications. Free use of charts with attribution. | First external citation lands |
+| 96–100 | Climate Witness program scaffolding: simple Markdown front-matter + photo upload via Git PR for verified guides + lodge owners. | Schema + intake flow exists; first Climate Witness entry committed |
+| 100+ | Continuous: more places, more datasets, more events, more archives, more charts. | Growing the catalogue. |
+
+---
+
+## Quality gates that apply to every PR
+
+Per [CONTRIBUTING.md](CONTRIBUTING.md):
+
+- All changes via PR, no direct push to `main`
+- CI green: `lint` + `typecheck` + `build`
+- Branch protection enforced
+- Conventional Commits (`feat`, `fix`, `chore`, `docs`, `style`, `ci`, `refactor`, `test`)
+- One commit = one concern
+- Every chart shipped: source attribution UI present, uncertainty bands rendered, methodology link wired
+- Every new dataset: 4-stage ingestion pattern, manifest.json, README.md, validation that refuses overwrite on bad data
+
+---
+
+## Stop conditions
+
+The plan stops being "vibecoding" and converts to "feature freeze + polish" when one of these happens:
+
+1. **Citation milestone hit** — 5 Wikipedia / journalist citations. Pause new features for two weeks of polish + bug fixes + outreach.
+2. **Performance regression** — Any chart > 2s on simulated 3G triggers an immediate "performance week" before more features.
+3. **Trust regression** — A user reports a chart they consider misleading or false-precision. Stop, audit, fix, audit pattern across product.
+4. **Database hygiene** — Postgres > 70% of free-tier limit. Stop, prune cold partitions to object storage.
+
+---
+
+*Original v1 BUILD_PLAN.md (the 8-step trekker plan) is preserved in git history. The trekker product is fully shipped and now becomes Pillar 3 (Real-time + anomaly layer) of the Atlas.*

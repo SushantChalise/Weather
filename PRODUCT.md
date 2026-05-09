@@ -1,638 +1,810 @@
-# Nepal Mountain Weather Decision Map — Product Spec
+# Himalayan Atlas — Product Spec
 
-**Status:** v1.3 product spec, locked
-**Last updated:** 2026-05-08
-
-**v1.3 changes from v1.2:**
-- "Proof" terminology renamed to "Evidence" everywhere (snapshots, ledger, panel labels). The product shows source data, not unverified ground truth — see §22.
-- Jomsom (Mustang) added as the 8th destination — rain-shadow comparison wedge for monsoon and shoulder seasons.
-- §20 Decision-to-action: Compare / Share / Copy Guide Brief move into v1 as the closing surface for every answer. Save Alert remains v1.1.
-- §12.1 Destination Insight Panel renamed "Proof from last 72h" → "Evidence from last 72h"; "Why" → "Why we think this".
-- §21 Evidence Tier system added — splits source provenance from confidence freshness. Route-condition cards default to `no-field-report` in v1 to make data honesty visible.
+**Status:** v2.0 — pivoted to climate-frontend positioning
+**Last updated:** 2026-05-09
+**Name:** Himalayan Atlas (locked)
 
 ---
 
 ## 0. Locking sentence
 
-> Nepal Mountain Weather Decision Map is a clean, premium map of Nepal that helps travelers, guides, and operators **compare conditions, see clear windows, and choose better travel windows** — with visible evidence and confidence labels at every step. The map is the explanation; the answer comes first; **the user makes the decision**.
+> Himalayan Atlas is the **modern frontend for Himalayan weather and climate data** — past, present, and future. Built place by place, sourced from every authoritative dataset that reaches the region, and honest about what the data can and cannot say.
 
-This is decision *support*, not instruction. The product never overclaims authority over Himalayan weather.
+The product is for two concentric audiences served by one surface: **trekkers and mountaineers** who need climate-aware decision support, and **climate-curious visitors** — researchers, journalists, students, NGO staff, climate-aware travelers — who need a beautiful, honest, citable interface to Himalayan climate at the place level.
+
+This is the canonical climate atlas for the Hindu Kush Himalaya. ICIMOD has the data; we have the frontend.
 
 ---
 
-## 1. The Five Decision Primitives (the product spine)
+## 1. The four-tab mental model
 
-Every screen, card, and toggle traces back to one of these.
+Every place in the product — every glacier, peak, lake, river segment, trekking destination, city — has the same four tabs in the same order:
 
-| # | Primitive | Question it answers |
+| Tab | Question it answers | Latency expectation |
 |---|---|---|
-| 1 | **Where is good now / tomorrow morning?** | "Where should I go?" — bounded by the +24h forecast scope |
-| 2 | **When is the next clear window?** | "When will I see the mountain?" |
-| 3 | **What changed in the last 72 hours?** | "Is the pattern stable or shifting?" |
-| 4 | **Which route segments are affected?** | "What's the trail condition?" |
-| 5 | **How confident is this answer?** | "Should I trust this?" |
+| **Now** | What's happening here right now? | Updates within an hour of source |
+| **Now vs Normal** | How does this compare to the 30-year baseline? | Updated daily |
+| **Last 30 years** | How has this place changed? | Updated monthly |
+| **Future** | What is this place projected to look like? | Updated when projections refresh |
+
+Some place classes get a fifth tab (glacier health for glaciers, basin flow for rivers, lake status for lakes). The four-tab spine is universal.
+
+This is the spine of the product. Every feature lives inside one of these tabs or links across them.
 
 ---
 
-## 2. Why this isn't a generic weather map
+## 2. Geographic scope — geography first, in favor of truth and narrative
 
-Windy, Meteoblue, AccuWeather, and Google Weather already show weather layers over Nepal. The product moat is **Nepal-specific mountain interpretation**:
+**Climate is a regional system. The product follows the system, not political borders.**
 
-- Route-segment weather translation ("slippery", "fresh snow risk") instead of millimeter rainfall
-- Route-aware snowline tied to actual trekking altitudes
-- Clear Window primitive specifically for mountain views (not generic forecast)
-- 72h evidence snapshots from real satellite data — visible source data, not unverified ground truth
-- Destination comparison by **trip intent** (mountain views vs trekking routes vs lowland)
-- Premium terrain-first cartography
-- Plain-language explanations a guide can paste into a client briefing
-
-If a feature doesn't extend one of these advantages, it doesn't ship.
-
----
-
-## 3. Operational rules (locked across every surface)
-
-| Rule | Why |
-|---|---|
-| **All times displayed are Nepal Standard Time (UTC+5:45).** Subtle "NPT" indicator next to every timestamp. | A user in London asking "Avoid after 1 PM" must not be confused. |
-| **Low-bandwidth mode** auto-engages on slow connections (<200 kbps detected). Defaults to text Decision Strip + cards; map and animations paused; data shrinks to ~50KB JSON payload. Manual toggle also available. | Above 3,500m, Everest Link / Ncell 3G is slow, dropped, and metered. The decision must load in under 2s on 2G. |
-| **Animations pause after 30s of no interaction** (cloud drift, replays). Replays only load on explicit user tap. | Cold weather drains phones fast; WebGL shaders drain them faster. |
-| **"Now" downgrades to "Stale Data" when latest satellite is >45 min old or model is >6h old.** Visible warning, not silent. | Mountain weather changes faster than model runs. Pretending freshness is dishonest. |
-| **Severity vocabulary:** Best · Good · Watch · Poor · **Avoid** (reserved for severe — storm, flood, extreme wind, official warning) | "Avoid Annapurna" must mean something. Default for normal cloud/rain is "Watch". |
-
----
-
-## 4. Visual hierarchy (locked)
-
-1. **Weather clarity** — can the user understand what the weather is doing?
-2. **Decision output** — does the UI tell them what to do?
-3. **Nepal geography** — can they orient?
-4. **Route / destination relevance** — what matters for ABC, EBC, Pokhara?
-5. **Terrain beauty** — premium cartographic quality
-6. **3D cinematic effect** — last; only when it serves the above
-
----
-
-## 5. The three surfaces
-
-| Surface | Question |
-|---|---|
-| **Overview Map** (default) | "Where in Nepal should I go now or tomorrow morning?" |
-| **Route Detail** | "What's happening on ABC / Everest?" |
-| **Destination Insight** | "Tell me everything about this place" |
-
-A **Comparison Drawer** is accessible from any surface (cross-cutting answer to primitive #1).
-
----
-
-## 6. Default landing — Nepal Overview Map
-
-### 6.1 Camera
-
-| Mode | Default? |
-|---|---|
-| **Top-down** (decision clarity) | **Yes** |
-| **Tilt** (peak-cloud occlusion, explanation) | One click |
-| **Cinematic flythrough** | Marketing only — never default |
-
-### 6.2 Always visible
-
-- Shaded-relief Nepal terrain (light 3D, not heavy postprocessing)
-- Subtle landcover tint, faint rivers
-- 7 destination markers + 2 trail entries — each with **status halo + condition icon + short label** (see §6.4)
-- Decision Strip (top, see §7)
-- Layer toggles + time control (bottom, collapsible bottom sheet on mobile)
-
-### 6.3 Hidden by default
-
-ABC and EBC route polylines (only emphasized in Route Detail). Wind particles. Sub-trails beyond ABC/EBC. Watershed boundaries.
-
-National view = **destination-first**. Route view = **corridor-first**.
-
-### 6.4 Status halos — color + icon + label
-
-Color alone is insufficient (accessibility + complex states). Each marker shows:
-
-| Halo color | Icon | Label example |
+| Tier | Coverage | Why |
 |---|---|---|
-| Gold | ☀ | "Clear" |
-| Light green | 🌤 | "Mostly clear" |
-| Blue | 🌧 | "Rain" |
-| Cyan | ❄ | "Snow 4,200m+" |
-| Gray | ☁ | "Cloud" |
-| Red | ⚠ | "Warning" |
+| **Core** | Nepal | Origin focus, deepest data density, local audience |
+| **Regional** | Hindu Kush Himalaya — Pakistan, India, Bhutan, Tibet/China, Nepal | Climate cannot be understood Nepal-only |
+| **System** | Himalayan glaciers (Karakoram, Hindu Kush, Pamir, HKH proper) and the river systems originating from them — Indus, Ganges, Brahmaputra, Yangtze, Yellow, Mekong, Salween, Irrawaddy | The "Third Pole / Asian Water Tower" frame is the largest natural system the product touches |
 
-For complex destinations (e.g. ABC: cloudy lower + snow upper), the halo shows the dominant condition; the card explains the nuance.
+Tibet / China-side data engagement is **explicit**: TPDC, Chinese Meteorological Administration, JAXA AMSR-2 (Japanese microwave snow), and HMA (NASA High Mountain Asia) datasets are first-class. North-face glaciers — Everest, Cho Oyu, Kangchenjunga — and the Tibetan plateau headwaters belong in the atlas. We do not let political maps dictate climate maps.
 
----
-
-## 7. The Decision Strip (top of screen)
-
-**Three ranked pills**, scannable on desktop and mobile:
-
-```
-BEST NOW    Jomsom · Chitwan
-BEST VIEW   EBC AM · Poon Hill AM
-WATCH       ABC lower trail PM · Snow above MBC
-```
-
-Each pill expands on tap to show reasoning. Each named destination/segment is clickable → opens that surface. Updates server-side every 10 min.
-
-The optional fourth pill **AVOID** appears only when severity threshold is met (storm, flood, extreme wind, official warning).
+**Truth-and-narrative principle:** when a topic spans borders, the product covers the topic. Geography first.
 
 ---
 
-## 8. Layer toggles
+## 3. The product principles
 
-| Layer | Visual when active |
-|---|---|
-| ☁ **Clouds** (default) | Soft white/gray semi-transparent overlay |
-| 🌧 **Rain** | Blue intensity heatmap |
-| ❄ **Snow** | Cyan/pale-blue with **route-aware snowline contour** (see §8.1) |
-| 📍 **Current** | Per-destination condition cards prominent |
-| 🌡 **Temperature** | Warm-cool gradient at surface |
+These are non-negotiable. Every PR is reviewed against them.
 
-Optional: 💨 Wind — particles, off by default.
-
-**Each layer has its own mini-legend** (cheap, high readability).
-
-**Dominance rule:** never more than two layers visually dominant. Cloud + Rain together is the only allowed pairing.
-
-### 8.1 Snow is route-aware (not a single national line)
-
-Snowline varies by region, aspect, precipitation intensity, and local temperature.
-
-**Overview:**
-```
-Snowline ~4,200–4,600m by region
-```
-
-**Route Detail (per corridor):**
-```
-ABC:  snowline ~4,200m → you cross it between Deurali and MBC
-EBC:  snowline ~5,000m → you cross it above Lobuche
-```
-
-The route's elevation profile is visually intersected by the snowline so the user sees the crossing point.
+1. **Place-first, not data-first.** Users meet datasets through places, never through dataset names. "Tell me about Khumbu" beats "view ERA5 data."
+2. **Source-attributed everywhere.** Every chart, number, and map layer carries dataset name, version, license, and citation. No exceptions.
+3. **Honest about uncertainty.** Confidence bands on every projection. Plain-language disclaimers ("9km grid resolution — interpret with care at village level"). Uncertainty is a UI element, not a footnote.
+4. **Narrative-bound.** Charts live inside place stories, not free-floating dashboards. The Himalaya doesn't make sense as numbers — it makes sense as places that are changing.
+5. **Mobile-first.** Trekkers carry phones, not laptops. Every chart works at 375px wide.
+6. **Ingested, never hot-fetched.** All data lands in our database via scrapers. We don't depend on third-party uptime at request time. Long-term durability is paramount.
+7. **No false precision.** Resolution honesty, model spread visualization, and "this dataset cannot answer that question" labels.
+8. **Code minimalism.** No unnecessary code. Simple, clean, beautiful. Refactor toward fewer lines, not more.
+9. **Speed.** Every chart loads in under 2s on 3G. Animations are 60fps or absent.
 
 ---
 
-## 9. Time control + Clear Window
+## 4. Audience — concentric, not segmented
 
 ```
-[ Now ●━━━━━━━━━━━☀━━━━━ +24h ]
-                          [ ▶ Replay 72h ]
+┌──────────────────────────────────────────────────┐
+│  Trekkers / mountaineers                          │  ← practical climate-aware decisions
+│  ┌────────────────────────────────────────────┐  │
+│  │  Climate-aware travelers + Nepali public   │  │  ← context & local-news angle
+│  │  ┌──────────────────────────────────────┐  │  │
+│  │  │  Journalists + educators + students  │  │  │  ← need quotable, citable, embeddable
+│  │  │  ┌────────────────────────────────┐  │  │  │
+│  │  │  │  Researchers / NGO / scientific│  │  │  │  ← need provenance + downloads (later)
+│  │  │  │  community                     │  │  │  │
+│  │  │  └────────────────────────────────┘  │  │  │
+│  │  └──────────────────────────────────────┘  │  │
+│  └────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────┘
 ```
 
-The ☀ marker on the timeline indicates **sunrise** at the current location's lat/lon (NPT).
-
-### 9.1 Clear Window — first-class primitive
-
-For every destination + viewpoint, a horizontal timeline of the next 12 daylight hours. Pre-dawn windows are de-emphasized unless before-sunrise viewing matters (rare).
-
-```
-6 AM   7 AM   8 AM   9 AM   10 AM   11 AM   12 PM
-☀Best  Good   Good   Watch  Cloudy  Cloudy  Poor
-```
-
-Plus a card:
-```
-Poon Hill — Clear Window
-Next clear window: Tomorrow 5:50–8:20 AM NPT
-Confidence: Medium · Forecast
-Pattern: Clouds build after 10:30 AM (3 days in a row)
-Best of last 7 days: Yesterday morning (8:10 AM)
-```
-
-Sunrise weighting: a "clear window" at 2:00 AM is useless and suppressed unless the destination's product (Poon Hill, Kala Patthar) specifically values pre-dawn movement.
-
-### 9.2 Replay 72h — summary + evidence snapshots
-
-Animation is the evidence; summary + 3 snapshots are the product.
-
-```
-Last 72h — ABC
-Clouds built after 11 AM on all 3 days.
-Best visibility was yesterday 6:20–8:10 AM NPT.
-Heavy rain affected Chhomrong–Bamboo twice.
-Trend: improving tomorrow morning.
-
-[Best yesterday 6:30 AM]   [Worst yesterday 1:20 PM]   [Now today 8:10 AM]
-       Clear                       Clouded                   Partial
-```
-
-**Snapshot selection rules** (deterministic, not arbitrary):
-1. **Best:** clearest moment in the last 72h (lowest cloud-mask coverage in scope bbox)
-2. **Worst:** worst cloud/rain moment in the last 72h
-3. **Now:** most recent significant frame
-
-User never has to scrub to understand. They scrub if they want to *see* it.
+The wedge is the **inner ring** (trekkers and mountaineers). Climate context makes their decisions more profound. The outer rings get value automatically because the product is honest, sourced, and beautifully presented — they don't need a separate product surface.
 
 ---
 
-## 10. Customer cards (always-visible side panel)
+## 5. The catalogue — what's in the atlas
 
-Three cards. Each carries the Clear Window summary and a confidence label.
+### 5.1 Place inventory
 
-### 10.1 ABC Corridor
-```
-ABC Corridor                        Trend ↗ improving · Forecast medium · NPT 14:30
-☁ Cloudy with rain in lower trail
-Rain Chhomrong–Deurali · Snow above MBC (you cross snowline at MBC)
-Best clear window: tomorrow 6–9 AM
-```
+The atlas is built place by place. Each place gets the same template, populated according to its class.
 
-### 10.2 Everest Corridor
-```
-Everest Corridor                    Trend → stable · Observed · NPT 14:30
-⛅ Partial morning visibility
-Afternoon cloud buildup · Snow above Lobuche
-Best clear window: tomorrow 6:10–8 AM
-Lukla flight risk: moderate
-```
+#### Tier 1 places (ship in first build)
 
-### 10.3 Pokhara / Mountain View
-```
-Pokhara                             Trend ↘ worsening · Observed · NPT 14:30
-🌧 Heavy cloud — Annapurna obscured
-Rain likely afternoon
-Next clear window: 2 days
-```
-
-Click any card → Destination Insight panel.
-
----
-
-## 11. Surface 2 — Route Detail
-
-### 11.1 Route as a weather object — ribbons with time mode
-
-Route polyline becomes a **weather ribbon** encoded by segment condition.
-
-| Condition | Ribbon style |
-|---|---|
-| Dry | Thin clean line |
-| Damp / light rain | Faint blue glow |
-| Heavy rain | Solid blue glow |
-| Snow / above snowline | Cyan glow |
-| Cloud ceiling | Gray veil overlay |
-| Risky / warning | Red edge |
-
-**Time mode toggle** (above the route):
-```
-[ Now ] [ Tomorrow AM ] [ Afternoon ] [ Last 24h ]
-```
-
-Trail condition depends on both recent rainfall and expected weather. The user can scan all four.
-
-### 11.2 Per-segment cards (ABC example, "Now" mode)
-```
-Pokhara → Ghandruk        ☀ Clear, dry trail
-Ghandruk → Chhomrong      ⛅ Cloudy, dry
-Chhomrong → Bamboo        🌧 Damp (8mm last 24h)
-Bamboo → Deurali          🌧 Slippery (heavy rain expected)
-Deurali → MBC             ☁ Cloud ceiling 3,800m
-MBC → ABC                 ❄ Fresh snow above 4,200m (snowline crossing)
-```
-
-Plain-language translation, not raw rainfall numbers.
-
-### 11.3 Hero viewpoint Clear Window cards
-
-For 8 hero viewpoints (4 per corridor). Same primitive as §9.1.
-
----
-
-## 12. Surface 3 — Destination Insight Panel
-
-### 12.1 Sections (priority order)
-
-1. **Right now** — current condition + plain summary + status halo + confidence label + NPT timestamp
-2. **Next clear window** — the headline for mountain destinations
-3. **Why** — short causal explanation
-4. **Evidence from last 72h** — 3 snapshots + plain-language summary ("Why we think this")
-5. **Route / trail impact** (if applicable) — segment cards inline
-6. **Trend** — improving / stable / worsening with reasoning
-7. **Plain-language conditions** — view, trail, rain, snow, each as a one-line label (no composite score)
-8. **Sources & confidence** — three timestamps (Himawari frame, Open-Meteo run, NPT clock)
-
-Mountain Visibility Index lives here as one supporting card for hero viewpoints. Supports the Clear Window primitive; doesn't replace it.
-
-### 12.2 Why no composite Experience Score
-
-A score like "Experience: 61" without transparent reasoning is opaque and arbitrary across destinations. Plain-language labels are more honest:
-
-```
-View:   Good tomorrow AM
-Trail:  Wet lower route
-Rain:   Medium concern
-Snow:   Above MBC only
-```
-
-Composite scoring may return in v1.2 once the formula is validated against real user feedback.
-
----
-
-## 13. Comparison Drawer — split by trip intent
-
-Triggered by a button labeled **"Compare"** on every surface. Mobile = swipeable cards; desktop = compact table.
-
-Three categories — never mixed:
-
-```
-MOUNTAIN VIEWS
-Destination       Now      Tomorrow AM   View    Recommendation
-Poon Hill         Clear    Best          High    Best
-EBC viewpoints    Partial  Good AM       Medium  Good
-Pokhara/Sarangkot Cloudy   Improving     Medium  Watch
-ABC               Cloudy   Better AM     Medium  Watch
-
-TREKKING ROUTES
-Destination   Now      Trail     Snow concern   Recommendation
-ABC           Cloudy   Wet lower Above MBC      Watch
-EBC           Partial  Dry       Above Lobuche  Good
-Langtang      Cloudy   Damp      None           Watch
-
-LOWLAND / NON-MOUNTAIN
-Destination   Now    Recommendation
-Chitwan       Clear  Best
-Kathmandu     Cloudy Watch
-```
-
-Within each category, ranking is meaningful. Across categories, ranking would be apples-to-oranges.
-
----
-
-## 14. v1 mobile layout — three zones
-
-Density was the failure mode in earlier drafts. Mobile is now strictly:
-
-```
-┌─────────────────────────────┐
-│ Nepal Mountain Weather  ⚙   │
-├─────────────────────────────┤
-│ BEST NOW   Jomsom           │  ← Decision answer
-│ BEST VIEW  EBC AM           │     (scannable 3 pills)
-│ WATCH      ABC PM           │
-├─────────────────────────────┤
-│                             │
-│      [Nepal Map]            │  ← Map zone
-│      destinations + halos   │     ~55% of screen
-│      tap halo to focus      │
-│                             │
-├─────────────────────────────┤
-│ ABC Corridor       ☁ ↗ NPT  │  ← Cards zone
-│ Best 6–9 AM · Forecast med  │     scrollable
-├─────────────────────────────┤
-│ Everest Corridor   ⛅ →      │
-│ Best 6:10–8 AM · Observed   │
-├─────────────────────────────┤
-│ Pokhara            🌧 ↘      │
-│ Avoid · Observed            │
-├─────────────────────────────┤
-│ [Compare ▸]  [Replay 72h ▶] │
-└─────────────────────────────┘
-                      [Layers] ← bottom sheet button
-```
-
-Layers + time control live in a bottom sheet that the user opens explicitly. The default screen is decision answer + map + cards.
-
----
-
-## 15. Customer Lens (v1: Traveler implicit only)
-
-v1 ships as Traveler-default. **No visible lens selector.** The product opens for travelers without making them choose a mode.
-
-In v1.1, a "Guide mode" toggle appears, plus the Guide Brief feature (export the cards + decision strip as text/image/WhatsApp). Photographer / Flight / Hotel lenses arrive in v1.2 once Traveler+Guide prove the pattern.
-
-The backend already structures data so lens-based prioritization is a config swap, not a rewrite (see ARCHITECTURE.md `LensConfig`).
-
----
-
-## 16. Map vs panel separation
-
-| On the map (spatial) | In side panel / cards (analytical) |
-|---|---|
-| Cloud / rain / snow overlays | 72h history summary + evidence snapshots |
-| Snowline contour | Mountain visibility |
-| Route ribbons (in Route Detail) | Plain-language labels |
-| Destination markers + halos + icons | Confidence labels |
-| Live legend strip | Best/worst time windows |
-| Sunrise marker on timeline | Trend reasoning |
-
-If it answers *where*, map. If *what / when / why / how confident*, panel.
-
----
-
-## 17. v1 desktop layout
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│ Nepal Mountain Weather Decision Map     [Now ▾]  [⚙]        │
-├─────────────────────────────────────────────────────────────┤
-│ BEST NOW   Jomsom · Chitwan                                 │
-│ BEST VIEW  EBC AM · Poon Hill AM                            │
-│ WATCH      ABC lower trail PM · Snow above MBC   [Compare ▸]│
-├──────────────────────────────────────────┬──────────────────┤
-│                                          │  ABC Corridor    │
-│                                          │  ☁ ↗ Forecast    │
-│                                          │  Best 6–9 AM     │
-│   [Top-down Nepal Map]                   ├──────────────────┤
-│   destinations + halos + icons + labels  │  Everest Corridor│
-│   route lines hidden                     │  ⛅ → Observed    │
-│   tilt one click away                    │  Best 6:10–8 AM  │
-│                                          ├──────────────────┤
-│                                          │  Pokhara         │
-│                                          │  🌧 ↘ Observed   │
-│                                          ├──────────────────┤
-│                                          │  ▶ Replay 72h   │
-├──────────────────────────────────────────┴──────────────────┤
-│ [☁ Clouds] [🌧 Rain] [❄ Snow] [📍 Current] [🌡 Temp]  [Tilt]│
-│ Now ●━━━━━━━━━☀━━━━━ +24h     NPT 14:30  Sources: Himawari  │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 18. Release plan
-
-### 18.1 v1 — public demo (must ship)
-
-**Map**
-- Top-down shaded-relief Nepal terrain
-- 8 destination markers + 2 trail entries with halo + icon + label (Pokhara, ABC, Poon Hill, EBC, Chitwan, Kathmandu, Langtang, Jomsom)
-- Snowline contour (route-aware)
-- 5 layer toggles + per-layer mini-legend
-- Now / +24h / Replay 72h time control with sunrise marker
-
-**Decision intelligence**
-- Decision Strip: 3 ranked pills (Best Now / Best View / Watch [/ Avoid])
-- Comparison Drawer: split by trip intent (Mountain Views / Trekking / Lowland), Jomsom included as monsoon rain-shadow alternative
-- Clear Window primitive: per destination + 8 hero viewpoints
-- 72h replay with plain-language summary + 3 deterministic evidence snapshots
-- Confidence labels + Evidence tier on every card (route conditions show `no-field-report` honestly until v2's field-report layer ships)
-
-**Decision-to-action surface (§20)**
-- Compare button (split-by-intent drawer)
-- Share button (native share / copy URL)
-- Copy Guide Brief button (plaintext to clipboard)
-
-**Route Detail (ABC + EBC)**
-- Route ribbons with time mode (Now / Tomorrow AM / Afternoon / Last 24h)
-- Plain-language segment cards (no millimeter rainfall)
-- Snowline crossing point shown on elevation profile
-
-**Destination Insight Panel**
-- For 8 destinations + 8 hero viewpoints
-- Right now · Clear Window · Why we think this · Evidence (72h) · Route impact · Trend · Plain-language conditions · Sources & confidence
-- Action surface (Compare / Share / Copy Guide Brief)
-
-**Operational**
-- All times NPT with indicator
-- Low-bandwidth mode (auto + manual)
-- Idle animation pause (30s)
-- Stale-data downgrade (>45 min satellite, >6h model)
-- Mobile 3-zone layout, layers in bottom sheet
-- Three performance tiers
-- Source attribution visible
-
-### 18.2 v1.1 — trust + ops layer
-
-- Guide mode toggle + **Guide Brief** richer export (image / WhatsApp deep link / PDF — plaintext Copy already in v1)
-- **Forecast Accuracy Ledger** — yesterday's clear-window predictions scored against today's archived satellite frames ("Yesterday: predicted clear 5:50–8:20; observed clear 6:10–8:00 → 82% match")
-- **Lukla Flight Window card** — dedicated morning-flight visibility + wind card on EBC corridor
-- **Seasonal Pattern Card** — ERA5-derived "ABC in May" planning context
-- **Save Alert** — browser push when saved window confidence improves
-- **Offline last-synced brief (PWA)** — service worker caches Guide Brief for field use
-- Expanded Destination Insight (more historical depth)
-- Better route segment history
-- Wind layer toggle activated
-
-### 18.3 v1.2 — segmentation
-
-- Photographer / Flight / Hotel lenses
-- 8+ viewpoints per corridor
-- Optional composite Experience Score (only after formula validated)
-- Multi-language (English / Nepali)
-
-### 18.4 v2 — community + advanced
-
-- **Structured Field Reports** — verified guide / lodge / operator confirmation layer. Activates the `field-reported` Evidence tier reserved in v1. Trail-condition cards finally upgrade from "no field report" to "Verified by lodge at 7:20 AM".
-- More corridors (Manaslu / Mardi / extended Mustang routes)
-- AI oracle · Flash flood model · Monsoon front tracker · Optical flow nowcasting
-
----
-
-## 20. Decision-to-action surface (the sixth, closing primitive)
-
-The five decision primitives answer *where / when / what changed / which segments / how confident*. After the answer, the product offers a **closing surface** so the user can act on their own decision. The surface is passive — it never tells the user what to do; it makes their next move easier.
-
-The surface lives on every Destination Insight Panel and on each Clear Window card.
-
-### 20.1 v1 — three actions, all client-side, zero accounts
-
-| Action | Behavior | Why now |
+| Class | Places | Count |
 |---|---|---|
-| **[Compare ▸]** | Opens Comparison Drawer (already in spec, §13) | Already shipped surface — link is the point |
-| **[Share]** | `navigator.share` on mobile, copy-link fallback on desktop. URL encodes `?destination=...&date=...&mode=...` so the receiver lands on the same view | Trekkers and guides discuss windows on WhatsApp. The product needs a frictionless paste path |
-| **[Copy Guide Brief]** | Calls `/api/brief/[corridor]?format=text`, copies plaintext to clipboard, shows confirm toast | Guides paste into WhatsApp every morning. This is the wedge feature. See §20.3 |
+| **Trekking destinations** (existing) | EBC, ABC, Poon Hill, Pokhara, Kathmandu, Jomsom (Mustang), Chitwan, Lukla | 8 |
+| **Hero glaciers** | Khumbu, Annapurna South, Langtang (Yala), Imja, Rikha Samba, Ngozumpa, Yala, Khumbu Icefall | 8 |
+| **Iconic peaks** | Everest, Annapurna I, Kanchenjunga, Manaslu, Dhaulagiri, Cho Oyu, Makalu, Lhotse | 8 |
+| **Sacred + signal lakes** | Tilicho, Phewa, Imja Tsho, Tsho Rolpa, Rara | 5 |
+| **River signal points** | Koshi @ Chatara, Karnali @ Chisapani, Gandaki @ Devghat | 3 |
+| **Cities (climate signal)** | Kathmandu, Pokhara | 2 |
+| **TOTAL TIER 1** | | **34** |
 
-All three are static — no auth, no notification infrastructure, no backend writes. Each action takes <1 day of implementation.
+#### Tier 2 places (planned expansion — HKH-wide)
 
-### 20.2 v1.1 — Save Alert
+| Class | Examples | Estimated count |
+|---|---|---|
+| **Pakistan / Karakoram glaciers** | Baltoro, Hispar, Biafo, Siachen, Batura, Passu | 8–10 |
+| **India / Indian Himalaya glaciers** | Gangotri, Pindari, Milam, Bara Shigri, Zemu | 6–8 |
+| **Tibet / north-face glaciers** | Rongbuk (north Everest), Kangshung, Kharta | 4–6 |
+| **Bhutan glaciers** | Lunana, Thorthormi | 2–4 |
+| **Major rivers (full reach)** | Indus, Ganges, Brahmaputra, Mekong, Salween, Yangtze, Yellow, Irrawaddy with multiple sample points | 8 rivers × 3–5 points each |
+| **Iconic non-Nepal peaks** | K2, Nanga Parbat, Nanda Devi, Kangchenjunga (Sikkim side) | 6–8 |
 
-| Action | Behavior |
+#### Tier 3 (open extension)
+
+The schema accommodates arbitrary places. Adding a new place is a database insert plus a polygon, never a code change.
+
+### 5.2 What every place page contains
+
+Below the four-tab spine, the data shown adapts to the place class:
+
+| Place class | Specific tabs / content |
 |---|---|
-| **[Save clear-window alert]** | Browser push notification (Notifications API, no third-party service) when the saved window's confidence improves above threshold or window opens within 12h. Stored in `localStorage`, no server state |
+| **Trekking destination** | Now / Normal / Trend / Future + "Trek window" sub-card showing % clear days by month, by decade |
+| **Glacier** | + **Health** tab: extent over time, mass balance, ice thickness, photo timeline, downstream flow |
+| **Peak** | + **Climbing window** tab: jet stream, freezing level, summit-day climatology |
+| **Lake** | + **Lake health** tab: surface area over time, level, temperature, GLOF risk if relevant |
+| **River point** | + **Flow** tab: discharge, snowmelt contribution, seasonal pattern, climate-projected change |
+| **City** | + **Air quality** tab: PM2.5, NO₂, smoke source attribution, transboundary contribution |
 
-Email alerts and Trip Room (group sharing) are explicitly out of scope. They require account infrastructure inappropriate for a non-commercial v1.
+### 5.3 Feature pillars
 
-### 20.3 Guide Brief minimal export — v1, not v1.1
+The atlas is built from five overlapping pillars. Every concrete feature lives inside one.
 
-The Guide Brief API was already a v1 backend endpoint with v1.1 export UI deferred. **The plaintext copy button moves into v1.** Image / WhatsApp deep link / PDF export remain v1.1.
+| # | Pillar | What it is | Audience served |
+|---|---|---|---|
+| **1** | **Place pages** | The 4-tab template populated for ~34 Tier-1 places | All audiences |
+| **2** | **Cross-cutting visualizations** | Standalone analytical views that span places (Climate Time Machine, Trek Window Shift, In Your Lifetime, Glacier Atlas, Vanishing Photo Archive, Monsoon Tracker, Anomaly Map, Snow Line Tracker) | Climate-curious; viral artifacts |
+| **3** | **Real-time + anomaly layer** | Now Map + active events panel + air quality + live monsoon module | Trekkers; local-news angle |
+| **4** | **Research & journalism utility** | Source attribution UI, permanent URLs, embed code, print-ready exports, methodology pages, open changelog | Outer audience rings |
+| **5** | **Storytelling** | Featured story, Historical Event Archive, Climate Witness program, glaciologist diaries | All audiences (the glue) |
 
-Why this matters: tourists may use this once. Guides use it every morning in season. The plaintext brief is the highest-leverage feature in the product, and the implementation is one fetch + `navigator.clipboard.writeText`.
+### 5.4 Concrete feature list (ranked by leverage)
 
-```
-[Copy Guide Brief]    ← v1
-[Share to WhatsApp]   ← v1.1 (wa.me deep link)
-[Download as image]   ← v1.1 (canvas snapshot)
-[Download as PDF]     ← v1.1
-```
+Following the Codex/Gemini council synthesis, ranked by "what makes the product canonical / shared / cited" first:
 
-### 20.4 What this is NOT
+#### Tier A — ship first (these define the product)
 
-- Not a booking surface. The product never lists operators, never takes payment, never recommends a specific guide.
-- Not a marketplace. No vendor products, no commissions.
-- Not instructive. Buttons say "Compare" / "Share" / "Copy Brief" — never "Book" / "Go now" / "Avoid this trail".
+| # | Feature | Pillar | What it does |
+|---|---|---|---|
+| 1 | **Now vs Normal context on every existing destination card** | 3 | Today's conditions overlaid with "12% above 30-year May average" — climate becomes a tool, not a feature |
+| 2 | **Place-based Climate Time Machine** | 2 | Pick place + month → 30-year climatology + current overlay + decade slider, with confidence bands |
+| 3 | **Trek Window Shift Index** | 2 | "% clear days for EBC October trek window has shifted from 78% (1990s) to 61% (2020s)" — the journalist-bait chart |
+| 4 | **In Your Lifetime** | 2 | Birth year → personalized Nepal climate change story — the WhatsApp/Facebook viral artifact |
+| 5 | **Glacier health page template** | 1 | Khumbu first — extent over time, mass balance, ice thickness, paired photo timeline |
 
-The user makes the decision. The product makes the next move easier.
+#### Tier B — ship second (depth + virality)
+
+| # | Feature | Pillar | What it does |
+|---|---|---|---|
+| 6 | **Vanishing Photo Archive** | 2 | 5–8 paired sliders (Khumbu 1953 vs today, etc.) — the Reddit/Facebook viral artifact |
+| 7 | **Monsoon Tracker** | 3 | Onset / withdrawal / cumulative this year vs normal vs decade trend — local-news angle for 30M Nepalis |
+| 8 | **Historical Event Archive** | 5 | 2014 Annapurna blizzard, 2015 quake aftermath weather, 2021 Melamchi flood, etc. — every entry tied to weather data + photos + impact |
+| 9 | **Snow Line Tracker** | 3 | Real-time snow line elevation vs climatology — uses HMA Snow Reanalysis pipeline |
+| 10 | **Air Quality / "Why is it hazy?" module** | 3 | PM2.5 + NO₂ + smoke source attribution — Kathmandu/Pokhara story |
+| 11 | **Embeddable widgets for Tier-A charts only** | 4 | Wikipedia, NYT, journalists — once a chart is undeniable, ship its embed |
+
+#### Tier C — ship third (depth + niches)
+
+| # | Feature | Pillar | What it does |
+|---|---|---|---|
+| 12 | **River system pages** (Indus, Ganges, Brahmaputra) | 1 | Headwater glaciers, flow seasonality, snowmelt contribution, projected change |
+| 13 | **Climate Witness program** | 5 | Activates `field-reported` Evidence tier — verified ground-truth from sherpas, lodge owners, guides paired with quantitative data |
+| 14 | **GLOF Watch List (storytelling page, NOT interactive risk map)** | 5 | Curated overview of dangerous glacial lakes — uses ICIMOD's risk register, doesn't claim independent risk modeling |
+| 15 | **Climbing window tab for iconic peaks** | 1 | Jet stream + freezing level + summit-day climatology for Everest, K2, Annapurna I — high-prestige niche, mountaineering credibility |
+| 16 | **Climate Projections (reframed)** | 1 | Place-level scenario summaries with model spread + uncertainty — never a single SSP line |
+
+#### Killed / banned
+
+| Feature | Reason |
+|---|---|
+| **Data API for researchers** | Defer to v2 — fantasy + support nightmare; council unanimous |
+| **Interactive GLOF Risk Map (with custom modeling)** | Reputational risk; not solo-dev safe; replaced by curated Watch List |
+| **AI Climate Q&A interface** | Adds little, creates trust risk |
+| **Real-time avalanche risk** | Needs domain partners we don't have |
+| **Climate Projections SSP slider as single line** | False precision — must show spread or not show at all |
 
 ---
 
-## 21. Evidence vocabulary (corrects v1.2 "Proof" overclaim)
+## 6. Data foundation
 
-The product previously called its 72h satellite snapshots "Proof". This was an overclaim. We do not have ground truth — we have evidence.
+### 6.1 Data principles
 
-| What we have | What we don't have |
-|---|---|
-| Satellite cloud-mask history | What a person actually saw from a specific ridge |
-| IMERG precipitation observations | Whether a specific trail section was slippery |
-| DHM warnings | The exact lived condition at every point on the trail |
-| Open-Meteo model output | A guide or lodge confirming current trail state |
-| ERA5 seasonal baselines | A photo from the destination right now |
+1. **Ingested, not live-fetched.** Every dataset lands in our database via a scraper. The frontend reads our database, never a third-party API at request time. (Exception: per-user real-time forecast lookups via Open-Meteo, capped and cached.)
+2. **Version-pinned with provenance.** Each row carries `source_dataset_id`, `source_version`, `ingested_at`, `license`, and `citation`. We can reproduce any chart from raw archives.
+3. **Validated before serve.** Every ingestion run validates schema, checks expected ranges, compares to last successful run, and refuses to overwrite if validation fails.
+4. **License-respected.** Every dataset has a license field. Display attribution per source's terms. Remove anything we can't license cleanly.
+5. **Long-term durable.** Source URLs change, APIs deprecate, governments rotate keys. Our copy of the data does not.
 
-### 21.1 Renames (locked)
+### 6.2 Source classes (data inventory)
 
-| v1.2 term | v1.3 term |
-|---|---|
-| Proof snapshots | Evidence snapshots |
-| Proof Ledger | Evidence Ledger |
-| `ProofManifest` type | `EvidenceManifest` type |
-| `proofSnapshots` field | `evidenceSnapshots` field |
-| `_proof` API field | `_evidence` API field |
-| "Proof from last 72h" panel | "Evidence from last 72h" |
-| "Why" section | "Why we think this" |
+#### A. ICIMOD Regional Data Service (RDS) — the foundation
 
-### 21.2 Evidence tier on every claim
+**1,206 datasets cataloged** in `output/icimod-rds-all.json` and `output/icimod-rds-ranked.csv`. 879 spatially overlap Nepal. Most under CC BY 4.0.
 
-Every condition label carries an explicit source tier (see ARCHITECTURE.md §`EvidenceTier`):
+The 12 anchoring datasets:
 
-```
-Observed (satellite)
-Official warning
-Forecast (model)
-Estimated (derived)
-Field reported (v2 only)
-No field report available (v1 default)
-```
+| # | Dataset | License | Why it's gold |
+|---|---|---|---|
+| 1 | Glacier mass balance — Rikha Samba (2011–2020+) | CC BY 4.0 | Decade of direct in-situ measurement, Hidden Valley / Mustang |
+| 2 | Glacier mass balance — Yala (Langtang, 2011–2020+) | CC BY 4.0 | Biannual seasonal-split mass balance |
+| 3 | Decadal glacier changes 1990–2020 in HKH | CC BY 4.0 | Ready-made time-lapse base for Glacier Atlas |
+| 4 | Glaciers of Nepal 1980 | CC BY 4.0 | The "before" baseline — without 1980, no 45-year story |
+| 5 | Status of Glaciers in HKH | CC BY 4.0 | Pan-region inventory, citation-friendly |
+| 6 | Glacial Lakes of HKH (multiple inventories) | CC BY 4.0 | GLOF Watch List foundation |
+| 7 | HydroSAR Hydro30 Surface Water Extent | CC BY 4.0 | Daily 30m monsoon-season flood mapping |
+| 8 | HYCOS AWS network (Humla, Baitadi, Jumla, Chainpur, Dhankuta, Okhaldhunga, Korilla — Bhutan) | Mixed CC | Ground-truth point validation across altitudes |
+| 9 | Yala micromet stations 1/2/3 + Pluviometers Langshisha + Morimoto | CC BY 4.0 | Finest-grained alpine micrometeorology in Nepal |
+| 10 | 2015 Gorkha Earthquake landslide hazard layers (8 datasets, 30m) | CC BY 4.0 | Anchors Historical Event Archive |
+| 11 | CMIP6 datasets for South Asia (2015–2100) | Free for non-commercial | Saves months of GRIB/NetCDF wrangling |
+| 12 | HI-SPHY mid-century 4.5 hydrology projections | CC BY 4.0 | Rare downscaled HKH-specific hydrology |
 
-Example route-condition card (v1):
+#### B. Long-term reanalysis (the climate baseline backbone)
 
-```
-Bamboo → Deurali
-Slippery likely
-Evidence: forecast + IMERG rain (last 24h)
-Field report: not available
-Confidence: Medium
-```
+| Dataset | Coverage | Resolution | Access | Use |
+|---|---|---|---|---|
+| **ERA5 / ERA5-Land** (ECMWF) | 1940–present, hourly | 0.25° / 0.1° (~9km) | Copernicus CDS API (free, registration) | Backbone for "30-year normal" calculations — temp, precip, wind, snow, freezing level |
+| **CHIRPS** (UCSB / USGS) | 1981–present, daily | 0.05° (~5km) | THREDDS / GEE | Best precip product for Asia — gauge-blended, corrects ERA5's orographic underestimation |
+| **TerraClimate** | 1958–present, monthly | ~4km | Direct NetCDF / GEE | High-res monthly + water balance |
+| **CRU TS v4** | 1901–present, monthly | 0.5° | UEA portal | Longest gridded record for "100-year change" claims |
+| **MERRA-2** (NASA) | 1980–present, hourly | 0.5° × 0.625° | NASA GES DISC | Cross-validation; aerosol product |
+| **JRA-3Q** (JMA) | 1947–present, 6-hourly | 40km | JMA portal | Authority signal — Japan's reanalysis (resonates with Himawari sourcing) |
+| **APHRODITE** | 1951–2015, daily | 0.25° | DIAS Japan | Asian gauge-only precipitation, regional standard |
 
-The "field report: not available" line is intentional — making the gap visible builds trust. v2's structured field-report layer fills that gap; v1 honestly says it isn't there.
+**The argument for ERA5 + CHIRPS as the core**: ERA5 underestimates orographic precipitation in the Himalaya by 30–50% (Khadka et al. 2022). CHIRPS is gauge-blended and corrects this. Use ERA5 for temp / wind / radiation; CHIRPS for precipitation. State this honestly in attribution.
 
-### 21.3 What changed in cards
+#### C. Real-time satellite
 
-UI labels in §10 cards are unchanged — they were already plain-language. The `confidence` row gains a sibling `evidence` row when the panel expands.
+| Dataset | What | Resolution | Access | Use |
+|---|---|---|---|---|
+| **Himawari-9 B01–B16** | 16-band, every 10 min | 1–2km | AWS Open Data | Currently using B13 thermal only — extend to RGB, water vapor, day cloud |
+| **GPM IMERG** | Precipitation, half-hourly | ~10km | NASA GES DISC, NRT | Real-time monsoon tracking |
+| **Sentinel-1 SAR** | All-weather radar, 6-day | 5–20m | Copernicus / AWS | Monsoon-season flood + glacial lake extent |
+| **Sentinel-2 MSI** | Optical, 5-day | 10–60m | Copernicus / AWS | Glacier monitoring, snow line, treeline |
+| **Sentinel-5P TROPOMI** | NO₂ / SO₂ / CO / O₃ / aerosol | 7×3.5km | Copernicus / GEE | Air quality stories |
+| **VIIRS / MODIS Active Fires (FIRMS)** | Real-time fires, <3h latency | 375m / 1km | NASA FIRMS API | Spring fire smoke is THE Nepal AQ story |
+| **MODIS Snow Cover (MOD10A1, MYD10A1)** | Daily snow cover | 500m | NASA NSIDC | Snow line tracking |
+| **MODIS LST (MOD11A1)** | Land surface temp, daily | 1km | NASA LP DAAC | Independent surface-temp anomaly |
+| **MODIS NDVI/EVI (MOD13)** | Vegetation indices, 16-day | 250m | NASA LP DAAC | Treeline shifts, monsoon vegetation timing |
+
+#### D. Climate projections
+
+| Dataset | Coverage | Resolution | Access | Use |
+|---|---|---|---|---|
+| **NEX-GDDP-CMIP6** | 1950–2100, daily | ~25km | NASA NEX, AWS Open Data | **Starting point** — bias-corrected statistical downscaling, ready to use |
+| **CMIP6 (raw)** | 2015–2100, multi-model | Variable, ~100km | Pangeo / ESGF | Source-of-truth where downscaling isn't available |
+| **CORDEX-CORE / SA** | 1950–2100, daily | ~25km | ESGF, IITM Pune | Dynamically downscaled for South Asia |
+| **WorldClim Future** | 2021–2100, monthly | ~1km | WorldClim portal | Bioclimatic — useful for treeline / vegetation projections |
+| **IPCC AR6 Atlas** | Aggregated CMIP6 | Coarse | IPCC Atlas | Pre-computed regional summaries — directly quotable |
+| **ICIMOD CMIP6 South Asia** (catalogued) | 2015–2100 | Regional | ICIMOD RDS | Pre-processed regional outputs |
+
+**Pragmatic stack**: ICIMOD CMIP6 South Asia + NEX-GDDP-CMIP6 daily downscaled. Always show 3 scenarios (SSP1-2.6 / 2-4.5 / 5-8.5) with model spread. Never a single line.
+
+#### E. Cryosphere — beyond ICIMOD
+
+| Dataset | Access | Use |
+|---|---|---|
+| **Hugonnet et al. 2021** (Nature) | Theia / direct | Most-cited dataset for global glacier elevation change 2000–2019 |
+| **Brun et al. 2017** | Direct | HMA glacier mass balance 2000–2016 |
+| **Farinotti et al. 2019** | WGMS | Global ice thickness — needed for "% of Khumbu remaining" |
+| **Randolph Glacier Inventory v7** | NSIDC | Canonical glacier outlines |
+| **GLIMS** | NSIDC | Multi-snapshot outlines over decades |
+| **WGMS Mass Balance Bulletin** | WGMS portal | Direct mass balance, 50+ years — Yala + Rikha Samba feed into this |
+| **AVHRR Polar Pathfinder snow** | NSIDC | Longer history than MODIS (1981–) |
+| **HMA Snow Reanalysis (NASA HMA SR1.0)** | NASA | **Killer dataset** — daily SWE, 90m, 1985–present, region-specific |
+| **AMSR-2** (JAXA) | JAXA G-Portal | Independent SWE, cross-validation |
+| **GRACE / GRACE-FO** | NASA / GFZ | Total water mass change 2002–present — single most powerful "water tower is losing water" chart |
+
+#### F. Hydrology
+
+| Dataset | Access | Use |
+|---|---|---|
+| **GLDAS** | NASA GES DISC | Soil moisture, runoff |
+| **GloFAS** | Copernicus | Real-time flood probability |
+| **JRC Global Surface Water (Pekel 2016)** | EC JRC, GEE | Lake-area history (Phewa, Tilicho, Imja over 40 years) |
+| **HydroSHEDS** | WWF | Rivers, watersheds, basins — topology |
+| **HydroLAKES** | WWF | Global lake inventory |
+| **Nepal DHM stations** | DHM portal (scrape) | Real-time + historical river levels |
+| **CMA China hydrology** (where accessible) | TPDC | Cross-border flow |
+
+#### G. Air quality
+
+| Dataset | Access | Use |
+|---|---|---|
+| **Sentinel-5P TROPOMI** | Copernicus, GEE | NO₂ / SO₂ / CO / O₃ / aerosol — daily |
+| **MODIS AOD** | NASA LAADS | Long-record aerosol optical depth |
+| **NASA FIRMS** | API + WMS | Active fires, <3h |
+| **OpenAQ** | OpenAQ API | Ground-station PM2.5 — Kathmandu, Pokhara |
+| **CAMS** | Copernicus ADS | Forecasts of aerosols, ozone |
+| **DoE Nepal AQI** | Manual scrape | National authority |
+
+#### H. Topography
+
+| Dataset | Access | Use |
+|---|---|---|
+| **FABDEM** (existing) | Open data | Bare-earth DEM |
+| **GLO-30** (existing) | Copernicus | 30m DEM, baseline |
+| **NASADEM** | NASA | Improved SRTM |
+| **ALOS World 3D (AW3D30)** | JAXA | Cross-validation 30m DEM |
+| **ASTER GDEM v3** | NASA | Gap-filling |
+
+#### I. Vegetation / land cover
+
+| Dataset | Access | Use |
+|---|---|---|
+| **MODIS NDVI/EVI** (already in C) | NASA | Treeline, vegetation season |
+| **ESA WorldCover** | Open | 10m global land cover (2020/2021) |
+| **ESA CCI Land Cover** | Open | 300m, 1992–present |
+| **Hansen Global Forest Change** | Direct | Annual forest loss / gain |
+
+#### J. Disasters / hazards
+
+| Dataset | Access | Use |
+|---|---|---|
+| **USGS Earthquake Catalog** | API | Comprehensive earthquakes |
+| **EMSC** | API | Cross-validation |
+| **GDACS** | RSS/API | Global disaster alerts |
+| **EM-DAT** | Free with registration | Disaster losses 1900–present |
+
+#### K. Photo archives (Vanishing Photo Archive — specialized scrapers + human curation)
+
+| Source | What | Access strategy |
+|---|---|---|
+| **NASA Worldview / GIBS** | Daily satellite from 2000+ | API |
+| **USGS EarthExplorer** | Landsat 1972+ | Free with login + scraper |
+| **ESA Heritage** | Early satellite | Free with login + scraper |
+| **Royal Geographical Society** | 1920s+ expedition photos | Manual curation, paid licensing for hero photos |
+| **Mountain Heritage Trust (UK)** | Climbing history | Direct request, free with attribution |
+| **Alpine Club London / Zurich** | Major archives | Direct request |
+| **University theses repositories** | Glacier photos | Open access |
+| **Citizen submissions (later)** | Crowdsourced | Custom intake + validation |
+
+#### L. Population / exposure
+
+| Dataset | Access | Use |
+|---|---|---|
+| **WorldPop** | Portal | 100m gridded population |
+| **GHS-POP** | EC JRC | Global Human Settlement |
+| **HOTOSM** | HOT export | Building footprints |
+| **OpenStreetMap (Overpass)** | API | Trails, lodges, roads |
+| **Nepal CBS Census** | CBS Nepal | Demographics |
+
+#### M. Tibet / China-side data (geography-first principle)
+
+| Dataset | Access | Use |
+|---|---|---|
+| **TPDC (Third Pole Environment Database)** | Beijing portal | Tibetan plateau climate, glaciers |
+| **HMA family (NASA)** | NASA | Region-wide products |
+| **JAXA AMSR-2** | JAXA | Microwave SWE |
+| **CMA reanalysis** (where available) | CMA portal | Chinese regional reanalysis |
 
 ---
 
-## 19. Visual style
+## 7. Technical spine
 
-Premium terrain atlas meets modern weather product meets travel decision map.
+### 7.1 Stack overview
 
-- Muted earth tones, soft cloud whites, generous whitespace
-- Sans-serif type at comfortable sizes
-- **Color reserved for decision signals:** gold = clear/best · blue = rain · cyan = snow · gray = cloud · red = warning · soft green tint = "Best" recommendation
-- **Time-of-day light:** map shading subtly shifts with NPT (cooler tones AM, brighter mid-day, warmer evening) — mountain weather is time-of-day driven
-- Animation rule: clouds drift, time slider slides, cards fade. Never strobe, never autoplay aggressive transitions. **Always pauses after 30s idle.**
+| Layer | Choice | Why |
+|---|---|---|
+| **Frontend framework** | Next.js 15 App Router + TypeScript strict (existing) | No reason to change |
+| **Map engine** | MapLibre GL (existing) | Open, performant, good for raster + vector |
+| **3D / extras** | React Three Fiber + drei (existing) | Tilt mode + future glacier 3D |
+| **Charting** | Observable Plot (preferred) or Recharts (existing) | Plot is small + designed for data viz |
+| **Styling** | Tailwind v4 (existing) | Stay |
+| **Database** | **Postgres + PostGIS + TimescaleDB** | Spatial + time-series + relational in one |
+| **Hosting (DB)** | Neon free tier or Supabase free tier (start), Vercel Postgres later | Free, scales |
+| **Hosting (app)** | Vercel (existing) | Stay |
+| **Tile / blob storage** | Vercel Blob (existing) | Already integrated for Himawari |
+| **Object storage (raw archives)** | Cloudflare R2 (free egress) or Vercel Blob | Cold storage for NetCDF / GRIB |
+| **Cron / ingestion runtime** | GitHub Actions (existing) | Free for public repos, already in pattern |
+| **Heavy compute (occasional)** | GitHub Actions + Modal.com or Fly.io workers | When CMIP6 / ERA5 jobs exceed Actions limits |
 
-The map should feel like a beautifully printed atlas you can ask questions of — and which answers back honestly.
+### 7.2 Database — design principles
+
+**One database per environment** (dev, staging, prod). Single Postgres instance, multiple schemas:
+
+```
+public.places          -- canonical place registry (id, name, slug, class, geometry, metadata)
+public.datasets        -- registered data sources (id, name, version, license, citation, source_url)
+
+obs.weather_hourly     -- TimescaleDB hypertable: time, place_id, variable, value, source_id
+obs.weather_daily      -- daily aggregates
+obs.climatology        -- pre-computed 30-year normals: place_id, variable, month/day, mean/p5/p95
+obs.anomalies          -- pre-computed anomalies: place_id, variable, time, anomaly, confidence
+
+cryo.glacier_outlines  -- PostGIS multipolygon, time-versioned (year, source)
+cryo.glacier_mass_balance  -- TimescaleDB: glacier_id, time, value, method, source_id
+cryo.glacial_lakes     -- PostGIS, time-versioned + risk attributes
+
+proj.cmip6_summaries   -- place_id, scenario, variable, period, mean/p10/p90 (model spread)
+
+events.historical      -- 2014 Annapurna blizzard, 2015 quake, etc. — id, time, places[], summary
+events.active          -- live events from FIRMS, HydroSAR, GDACS
+
+photos.archive         -- id, place_id, time, source, caption, license, image_url
+```
+
+**TimescaleDB hypertables** for `obs.*` because climate data is time-series-heavy and hypertables auto-partition.
+
+**PostGIS** for geometry: every place has a `geom` column (point, polygon, or linestring). Glacier outlines, watersheds, river segments all stored as PostGIS geometries.
+
+**Materialized views** for the heaviest reads (current `Now vs Normal` for top places, monthly climatology lookups). Refreshed by ingestion cron.
+
+### 7.3 Storage tiers
+
+| Tier | What lives here | Lifetime |
+|---|---|---|
+| **Postgres** | Place registry, derived observations, climatology, projections, citations | Permanent |
+| **Vercel Blob** | Tile sets (Himawari, MODIS Snow, satellite cloud), processed images, place hero photos | Rolling — newest 30 days for tiles, permanent for processed |
+| **Cloudflare R2 / Vercel Blob (cold)** | Raw archive copies of source data (ERA5 monthly NetCDF, CMIP6 daily, MODIS HDF) | Permanent (long-term durability) |
+| **GitHub repo** | Code, ingestion scripts, small reference datasets, validation snapshots | Permanent |
+
+### 7.4 Ingestion pipeline architecture
+
+**Per-dataset, four-stage pattern.** Every dataset follows the same shape:
+
+```
+scripts/ingestion/<dataset_name>/
+├── scrape.py        # 1. Pull from source (API, FTP, S3, web)
+├── validate.py      # 2. Schema check, range check, freshness check, diff vs last
+├── transform.py     # 3. Crop to HKH bbox, downsample, compute aggregates
+├── load.py          # 4. INSERT/UPSERT into Postgres or upload to Blob
+├── manifest.json    # Source URL, license, version, citation, columns mapped
+└── README.md        # What this dataset is, why we have it, gotchas
+```
+
+Each dataset has a GitHub Actions workflow:
+
+```
+.github/workflows/
+├── ingest-himawari.yml         (existing — reorg into pattern)
+├── ingest-era5-monthly.yml     (cron: monthly)
+├── ingest-chirps-daily.yml     (cron: daily)
+├── ingest-modis-snow.yml       (cron: daily)
+├── ingest-icimod-glacier-mass-balance.yml  (cron: monthly — slow-changing)
+├── ingest-icimod-glacial-lakes.yml         (cron: weekly)
+├── ingest-firms-fires.yml                   (cron: hourly during fire season)
+├── ingest-tropomi-aod.yml                   (cron: daily)
+├── ingest-grace.yml                          (cron: monthly)
+├── ingest-photos-curate.yml                  (manual trigger + human review)
+└── ...one per dataset
+```
+
+**Validation gate**: every ingestion run produces a `validation_report.json` artifact. If validation fails (schema mismatch, value out of expected range, source unreachable), the run **does not overwrite** the prior good copy. Notification fires. Human or Claude Code investigates.
+
+**Validation augmented by Claude Code**: when adding a new dataset for the first time, a Claude Code session inspects the source, drafts the four scripts, runs once, validates output, and commits. New-dataset onboarding goes through human review (the "human inputs" the user specified).
+
+**Idempotency**: every load is upsert by `(source_id, place_id, time, variable)`. Running an ingestion twice is a no-op.
+
+**Provenance**: every row carries `source_dataset_id`, `source_version`, `ingested_at`. We can reconstruct any chart from raw archives.
+
+### 7.5 Frontend rendering pipeline
+
+```
+User request
+    ↓
+Next.js Edge / Server Component
+    ↓
+Postgres query (Prisma or Drizzle ORM)
+    ↓
+Cached at edge (Vercel Edge Cache, ISR)
+    ↓
+React Server Component renders
+    ↓
+Client hydrates if interactive
+    ↓
+MapLibre / Plot / drei render
+```
+
+**Charts pre-rendered server-side** wherever possible (Observable Plot supports SSR-friendly rendering). Client-side interactivity layered on for hover/zoom/scrub.
+
+**No live third-party fetches at request time** — only Postgres and Vercel Blob (both ours). Open-Meteo per-request is the one exception, capped and cached.
+
+### 7.6 Performance budget
+
+| Metric | Budget |
+|---|---|
+| Largest Contentful Paint | < 2.0s on simulated 3G |
+| Time to Interactive | < 3.0s |
+| Total page weight (engaged) | < 200KB |
+| Chart render | < 200ms |
+| Map first frame | < 1.0s |
+| API route (Postgres-backed) | p95 < 300ms |
+
+Lighthouse > 90 across all metrics. Mobile-first.
+
+---
+
+## 8. Trust mechanisms
+
+These are not "nice to have" — they are the moat.
+
+| Mechanism | What it is |
+|---|---|
+| **Source attribution UI** | Every chart, layer, and number has a clickable source pill that opens a modal: dataset name, version, license, citation, methodology link |
+| **Uncertainty bands** | Visible confidence intervals on every projection; never a single line for CMIP6 |
+| **Methodology pages per dataset** | "What is ERA5? Why we use it. What it cannot tell you." — one page per dataset, linked from every chart |
+| **Open changelog** | Every methodology change announced + dated. Version-stamped charts. |
+| **Permanent URLs** | Every chart, place, event has a stable URL we promise not to break |
+| **Honest disclaimers** | "9km grid resolution — interpret with care at village level" — built into rendering at low spatial scales |
+| **Wikipedia citation block** | Auto-generated `<ref>` snippets on every page for journalists / editors |
+| **Per-page screenshot bundle** | One-click "download this for citation" — image + caption + sources + DOIs |
+
+---
+
+## 9. Build sequence — vibecoding (hours, not weeks)
+
+Time budget: solo dev, lots of hours, Claude Code as pair. Sequence assumes **1 hour = 1 substantive PR**.
+
+### Hour 0–4: Foundation
+
+| Hour | Output |
+|---|---|
+| 0 | Provision Postgres (Neon free tier). Set up Prisma/Drizzle schema for `places`, `datasets`. Migrate existing place data in. |
+| 1 | First ingestion pipeline scaffold: `scripts/ingestion/_template/` with the 4-stage pattern. README. |
+| 2 | First real ingestion: ICIMOD Glacier Mass Balance (Rikha Samba + Yala). Small data, high-value. |
+| 3 | Place page template (4-tab spine), wired for one trekking destination (EBC) using existing data + new `Now vs Normal` from ICIMOD AWS station |
+
+### Hour 4–12: First viral artifact
+
+| Hour | Output |
+|---|---|
+| 4–5 | ERA5 ingestion pipeline (climatology pre-compute for ~10 places × 5 variables × 30 years) |
+| 6 | CHIRPS ingestion (precipitation backbone) |
+| 7–8 | Climate Time Machine: for ABC, ABC's October climatology + current overlay + decade slider |
+| 9 | "Now vs Normal" anomaly card on every existing destination card |
+| 10–12 | **Trek Window Shift Index for EBC October** — single chart, polished, screenshot-shareable, embed-ready |
+
+### Hour 12–24: First glacier page
+
+| Hour | Output |
+|---|---|
+| 12–13 | Glacier place class added — schema, template, navigation |
+| 14–15 | Khumbu glacier page: extent over time (ICIMOD + Hugonnet), mass balance (proxy via Hugonnet for Khumbu since direct ICIMOD is for Yala/Rikha Samba) |
+| 16–18 | First Vanishing Photo Archive slider — Khumbu Icefall 1953 (Hillary expedition photo) vs current Sentinel-2 |
+| 19–22 | Yala + Rikha Samba glacier pages with their full ICIMOD mass balance time series |
+| 23–24 | Glacier Atlas overview page linking the 3 glaciers |
+
+### Hour 24–40: In Your Lifetime + breadth
+
+| Hour | Output |
+|---|---|
+| 24–28 | "In Your Lifetime" — birth year input, personalized Nepal climate change story |
+| 29–32 | Monsoon Tracker — onset / withdrawal / cumulative this year vs normal |
+| 33–36 | Air Quality module — TROPOMI + FIRMS + OpenAQ for Kathmandu and Pokhara |
+| 37–40 | Historical Event Archive scaffolding + first 3 events (2014 Annapurna blizzard, 2015 Gorkha quake, 2021 Melamchi flood) |
+
+### Hour 40–80: HKH expansion + Tier-2 places
+
+| Hour | Output |
+|---|---|
+| 40–50 | River system pages — Indus, Ganges, Brahmaputra (Tier-2 places start) |
+| 50–60 | Tibet / north-face content — Rongbuk, Kangshung; engage TPDC data |
+| 60–70 | Karakoram glaciers — Baltoro, Hispar, Biafo, Siachen |
+| 70–80 | Climbing window tab for Everest + K2 + Annapurna I |
+
+### Hour 80+: Distribution + storytelling
+
+| Hour | Output |
+|---|---|
+| 80–100 | Wikipedia source citations on 5 climate-of-Nepal pages; reach out to climate journalists |
+| 100–120 | Embeddable widgets for Tier-A charts |
+| 120+ | Climate Witness program scaffolding, more glaciers, more events, more rivers, growing the catalogue |
+
+---
+
+## 10. Workflow & quality gates
+
+Per `CONTRIBUTING.md` (already shipped):
+
+- All changes via PR, no direct push to `main`
+- CI runs `lint` + `typecheck` + `build` on every PR
+- Branch protection enforced
+- Conventional Commits
+- Atomic commits — one concern per commit
+- Every PR updates docs whose code it touches
+- Every new dataset onboarded through the 4-stage ingestion pattern with a manifest + README
+
+---
+
+## 11. Database schema sketch (first pass)
+
+```sql
+-- Place registry
+CREATE TABLE places (
+  id           SERIAL PRIMARY KEY,
+  slug         TEXT UNIQUE NOT NULL,        -- 'khumbu-glacier', 'ebc', 'kathmandu'
+  name         TEXT NOT NULL,
+  class        TEXT NOT NULL,               -- 'trek_destination', 'glacier', 'peak', 'lake', 'river_point', 'city'
+  country      TEXT NOT NULL,
+  region       TEXT,                        -- 'Khumbu', 'Annapurna', 'Langtang', 'Karakoram', 'Tibetan Plateau'
+  geom         GEOMETRY(Geometry, 4326),    -- point/polygon/linestring depending on class
+  altitude_m   INTEGER,
+  metadata     JSONB,                       -- class-specific (peak height, glacier area, river basin, etc.)
+  created_at   TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX places_geom_idx ON places USING GIST (geom);
+CREATE INDEX places_class_idx ON places (class);
+
+-- Dataset registry
+CREATE TABLE datasets (
+  id            SERIAL PRIMARY KEY,
+  slug          TEXT UNIQUE NOT NULL,      -- 'era5-land', 'chirps-daily', 'icimod-rikha-samba-mb'
+  name          TEXT NOT NULL,
+  version       TEXT,
+  license       TEXT NOT NULL,
+  citation      TEXT NOT NULL,
+  source_url    TEXT NOT NULL,
+  description   TEXT,
+  spatial_res   TEXT,
+  temporal_res  TEXT,
+  date_added    DATE DEFAULT CURRENT_DATE,
+  is_active     BOOLEAN DEFAULT TRUE
+);
+
+-- Time-series observations (TimescaleDB hypertable)
+CREATE TABLE obs_weather_daily (
+  time         TIMESTAMPTZ NOT NULL,
+  place_id     INTEGER REFERENCES places(id),
+  variable     TEXT NOT NULL,              -- 'temp_max', 'temp_min', 'precip_mm', 'snow_cover_pct', etc.
+  value        DOUBLE PRECISION,
+  unit         TEXT,
+  source_id    INTEGER REFERENCES datasets(id),
+  source_version TEXT,
+  ingested_at  TIMESTAMPTZ DEFAULT NOW(),
+  PRIMARY KEY (time, place_id, variable, source_id)
+);
+SELECT create_hypertable('obs_weather_daily', 'time');
+
+-- Pre-computed climatology (30-year normals)
+CREATE TABLE obs_climatology (
+  place_id     INTEGER REFERENCES places(id),
+  variable     TEXT NOT NULL,
+  doy          INTEGER NOT NULL,           -- day of year 1-366
+  mean         DOUBLE PRECISION,
+  p05          DOUBLE PRECISION,           -- 5th percentile
+  p25          DOUBLE PRECISION,
+  p50          DOUBLE PRECISION,           -- median
+  p75          DOUBLE PRECISION,
+  p95          DOUBLE PRECISION,
+  baseline_period TEXT NOT NULL,           -- '1991-2020'
+  source_id    INTEGER REFERENCES datasets(id),
+  PRIMARY KEY (place_id, variable, doy, baseline_period, source_id)
+);
+
+-- Glacier-specific
+CREATE TABLE cryo_glacier_outlines (
+  id           SERIAL PRIMARY KEY,
+  place_id     INTEGER REFERENCES places(id),
+  outline_year INTEGER NOT NULL,
+  geom         GEOMETRY(MultiPolygon, 4326),
+  area_km2     DOUBLE PRECISION,
+  source_id    INTEGER REFERENCES datasets(id),
+  UNIQUE (place_id, outline_year, source_id)
+);
+CREATE INDEX cryo_outlines_geom_idx ON cryo_glacier_outlines USING GIST (geom);
+
+CREATE TABLE cryo_glacier_mass_balance (
+  time         TIMESTAMPTZ NOT NULL,
+  place_id     INTEGER REFERENCES places(id),
+  value        DOUBLE PRECISION,           -- mwe (meters water equivalent)
+  method       TEXT NOT NULL,              -- 'glaciological', 'geodetic', 'modeled'
+  source_id    INTEGER REFERENCES datasets(id),
+  PRIMARY KEY (time, place_id, method, source_id)
+);
+SELECT create_hypertable('cryo_glacier_mass_balance', 'time');
+
+-- CMIP6 projection summaries
+CREATE TABLE proj_cmip6_summaries (
+  place_id     INTEGER REFERENCES places(id),
+  scenario     TEXT NOT NULL,              -- 'ssp126', 'ssp245', 'ssp585'
+  variable     TEXT NOT NULL,
+  period       TEXT NOT NULL,              -- 'near_term_2031_2050', 'mid_century_2041_2060', 'end_century_2081_2100'
+  baseline     TEXT NOT NULL,              -- '1995_2014'
+  delta_mean   DOUBLE PRECISION,
+  delta_p10    DOUBLE PRECISION,
+  delta_p90    DOUBLE PRECISION,
+  n_models     INTEGER,
+  source_id    INTEGER REFERENCES datasets(id),
+  PRIMARY KEY (place_id, scenario, variable, period, baseline, source_id)
+);
+
+-- Historical events
+CREATE TABLE events_historical (
+  id           SERIAL PRIMARY KEY,
+  slug         TEXT UNIQUE NOT NULL,        -- 'gorkha-2015', 'melamchi-flood-2021'
+  name         TEXT NOT NULL,
+  event_class  TEXT NOT NULL,              -- 'earthquake', 'flood', 'glof', 'storm', 'avalanche'
+  time_start   TIMESTAMPTZ NOT NULL,
+  time_end     TIMESTAMPTZ,
+  affected_geom GEOMETRY(Geometry, 4326),
+  affected_places INTEGER[] REFERENCES places(id),
+  summary      TEXT NOT NULL,
+  evidence     JSONB,                      -- linked datasets, photos, citations
+  created_at   TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Photo archive
+CREATE TABLE photos_archive (
+  id           SERIAL PRIMARY KEY,
+  place_id     INTEGER REFERENCES places(id),
+  capture_time TIMESTAMPTZ NOT NULL,
+  source       TEXT NOT NULL,              -- 'rgs', 'mountain-heritage', 'sentinel-2', 'usgs'
+  caption      TEXT,
+  license      TEXT NOT NULL,
+  url          TEXT NOT NULL,              -- canonical url to image
+  blob_path    TEXT,                        -- our copy in Vercel Blob
+  metadata     JSONB,                       -- camera, photographer, expedition, etc.
+  created_at   TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX photos_place_time_idx ON photos_archive (place_id, capture_time);
+```
+
+Schema evolves; this is a starting point that captures the essential entities.
+
+---
+
+## 12. Naming, branding, identity
+
+**Name:** Himalayan Atlas (locked).
+
+The product previously ran as "Nepal Mountain Weather Decision Map" — that name no longer fits the pivot. Codebase, repo, and deployment URL can transition incrementally:
+
+| Surface | Current | Target |
+|---|---|---|
+| Repo | `SushantChalise/Weather` | rename later, keep redirect |
+| Deploy URL | `weather-ruby-iota-35.vercel.app` | `himalayan-atlas.com` (or `.org`) once domain is procured |
+| Page title | "Nepal Mountain Weather Decision Map" | "Himalayan Atlas" |
+| Header copy | "Nepal Weather" | "Himalayan Atlas" |
+
+Repo rename + custom domain are not blockers for shipping content under the new name.
+
+---
+
+## 13. What this product deliberately does NOT do
+
+These keep us honest:
+
+- **Does not host raw climate data for download.** Data API is v2+ if at all.
+- **Does not run its own glacier-melt or GLOF risk models.** We aggregate and visualize others' research; we do not claim independent risk modeling.
+- **Does not provide AI-generated climate Q&A.** Trust risk too high; adds little.
+- **Does not show single-line CMIP6 projections.** Always with model spread + uncertainty.
+- **Does not show village-level CMIP6.** 25km downscaling cannot resolve to village; we say so.
+- **Does not predict avalanches.** Domain partners required, not yet engaged.
+- **Does not replace ICIMOD or Nepal DHM.** We are a frontend; they remain the authority.
+- **Does not gate content.** No login required for any reading. Future Climate Witness submissions may require auth.
+
+---
+
+## 14. Open decisions
+
+These need founder calls before deep build:
+
+| # | Decision | Default if no decision |
+|---|---|---|
+| 1 | ~~Final product name~~ | ~~Resolved: Himalayan Atlas~~ ✓ |
+| 2 | Database host (Neon vs Supabase) | Neon — free tier is generous, native Postgres |
+| 3 | Charting library (Observable Plot vs Recharts) | Plot — smaller, designed for data viz, SSR-friendly |
+| 4 | Cold object storage (R2 vs Vercel Blob) | Vercel Blob (simpler — already in stack) |
+| 5 | Domain (current `weather-ruby-iota-35.vercel.app` is auto-generated) | Keep until name decided; then `himalayan-atlas.com` or similar |
+| 6 | Photo licensing budget | $0 default — only sources we can use freely; commercial archives deferred |
+| 7 | Compute budget for projections (CMIP6 processing is heavy) | Free GitHub Actions tier first; escalate if needed |
+| 8 | Climate Witness submission auth | Defer until traction — currently no |
+
+---
+
+## 15. Success metrics — north star
+
+The atlas wins when:
+
+| Signal | Threshold |
+|---|---|
+| Cited as a source on 5 Wikipedia pages about Himalayan climate | 6 months |
+| At least 1 climate journalist piece links to a chart | 6 months |
+| ICIMOD acknowledges or links to the product | 12 months |
+| At least 1 academic paper cites a chart or methodology | 18 months |
+| At least 10,000 unique users per month | 12 months |
+| At least 50 places fully documented | 12 months |
+| At least 100 ingestion pipelines stable and running | 18 months |
+
+These are not vanity metrics. Citation ≫ traffic. Authority ≫ engagement.
+
+---
+
+## 16. Living document
+
+This spec changes as the product learns. Per `CONTRIBUTING.md`:
+
+> When you change something a future contributor needs to know, update the docs in the same PR.
+
+PRs that touch product direction update this file. PRs that touch the database schema update `§11`. PRs that touch a data source update `§6`. The locking sentence (`§0`) and product principles (`§3`) move only with explicit founder approval.
+
+---
+
+*End of spec.*

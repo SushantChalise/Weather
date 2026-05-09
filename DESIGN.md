@@ -1,6 +1,9 @@
-# Design System
+# Design System — Himalayan Atlas
 
-Implementable design tokens for the Nepal Mountain Weather Decision Map. If this conflicts with PRODUCT.md visual style (§19), PRODUCT.md wins on intent; this file wins on exact values.
+Implementable design tokens and component specs. If this conflicts with PRODUCT.md, PRODUCT.md wins on intent; this file wins on exact values.
+
+**Status:** v2.0 — extended for Atlas-specific components (place pages, source attribution, uncertainty bands, Climate Time Machine).
+The colour, typography, spacing, and existing component sections below are inherited from v1 and remain valid.
 
 ---
 
@@ -261,3 +264,261 @@ If Unicode rendering proves inconsistent on Android WebView, swap to inline SVGs
 | **Reduced motion** | `prefers-reduced-motion: reduce` → disable all animations, use instant transitions |
 | **Screen reader** | Decision Strip pills have `aria-label` with full text ("Best Now: Mustang, Chitwan") |
 | **Keyboard nav** | Tab through: Decision Strip → Cards → Map markers → Controls |
+
+---
+
+## Atlas-specific components (v2.0)
+
+Everything above this line is inherited from v1 and still applies. Below are Atlas-specific patterns that emerged from the v2.0 pivot.
+
+### Charting library
+
+**Observable Plot** is the primary library. Recharts continues for legacy components but is not extended.
+
+| Choice | Plot | Recharts |
+|---|---|---|
+| SSR-friendly | ✓ (renders to SVG server-side) | partial |
+| Bundle size | small (~30 KB) | larger (~90 KB) |
+| Designed for | Data exploration + analytical viz | Application-style charts (dashboards) |
+| Composition model | Marks + scales (declarative) | Components |
+
+**Why this matters for the Atlas:** every place page should ship its initial chart paint as plain SVG before JS hydration. Plot is built for this. The first impression of any chart is the chart itself, not a loading spinner.
+
+### Place page layout
+
+Universal 4-tab layout for every place. Class-specific tabs (Health for glaciers, Climbing for peaks, Flow for rivers, AQ for cities) appear conditionally.
+
+```
+┌──────────────────────────────────────────────┐
+│  Header — place name, class, region          │  56px tall
+│  ────────────────────────────────────────────│
+│  Hero strip — current state at a glance      │  120px (mobile) / 200px (desktop)
+│  Status pill • coordinates • elevation       │
+│  ────────────────────────────────────────────│
+│  Tab bar: Now │ Normal │ Trend │ Future │ +  │  48px tall, sticky on scroll
+│  ────────────────────────────────────────────│
+│                                              │
+│  Tab content                                 │
+│  - Charts: Plot SSR-rendered                 │
+│  - Source attribution pill on each           │
+│  - Uncertainty bands where applicable        │
+│                                              │
+│  ────────────────────────────────────────────│
+│  Sources & methodology                       │  bottom of every tab
+│  - Per-dataset citation cards                │
+│  - "Cite this page" copy-to-clipboard        │
+└──────────────────────────────────────────────┘
+```
+
+**Hero strip content** (per place class):
+- Trekking destination: condition icon + plain-language status + last-updated NPT
+- Glacier: extent change since 1980, mass balance trend arrow, last in-situ measurement date
+- Peak: jet stream status, freezing level today, climbing-window status
+- Lake: surface area trend, level vs normal
+- River point: flow vs normal, snowmelt fraction
+- City: PM2.5 + AQI badge, primary smoke source if applicable
+
+### Source attribution component
+
+Every chart, every number, every map layer carries a clickable source pill. This is the trust mechanism.
+
+```
+┌─────────────────────────────────┐
+│  📊  Mean October temp          │
+│  -3.2 °C  ▼ 0.8 °C since 1990s │
+│  ─────────────────────────────  │
+│  ⓘ Source: ERA5-Land, ECMWF     │  ← clickable pill (font-size xs, muted)
+└─────────────────────────────────┘
+```
+
+Click → modal:
+
+```
+┌──────────────────────────────────────────┐
+│  ERA5-Land                          ✕    │
+│  ──────────────────────────────────────  │
+│  ECMWF / Copernicus Climate Change       │
+│  Service                                 │
+│                                          │
+│  Hourly land variables, 9km resolution,  │
+│  1950 to present.                        │
+│                                          │
+│  License: Copernicus license             │
+│  Citation: Hersbach et al. 2023, ERA5    │
+│  monthly averaged data on single levels  │
+│  from 1940 to present, Copernicus        │
+│  Climate Change Service (C3S) Climate    │
+│  Data Store (CDS), DOI: 10.24381/...     │
+│                                          │
+│  ▶ Read methodology page                 │
+│  ▶ Copy citation as Wikipedia ref        │
+│  ▶ Copy citation as BibTeX               │
+└──────────────────────────────────────────┘
+```
+
+**Visual specs:**
+- Pill: `text-xs`, `text-text-muted`, `bg-surface-alt`, `rounded-md`, `px-2 py-0.5`
+- Hover: `text-text-secondary`, cursor pointer
+- Modal: standard modal pattern, `max-w-md`, focus-trap, dismissible by ESC
+
+### Uncertainty band component
+
+Confidence intervals are rendered visually on every projection or anomaly chart.
+
+| Visual | Where used |
+|---|---|
+| **Shaded ribbon** (5–95th percentile) | CMIP6 projections, ERA5 climatology |
+| **Whiskers on bars** | Annual averages, decadal comparisons |
+| **Spaghetti** (multi-model) | When showing all individual CMIP6 model outputs |
+
+Colour: `--color-text-muted` at 25% opacity. Never a colour with semantic meaning (we don't want users to read "good/bad" into uncertainty).
+
+Hover anywhere on band → tooltip: "5th–95th percentile across N models, baseline 1991–2020."
+
+### Resolution disclaimer
+
+Auto-shown when displaying gridded data at scales finer than the data resolution.
+
+```
+┌──────────────────────────────────────────────┐
+│  ⚠ Note: this projection uses 25 km grid     │
+│  resolution. Interpret with care at village  │
+│  scale; village-level statements require     │
+│  station data.                                │
+└──────────────────────────────────────────────┘
+```
+
+Renders below the chart when zoom or context implies sub-resolution interpretation.
+
+**Visual specs:** `text-xs`, `text-text-secondary`, `bg-surface-alt`, `border-l-2 border-watch`, `pl-3 py-2`.
+
+### Climate Time Machine viz pattern
+
+The signature chart pattern. Shared layout across the Atlas:
+
+```
+Title:           ABC Corridor — October temperature
+Subtitle:        Month average, 1991–2020 baseline
+
+[Year slider: 1991 ─────────●─────── 2026]
+
+  ┌──────────────────────────────────────────────────┐
+  │     ╱╲                                            │
+  │    ╱  ╲       ╱╲          [shaded climatology]    │
+  │   ╱    ╲     ╱  ╲                                 │
+  │  ╱      ╲   ╱    ╲       [bold line: selected   ] │
+  │ ╱        ╲_╱      ╲      [year]                   │
+  │                                                   │
+  └──────────────────────────────────────────────────┘
+   1   5   10   15   20   25   30 (day of October)
+
+This October was 1.8 °C warmer than the 1991–2020 baseline.
+↘ Cooler than the 2010s average by 0.4 °C.
+
+ⓘ ERA5-Land · Climatology baseline 1991–2020 · 9 km grid
+```
+
+Components:
+- 5–95th percentile ribbon for the climatology
+- Bold line for the selected year
+- Sub-text comparison sentence (auto-generated from data)
+- Source attribution pill at the bottom
+- Year slider above (URL-synced)
+
+### "In Your Lifetime" pattern
+
+Personalised hero block. Birth year input → renders user-specific change story.
+
+```
+You were born in [1985 ▼] — Nepal has changed since then.
+
+  ─────────────────────────────────────────
+  Average annual temperature, Nepal:
+       ╱╲      ╱─
+       ──╲___╱
+       1985 ←──── +1.4 °C ────→ 2026
+
+  Khumbu Glacier extent:
+       ████████████   1985: 38.4 km²
+       ████████       2026: 26.7 km² (−30%)
+
+  Monsoon arrival in Pokhara:
+       1985: typically June 12
+       2026: typically June 24 (12 days later)
+  ─────────────────────────────────────────
+```
+
+Each row is a small chart with source attribution pill. Strong shareability — designed for screenshot.
+
+### Vanishing Photo Archive slider
+
+Image comparison slider, mobile-first.
+
+```
+┌──────────────────────────────────────────┐
+│  Khumbu Icefall                          │
+│  1953 (Hillary expedition) ↔ 2026         │
+│                                          │
+│  ┌──────────────────────────────────┐    │
+│  │ [Old photo]    │  [New photo]    │    │
+│  │                │                 │    │
+│  │     drag handle ●                │    │
+│  └──────────────────────────────────┘    │
+│                                          │
+│  ⓘ Sources:                              │
+│  Left: Royal Geographical Society, 1953 │
+│  Right: Sentinel-2, 2026-04-15           │
+└──────────────────────────────────────────┘
+```
+
+Slider library: `react-compare-slider` (small, touch-friendly).
+
+### Map terrain palette extension (HKH-wide)
+
+The v1 palette covers Nepal terrain altitudes. For HKH-wide expansion, the palette stays unchanged — altitudes 0–8000m+ are the same. No new tokens.
+
+For the Tibetan plateau (a vast 4000–5000m landscape), the existing `--terrain-alpine` (`#B0A890`) covers it correctly.
+
+### Anomaly map palette
+
+Net new for v2.0 — used by the Anomaly Map and "Now vs Normal" overlays.
+
+| Token | Hex | Usage |
+|---|---|---|
+| `--anomaly-cold-strong` | `#3B6FB6` | Below normal by > 2σ |
+| `--anomaly-cold-mild` | `#9DBED5` | Below normal by 1–2σ |
+| `--anomaly-neutral` | `#E5E2DB` | Within ±1σ of normal |
+| `--anomaly-warm-mild` | `#E8C39A` | Above normal by 1–2σ |
+| `--anomaly-warm-strong` | `#C45B4A` | Above normal by > 2σ |
+
+Diverging scale with neutral grey at zero. Avoid red/blue alone (colourblind safety) — pair with hatching for screen-reader accessibility on Anomaly Map.
+
+### Component naming convention
+
+Atlas-specific components live under `src/components/atlas/`:
+
+```
+src/components/atlas/
+├── trust/
+│   ├── SourceAttributionPill.tsx
+│   ├── UncertaintyBand.tsx
+│   ├── ResolutionDisclaimer.tsx
+│   └── CitationBlock.tsx
+├── place/
+│   ├── PlacePageLayout.tsx
+│   ├── PlaceHeroStrip.tsx
+│   ├── TabBar.tsx
+│   └── tabs/
+│       ├── NowTab.tsx
+│       ├── NormalTab.tsx
+│       ├── TrendTab.tsx
+│       └── FutureTab.tsx
+└── viz/
+    ├── ClimateTimeMachine.tsx
+    ├── TrekWindowShiftIndex.tsx
+    ├── InYourLifetime.tsx
+    ├── VanishingPhotoSlider.tsx
+    └── AnomalyMap.tsx
+```
+
+Trekker-specific components stay under `src/components/decision/`, `src/components/scene/`, etc. Pillar 3 of the Atlas (Real-time + anomaly layer) reuses them.
