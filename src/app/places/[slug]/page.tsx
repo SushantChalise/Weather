@@ -68,8 +68,29 @@ export default async function PlacePage({ params }: PlacePageProps) {
   // Only pass a DestinationId when the weather API recognises this slug
   const destinationId = WEATHER_DESTINATION_IDS.has(slug) ? (slug as DestinationId) : null;
 
+  // JSON-LD structured data — content sourced entirely from static typed registry (no user input)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Place",
+    name: entry.name,
+    ...(entry.region
+      ? { containedInPlace: { "@type": "AdministrativeArea", name: entry.region } }
+      : {}),
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: entry.lat,
+      longitude: entry.lon,
+      elevation: entry.alt,
+    },
+  };
+
   return (
     <main className="min-h-screen bg-white">
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD script — statically typed registry data, no user input
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <PlaceHeader place={place} />
       <PlaceTabs destinationId={destinationId} lat={entry.lat} lon={entry.lon} variant={variant} />
     </main>
