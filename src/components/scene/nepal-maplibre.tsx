@@ -55,6 +55,7 @@ function buildMapStyle(): StyleSpecification {
         type: "raster",
         tiles: cloudTiles,
         tileSize: 256,
+        maxzoom: 7, // MODIS_Terra_Cloud_Fraction_Day only has tiles up to level 7
         attribution: "NASA GIBS · MODIS Terra",
       },
     },
