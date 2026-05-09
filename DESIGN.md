@@ -563,14 +563,62 @@ The Atlas has six page archetypes. Every page uses one.
 
 | Archetype | Purpose |
 |---|---|
-| **Home** | Featured story, current conditions snapshot, navigation to places |
+| **Home** | Featured story, current conditions snapshot, navigation entry points |
 | **Place page** | One place, four-tab spine + class-specific tabs |
-| **Visualization** | One cross-cutting chart (Climate Time Machine, Trek Window Shift, In Your Lifetime) |
+| **Visualisation** | One cross-cutting chart (Climate Time Machine, Trek Window Shift, In Your Lifetime) |
 | **Story** | Editorial article with embedded charts and maps |
 | **Methodology** | Per-dataset documentation page |
-| **Catalogue** | Browse all places, all datasets, all events |
+| **Geospatial Discovery** | Map-first browse + faceted filter for finding places, datasets, events at scale |
 
 Each has a layout template documented in §9 (components).
+
+**Why Geospatial Discovery (not Catalogue):** the earlier draft had a "Catalogue" archetype — a list-first browse pattern. Both LLM critics flagged this as a 2015-era pattern that breaks at 100+ places. With ~34 Tier-1 places growing to ~80+ at Tier-2 (Karakoram, Indian Himalaya, Tibet, Bhutan glaciers), and the long tail of Randolph Glacier Inventory (~4,000 HKH glaciers) potentially exposed, a map-first archetype is correct from the start.
+
+**Geospatial Discovery anatomy:**
+
+```
+┌──────────────────────────────────────────────┐
+│  [Wordmark]                  [Search] [Menu] │
+├──────────────────────────────────────────────┤
+│  Filters    │                                │
+│  ────────── │  ┌──────────────────────────┐  │
+│  Class      │  │                          │  │
+│  ☑ glacier  │  │     [Map of HKH]         │  │
+│  ☑ peak     │  │                          │  │
+│  ☐ lake     │  │     ●  ●  ●              │  │
+│  ☐ city     │  │       ●     ●  ●         │  │
+│             │  │                          │  │
+│  Country    │  │   (clusters when zoom    │  │
+│  ☑ Nepal    │  │    out, individual when  │  │
+│  ☑ India    │  │    zoom in)              │  │
+│  ☐ Bhutan   │  │                          │  │
+│             │  └──────────────────────────┘  │
+│  Trend dir. │                                │
+│  ☑ retreating│  Selected place card          │
+│  ☐ stable   │  ┌──────────────────────────┐  │
+│             │  │ Khumbu Glacier           │  │
+│  Sort by    │  │ Nepal · 4,900–8,800 m    │  │
+│  ⦿ name     │  │ Mass loss: −0.45 m/yr    │  │
+│  ○ change   │  │ Last in-situ: 2024       │  │
+│             │  │ → Open place page         │  │
+│             │  └──────────────────────────┘  │
+└──────────────────────────────────────────────┘
+```
+
+**Key behaviours:**
+
+| Concern | Spec |
+|---|---|
+| **Default sort** | By prominence: hero glaciers first, then trekking destinations, then peaks by elevation, then secondary places |
+| **Faceted filters** | Place class, country, trend direction (retreating / stable / advancing for glaciers; warming / cooling / stable for places), data freshness (have current data / archive only) |
+| **Mobile filters** | Bottom sheet (drag up to see filters), not sidebar — sidebar is desktop-only |
+| **Clustering** | Map markers cluster at low zoom (`< zoom 8`); de-cluster at higher zoom; clicking a cluster fits the bounding box of its members |
+| **Empty result** | "No glaciers in this region with mass-balance data before 2000" — specific, with a constructive suggestion (expand range / clear filters) |
+| **Saved views** | URL-encoded filter state; copy-link gives a permanent shareable view ("All Karakoram glaciers retreating since 2000") |
+| **Performance** | Initial load: top 50 places + filter options. Pan / zoom / filter change: incremental fetch via Postgres + PostGIS spatial query. Never load 4,000 markers at once. |
+| **Keyboard** | All filters keyboard-navigable; map is keyboard-pannable (arrow keys); map markers are tab-focusable with `aria-label` per marker |
+
+**Home vs Geospatial Discovery:** Gemini suggested merging them. We don't — Home is editorial (featured story, current snapshot, narrative entry); Geospatial Discovery is exploratory (find anything, filter to it). Different jobs, different surfaces. But Home links prominently to Geospatial Discovery via a persistent "Browse all" entry.
 
 ---
 
