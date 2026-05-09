@@ -50,6 +50,25 @@ const PLACES: PlaceSeed[] = [
   { slug: "rikha-samba",    name: "Rikha Samba Glacier", class: "glacier", country: "Nepal", region: "Gandaki",     lat: 28.8167, lon: 83.5000, alt: 5400 },
   { slug: "yala",           name: "Yala Glacier",        class: "glacier", country: "Nepal", region: "Bagmati",     lat: 28.2333, lon: 85.6167, alt: 5200 },
   { slug: "gangotri",       name: "Gangotri Glacier",    class: "glacier", country: "India", region: "Uttarakhand", lat: 30.9333, lon: 79.0667, alt: 4000 },
+  // Peaks
+  { slug: "everest",        name: "Mount Everest",       class: "peak", country: "Nepal",    region: "Koshi",      lat: 27.9881, lon: 86.9250, alt: 8848 },
+  { slug: "k2",             name: "K2",                  class: "peak", country: "Pakistan", region: "Karakoram",  lat: 35.8825, lon: 76.5133, alt: 8611 },
+  { slug: "annapurna-i",   name: "Annapurna I",         class: "peak", country: "Nepal",    region: "Gandaki",    lat: 28.5961, lon: 83.8203, alt: 8091 },
+  { slug: "kanchenjunga",  name: "Kanchenjunga",        class: "peak", country: "Nepal",    region: "Mechi",      lat: 27.7025, lon: 88.1475, alt: 8586 },
+  { slug: "manaslu",       name: "Manaslu",             class: "peak", country: "Nepal",    region: "Gandaki",    lat: 28.5497, lon: 84.5597, alt: 8163 },
+  { slug: "dhaulagiri",    name: "Dhaulagiri",          class: "peak", country: "Nepal",    region: "Gandaki",    lat: 28.6967, lon: 83.4875, alt: 8167 },
+  { slug: "lhotse",        name: "Lhotse",              class: "peak", country: "Nepal",    region: "Koshi",      lat: 27.9617, lon: 86.9333, alt: 8516 },
+  { slug: "cho-oyu",       name: "Cho Oyu",             class: "peak", country: "Nepal",    region: "Koshi",      lat: 28.0942, lon: 86.6608, alt: 8201 },
+  // Lakes
+  { slug: "tilicho",       name: "Tilicho Lake",        class: "lake", country: "Nepal",    region: "Gandaki",    lat: 28.6814, lon: 83.8536, alt: 4919 },
+  { slug: "phoksundo",     name: "Phoksundo Lake",      class: "lake", country: "Nepal",    region: "Karnali",    lat: 29.1908, lon: 82.9447, alt: 3611 },
+  { slug: "rara",          name: "Rara Lake",           class: "lake", country: "Nepal",    region: "Karnali",    lat: 29.5275, lon: 82.0914, alt: 2990 },
+  { slug: "gokyo",         name: "Gokyo Lakes",         class: "lake", country: "Nepal",    region: "Koshi",      lat: 27.9528, lon: 86.6928, alt: 4750 },
+  { slug: "imja-tsho",     name: "Imja Tsho",           class: "lake", country: "Nepal",    region: "Koshi",      lat: 27.8983, lon: 86.9233, alt: 5010 },
+  // River points
+  { slug: "koshi-chatara",     name: "Koshi at Chatara",     class: "river_point", country: "Nepal", region: "Koshi",   lat: 26.8214, lon: 87.1639, alt: 140 },
+  { slug: "karnali-chisapani", name: "Karnali at Chisapani", class: "river_point", country: "Nepal", region: "Karnali", lat: 28.6450, lon: 81.2711, alt: 200 },
+  { slug: "narayani-devghat",  name: "Narayani at Devghat",  class: "river_point", country: "Nepal", region: "Bagmati", lat: 27.7100, lon: 84.4286, alt: 180 },
 ];
 
 async function main(): Promise<void> {
