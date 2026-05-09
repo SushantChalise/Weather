@@ -41,6 +41,12 @@ export default function Home() {
           >
             Places
           </Link>
+          <Link
+            href="/events"
+            className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors px-2 py-1 rounded"
+          >
+            Events
+          </Link>
           <NptClock />
           <button
             type="button"
