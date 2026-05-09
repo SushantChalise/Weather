@@ -54,11 +54,13 @@ const HALO_COLORS: Record<HaloColor, string> = {
   red: "#C44A4A",
 };
 
-// Yesterday in UTC — MODIS Terra data available after ~3h processing delay
+// MODIS Terra passes over Nepal ~05:30 UTC; GIBS has it processed by ~06:30 UTC.
+// Use today's imagery after 06:00 UTC, yesterday before that.
 function gibsDate(): string {
-  const d = new Date();
-  d.setUTCDate(d.getUTCDate() - 1);
-  return d.toISOString().slice(0, 10);
+  const now = new Date();
+  const useToday = now.getUTCHours() >= 6;
+  if (!useToday) now.setUTCDate(now.getUTCDate() - 1);
+  return now.toISOString().slice(0, 10);
 }
 
 function buildMapStyle(): StyleSpecification {

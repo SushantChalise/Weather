@@ -5,11 +5,13 @@ import type { SatelliteEpoch, SatelliteManifest, SatelliteScope } from "@/types/
 // MODIS Terra has ~daily cadence; refresh manifest every 30 min
 export const revalidate = 1800;
 
-// Yesterday UTC — GIBS data is available ~3h after capture
+// MODIS Terra passes over Nepal ~05:30 UTC; GIBS has it by ~06:30 UTC.
+// Use today after 06:00 UTC, yesterday before.
 function gibsDate(): string {
-  const d = new Date();
-  d.setUTCDate(d.getUTCDate() - 1);
-  return d.toISOString().slice(0, 10);
+  const now = new Date();
+  const useToday = now.getUTCHours() >= 6;
+  if (!useToday) now.setUTCDate(now.getUTCDate() - 1);
+  return now.toISOString().slice(0, 10);
 }
 
 // Cloud cover per scope from Open-Meteo representative points (real weather data)
@@ -27,13 +29,11 @@ export async function GET() {
   const fetchedAt = new Date().toISOString();
   const captureDate = gibsDate();
 
-  // MODIS Terra overpass over Nepal: ~05:30 UTC; available on GIBS ~08:30 UTC
+  // MODIS Terra overpass over Nepal: ~05:30 UTC; GIBS has it by ~06:30 UTC
   const capturedAt = `${captureDate}T05:30:00Z`;
-  const processedAt = `${captureDate}T08:30:00Z`;
+  const processedAt = `${captureDate}T06:30:00Z`;
   const ageMinutes = Math.floor((Date.now() - new Date(capturedAt).getTime()) / 60_000);
-
-  // Daily satellite data is always stale by our 45-min threshold —
-  // this correctly triggers the staleness banner and "forecast model used instead" message
+  // Stale when > 45 min since capture — once-daily pass, so this is expected after morning
   const isStale = ageMinutes > 45;
 
   const scopes: Partial<Record<SatelliteScope, SatelliteEpoch>> = Object.fromEntries(
