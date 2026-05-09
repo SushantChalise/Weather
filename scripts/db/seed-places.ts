@@ -45,6 +45,11 @@ const PLACES: PlaceSeed[] = [
   // Trail entry points
   { slug: "lukla",     name: "Lukla",                 class: "trek_destination", country: "Nepal", region: "Koshi",    lat: 27.6868, lon: 86.7294, alt: 2860 },
   { slug: "namche",    name: "Namche Bazaar",         class: "trek_destination", country: "Nepal", region: "Koshi",    lat: 27.8069, lon: 86.7140, alt: 3440 },
+  // Glaciers
+  { slug: "khumbu-glacier", name: "Khumbu Glacier",      class: "glacier", country: "Nepal", region: "Koshi",       lat: 27.9667, lon: 86.8333, alt: 4900 },
+  { slug: "rikha-samba",    name: "Rikha Samba Glacier", class: "glacier", country: "Nepal", region: "Gandaki",     lat: 28.8167, lon: 83.5000, alt: 5400 },
+  { slug: "yala",           name: "Yala Glacier",        class: "glacier", country: "Nepal", region: "Bagmati",     lat: 28.2333, lon: 85.6167, alt: 5200 },
+  { slug: "gangotri",       name: "Gangotri Glacier",    class: "glacier", country: "India", region: "Uttarakhand", lat: 30.9333, lon: 79.0667, alt: 4000 },
 ];
 
 async function main(): Promise<void> {

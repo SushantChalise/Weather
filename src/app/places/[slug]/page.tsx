@@ -1,25 +1,59 @@
 import { notFound } from "next/navigation";
 import { PlaceHeader } from "@/components/places/place-header";
 import { PlaceTabs } from "@/components/places/place-tabs";
-import { DESTINATIONS } from "@/data/destinations";
+import { PLACE_REGISTRY } from "@/data/places";
+import type { Destination, DestinationId } from "@/types/weather";
 
 type PlacePageProps = {
   params: Promise<{ slug: string }>;
 };
 
+/** DestinationId values that the weather API supports */
+const WEATHER_DESTINATION_IDS = new Set<string>([
+  "pokhara",
+  "abc",
+  "poon-hill",
+  "ebc",
+  "chitwan",
+  "kathmandu",
+  "langtang",
+  "jomsom",
+]);
+
 export default async function PlacePage({ params }: PlacePageProps) {
   const { slug } = await params;
 
-  const place = DESTINATIONS.find((d) => d.id === slug);
+  const entry = PLACE_REGISTRY[slug];
 
-  if (!place) {
+  if (!entry) {
     notFound();
   }
+
+  // Build a Destination-compatible shape for PlaceHeader.
+  // We cast `id` because PlaceHeader only renders name/altitude/lat/lon —
+  // it never consumes `id` at runtime.
+  const place: Destination = {
+    id: slug as DestinationId,
+    name: entry.name,
+    shortLabel: entry.name,
+    lat: entry.lat,
+    lon: entry.lon,
+    altitude: entry.alt,
+    corridor: null,
+    tripIntent: "trekking",
+    preDawnValue: false,
+    defaultViewpointId: null,
+  };
+
+  const variant = entry.class === "glacier" ? "glacier" : "default";
+
+  // Only pass a DestinationId when the weather API recognises this slug
+  const destinationId = WEATHER_DESTINATION_IDS.has(slug) ? (slug as DestinationId) : null;
 
   return (
     <main className="min-h-screen bg-white">
       <PlaceHeader place={place} />
-      <PlaceTabs destinationId={place.id} lat={place.lat} lon={place.lon} />
+      <PlaceTabs destinationId={destinationId} lat={entry.lat} lon={entry.lon} variant={variant} />
     </main>
   );
 }
