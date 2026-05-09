@@ -20,10 +20,7 @@ export function formatNPTTimeOnly(iso: string): string {
 }
 
 export function nowNPTIso(): string {
-  const now = new Date();
-  // NPT is UTC+5:45
-  const offsetMs = (5 * 60 + 45) * 60 * 1000;
-  const nptMs = now.getTime() + offsetMs - now.getTimezoneOffset() * 60 * 1000;
-  const nptDate = new Date(nptMs);
-  return nptDate.toISOString().replace("Z", "+05:45");
+  const NPT_OFFSET_MS = (5 * 60 + 45) * 60 * 1000;
+  // Add NPT offset to UTC; toISOString() is always UTC, so replace Z with the real offset.
+  return new Date(Date.now() + NPT_OFFSET_MS).toISOString().replace("Z", "+05:45");
 }
