@@ -100,7 +100,9 @@ export function wmoInfo(code: number): WmoInfo {
   return WMO_MAP[code] ?? { icon: "☁", label: "Cloud", haloColor: "gray", severity: 3 };
 }
 
-// Get the index in the hourly array closest to "now"
+// Get the index in the hourly array closest to "now".
+// Open-Meteo times are NPT strings without offset (e.g. "2026-05-09T16:00").
+// Append +05:45 so Date.parse maps them to the correct UTC timestamp.
 export function currentHourIndex(times: string[]): number {
   const now = Date.now();
   let best = 0;
@@ -108,7 +110,7 @@ export function currentHourIndex(times: string[]): number {
   for (let i = 0; i < times.length; i++) {
     const t = times[i];
     if (!t) continue;
-    const diff = Math.abs(new Date(t).getTime() - now);
+    const diff = Math.abs(new Date(`${t}+05:45`).getTime() - now);
     if (diff < bestDiff) {
       bestDiff = diff;
       best = i;

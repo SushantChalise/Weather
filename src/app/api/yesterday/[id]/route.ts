@@ -86,10 +86,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     const maxTemp = Math.max(...temps);
 
     // AM clear hours (05:00–11:00 NPT, cloud_cover_low < 30%)
+    // Parse NPT hour directly from the time string (no Date needed)
     const amIndices = yIndices.filter((i) => {
       const t = hourly.time[i];
       if (!t) return false;
-      const h = new Date(t).getHours();
+      const h = parseInt(t.slice(11, 13), 10);
       return h >= 5 && h <= 11;
     });
     const clearAM = amIndices.filter((i) => (hourly.cloud_cover_low[i] ?? 100) < 30).length;

@@ -72,11 +72,12 @@ export function computeClearWindow(
   const { hourly, fetchedAt, daily } = data;
   const startIdx = currentHourIndex(hourly.time);
 
-  // Build 12-hour timeline from now
+  // Build 12-hour timeline from now.
+  // Times are bare NPT strings — append +05:45 so Date correctly maps them to UTC.
   const hourlyTimeline: ClearWindowHour[] = [];
-  const todayDate = new Date(hourly.time[startIdx] ?? "");
+  const todayDate = new Date(`${hourly.time[startIdx] ?? ""}+05:45`);
 
-  // Get sunrise/sunset for today from daily data
+  // Get sunrise/sunset for today from daily data (also NPT strings — append offset)
   const todayStr = todayDate.toISOString().slice(0, 10);
   const sunriseStr = daily.sunrise.find((s) => s.startsWith(todayStr));
   const sunsetStr = daily.sunset.find((s) => s.startsWith(todayStr));
@@ -85,13 +86,14 @@ export function computeClearWindow(
     const idx = startIdx + i;
     if (idx >= hourly.time.length) break;
     const hourIso = hourly.time[idx] ?? "";
-    const hourDate = new Date(hourIso);
+    const hourDate = new Date(`${hourIso}+05:45`);
     const sunTimes = SunCalc.getTimes(hourDate, lat, lon);
-    const sunriseTime = sunriseStr ? new Date(sunriseStr) : sunTimes.sunrise;
-    const sunsetTime = sunsetStr ? new Date(sunsetStr) : sunTimes.sunset;
+    const sunriseTime = sunriseStr ? new Date(`${sunriseStr}+05:45`) : sunTimes.sunrise;
+    const sunsetTime = sunsetStr ? new Date(`${sunsetStr}+05:45`) : sunTimes.sunset;
     const isDaylight = hourDate >= sunriseTime && hourDate <= sunsetTime;
+    const prevIso = hourly.time[idx - 1] ?? "";
     const isSunrise =
-      i > 0 && sunriseTime >= new Date(hourly.time[idx - 1] ?? "") && sunriseTime < hourDate;
+      i > 0 && sunriseTime >= new Date(`${prevIso}+05:45`) && sunriseTime < hourDate;
     const goldenEnd = new Date(sunriseTime.getTime() + 90 * 60000);
     const isGoldenHour = hourDate >= sunriseTime && hourDate <= goldenEnd;
 
