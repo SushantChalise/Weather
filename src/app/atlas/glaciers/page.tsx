@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { CitationDataset } from "@/components/ui/citation-pill";
 import { CitationPill } from "@/components/ui/citation-pill";
 import { PLACE_REGISTRY } from "@/data/places";
+import { GlacierMap } from "./page.client";
 
 const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
@@ -58,6 +59,10 @@ export default function GlacierAtlasPage() {
           of climate change, and most are losing mass. This atlas tracks the ones we have data for;
           more are added as ICIMOD and Hugonnet&nbsp;2021 ingestion comes online.
         </p>
+
+        <div className="my-8">
+          <GlacierMap />
+        </div>
 
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
           {glaciers.map(([slug, entry]) => (
