@@ -495,18 +495,32 @@ Each has a layout template documented in §9 (components).
 
 Specifications for the components that recur across the Atlas. Source code lives at `src/components/atlas/<area>/<Component>.tsx`. Each component has a Storybook entry (planned) and an accessibility checklist (built-in to PR review).
 
-### 9.1 Source attribution pill
+### 9.1 Source attribution — container-level with progressive disclosure
 
-The signature trust component. On every chart, every number, every map layer.
+The signature trust component. **One pill per chart, table, or map — not per number.** A 20-row table does not get 20 pills; that is a DOM nightmare and visual noise. The pill attaches to the *container* whose data shares provenance.
 
-**Anatomy:**
+**Why container-level:** if every value gets a pill, attribution becomes wallpaper and stops being read. Container-level attribution makes provenance discoverable without making it omnipresent. For the 1% of users (researchers, journalists) who need per-element provenance, progressive disclosure inside the container expands to per-row sources.
+
+**Granularity rules:**
+
+| Surface | Attribution placement |
+|---|---|
+| Chart | One pill below the chart, naming primary source. If multiple sources, the pill says "ERA5 + 2 more" — click expands. |
+| Table | One pill per column header if columns differ in source; one pill below the table if all share a source. |
+| Map layer | One pill in the legend per active layer. |
+| Map tile basemap | One pill in the map's bottom-right corner. |
+| Inline number in body copy | No pill on the number itself. The paragraph or surrounding card carries the attribution. |
+| Dashboard / multi-chart page | Pills per chart, plus a "Sources used on this page" footer that lists everything. |
+
+**Pill anatomy:**
+
 ```
 ┌───────────────────────────────┐
 │ ⓘ ERA5-Land · ECMWF, 2024     │ ← clickable
 └───────────────────────────────┘
 ```
 
-**Specs:**
+**Pill specs:**
 - Background: `--color-surface-deep`
 - Text: `--color-text-secondary`
 - Padding: `--space-2 --space-3`
@@ -516,7 +530,29 @@ The signature trust component. On every chart, every number, every map layer.
 - Hover: text becomes `--color-text-primary`, cursor pointer
 - Tap target: 44px minimum height (mobile)
 
-**Click → modal** (described in §9.2)
+**When multiple sources:**
+
+The pill displays the primary source name plus a count: `ⓘ ERA5-Land + 2 more`. Click → modal lists all sources, each with full provenance. Avoid stacking pills horizontally — it's noise.
+
+**Derived / transformed values:**
+
+When a chart shows a derived value (e.g., "anomaly = current − climatology"), the modal must explicitly state the derivation method, not just cite the underlying datasets. This is `<DerivationStatement>` content inside the modal — see §9.2.
+
+**Provenance schema (code-level, not just prose):**
+
+Every chart component receives a `provenance` prop typed as:
+
+```typescript
+type Provenance = {
+  primary: { datasetSlug: string; version: string };
+  additional?: Array<{ datasetSlug: string; version: string }>;
+  derivation?: { method: string; formula?: string; baseline?: string };
+};
+```
+
+The pill component reads from this prop; it cannot be omitted. Charts without a `provenance` prop fail TypeScript build. This is enforced in §21 (Enforcement).
+
+**What this replaces:** the original "pill on every number" pattern from earlier drafts. That pattern would have meant 20 pills on a 20-row table — unbuildable, unreadable, unmaintainable. The container-level pattern ships the same trust signal at 1/20th the cost.
 
 ### 9.2 Source attribution modal
 
