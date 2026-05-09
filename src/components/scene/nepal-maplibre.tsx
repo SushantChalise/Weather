@@ -186,11 +186,10 @@ export function NepalMapLibre({ liveConditions }: Props) {
                 }}
                 aria-label={`${dest.name}: ${cond?.conditionLabel ?? "loading"}`}
                 onClick={() => {
-                  const corridor = dest.corridor as CorridorId | null;
                   set({
                     selectedDestinationId: dest.id,
-                    selectedCorridor: corridor,
-                    insightPanelOpen: corridor !== null,
+                    selectedCorridor: dest.corridor as CorridorId | null,
+                    insightPanelOpen: true,
                   });
                 }}
               >
