@@ -1295,6 +1295,36 @@ Every interaction is keyboard-accessible:
 
 Every colour-coded element has a redundant icon, text label, or hatch pattern. The Anomaly Map uses pattern + colour. The Decision Strip pills have colour + icon + text.
 
+### 13.8 Coverage matrix
+
+Accessibility decays in solo projects without explicit tracking. Both LLM critics flagged this risk specifically: charts and maps are where accessibility quietly slips while the team tells itself it'll come back later.
+
+The coverage matrix is the antidote. Every component carries an a11y status, updated in this doc and enforced via PR review.
+
+| Component | Contrast | Keyboard | Screen reader | Focus mgmt | Reduced motion | Status |
+|---|---|---|---|---|---|---|
+| Source attribution pill (§9.1) | ☐ | ☐ | ☐ | ☐ | ☐ | Pending implementation |
+| Source attribution modal (§9.2) | ☐ | ☐ | ☐ | ☐ | ☐ | Pending implementation |
+| Uncertainty band (§9.3) | ☐ | n/a | ☐ | n/a | ☐ | Pending implementation |
+| Resolution disclaimer (§9.4) | ☐ | n/a | ☐ | n/a | n/a | Pending implementation |
+| Place page layout (§9.5) | ☐ | ☐ | ☐ | ☐ | ☐ | Pending implementation |
+| Climate Time Machine (§9.6) | ☐ | ☐ | ☐ | n/a | ☐ | Pending implementation |
+| In Your Lifetime (§9.7) | ☐ | ☐ | ☐ | n/a | ☐ | Pending implementation |
+| Vanishing Photo Archive slider (§9.8) | ☐ | ☐ | ☐ | n/a | ☐ | Pending implementation |
+| Map components (§9.9) | ☐ | ☐ | ☐ | n/a | ☐ | Pending — most likely to slip |
+| Cards (§9.10) | ☐ | ☐ | ☐ | ☐ | n/a | Pending implementation |
+| Buttons (§9.11) | ☐ | ☐ | ☐ | ☐ | n/a | Pending implementation |
+| Time controls (§9.12) | ☐ | ☐ | ☐ | n/a | ☐ | Pending implementation |
+| Navigation (§9.13) | ☐ | ☐ | ☐ | ☐ | n/a | Pending implementation |
+| Footer (§9.14) | ☐ | ☐ | ☐ | n/a | n/a | Pending implementation |
+| Geospatial Discovery (§8.4) | ☐ | ☐ | ☐ | ☐ | ☐ | Pending implementation |
+
+Legend: ☐ pending · ✓ tested + passing · ⚠ tested + known issues filed · ✗ tested + failing
+
+**The map components row is starred.** It's where accessibility most reliably slips in this product class. Specific risks: focus order through markers, keyboard panning, screen-reader announcements when layers change, label collision in dense mountainous geographies. Map a11y gets explicit PR-review attention, not the boilerplate kind.
+
+**Update process:** the matrix updates in the same PR as the component implementation. A component ships with a row of ☑s before the PR can merge — that's enforced (§21).
+
 ---
 
 ## 14. Performance as design
