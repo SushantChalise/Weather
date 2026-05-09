@@ -65,7 +65,7 @@ Do NOT call ScheduleWakeup. The loop ends here.
 
 ## IMPLEMENTATION AGENT PROMPT
 
-Spawn Agent with subagent_type="general-purpose" and this prompt structure:
+Spawn Agent with subagent_type="general-purpose", **model="sonnet"**, and this prompt structure:
 
 ```
 You are implementing a specific task for the Himalayan Atlas project.
@@ -107,7 +107,7 @@ PR_NUMBER: <integer>
 
 ## FIX AGENT PROMPT
 
-Spawn Agent with subagent_type="general-purpose" and this prompt:
+Spawn Agent with subagent_type="general-purpose", **model="sonnet"**, and this prompt:
 
 ```
 You are fixing a CI failure on a GitHub PR for the Himalayan Atlas project.
