@@ -30,9 +30,6 @@ function gibsDate(): string {
 
 function buildMapStyle(): StyleSpecification {
   const date = gibsDate();
-  const cloudTiles = [
-    `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_Cloud_Fraction_Day/default/${date}/GoogleMapsCompatible_Level7/{z}/{y}/{x}.png`,
-  ];
   return {
     version: 8,
     sources: {
@@ -51,11 +48,16 @@ function buildMapStyle(): StyleSpecification {
         ],
         tileSize: 256,
       },
+      // MODIS Terra CorrectedReflectance (TrueColor) — clouds appear white naturally.
+      // At 0.5 opacity: clear areas show crisp ESRI terrain, cloudy areas look hazy/white.
+      // Level9 = max zoom 9; JPEG format.
       "modis-cloud": {
         type: "raster",
-        tiles: cloudTiles,
+        tiles: [
+          `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${date}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`,
+        ],
         tileSize: 256,
-        maxzoom: 7, // MODIS_Terra_Cloud_Fraction_Day only has tiles up to level 7
+        maxzoom: 9,
         attribution: "NASA GIBS · MODIS Terra",
       },
     },
@@ -71,7 +73,7 @@ function buildMapStyle(): StyleSpecification {
         id: "modis-cloud",
         type: "raster",
         source: "modis-cloud",
-        paint: { "raster-opacity": 0.45 },
+        paint: { "raster-opacity": 0.55 },
       },
     ],
   };
