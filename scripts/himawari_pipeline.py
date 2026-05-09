@@ -252,21 +252,37 @@ def generate_tiles(rgba: np.ndarray, out_dir: Path) -> list[tuple]:
 
 # ── Vercel Blob upload ────────────────────────────────────────────────────────
 
+def _blob_store_id() -> str:
+    """Extract store ID from token: vercel_blob_rw_{storeId}_{hash}"""
+    parts = BLOB_TOKEN.split("_")
+    return parts[3] if len(parts) > 3 else ""
+
+
 def _blob_put(path: str, data: bytes, ctype: str) -> str:
     """
-    Upload bytes to Vercel Blob via the REST API.
-    URL format: PUT https://vercel.com/api/blob/?pathname={path}
-    Access and overwrite go in headers, not the URL.
+    Upload bytes to Vercel Blob REST API.
+    Endpoint: PUT https://vercel.com/api/blob/?pathname={path}
+    Discovered from @vercel/blob SDK source:
+      - x-api-version: 12  (not 7)
+      - x-api-blob-request-id: {storeId}:{ts}:{rand}  (API uses this for routing)
+      - x-vercel-blob-access: public
+      - x-add-random-suffix: 0
+      - x-allow-overwrite: 1
     """
-    params = {"pathname": path}
+    import random
+    store_id = _blob_store_id()
+    request_id = f"{store_id}:{int(time.time() * 1000)}:{random.randrange(0, 2**32):08x}"
+
     resp = requests.put(
         f"{BLOB_API}/",
-        params=params,
+        params={"pathname": path},
         data=data,
         headers={
             "Authorization": f"Bearer {BLOB_TOKEN}",
             "Content-Type": ctype,
-            "x-api-version": "7",
+            "x-api-version": "12",
+            "x-api-blob-request-id": request_id,
+            "x-api-blob-request-attempt": "0",
             "x-vercel-blob-access": "public",
             "x-add-random-suffix": "0",
             "x-allow-overwrite": "1",
