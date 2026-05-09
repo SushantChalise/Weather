@@ -2,8 +2,6 @@ name: Himawari-9 Cloud Tile Pipeline
 
 on:
   schedule:
-    # Every 30 minutes — Himawari updates every 10 min, 30 min is sufficient
-    # and keeps well inside GitHub Actions free-tier (2,000 min/month)
     - cron: "*/30 * * * *"
   workflow_dispatch:
     inputs:
@@ -13,25 +11,49 @@ on:
         default: false
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # suppress Node.js 20 deprecation warnings
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   process:
     name: Download → Reproject → Tile → Upload
     runs-on: ubuntu-latest
-    timeout-minutes: 15  # satpy + pyresample first-install takes ~3 min (cached after)
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ── Python environment ──────────────────────────────────────────────
+      # ── Skip if manifest < 25 min old ──────────────────────────────────────
+      - name: Check manifest freshness
+        id: freshness
+        if: ${{ !inputs.force }}
+        env:
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+        run: |
+          node - <<'EOF'
+          const token = process.env.BLOB_READ_WRITE_TOKEN || "";
+          const storeId = token.split("_")[3] || "";
+          if (!storeId) { console.log("No storeId — proceeding"); process.exit(0); }
+          const url = `https://${storeId}.public.blob.vercel-storage.com/himawari/manifest.json`;
+          fetch(url).then(r => r.ok ? r.json() : null).then(m => {
+            if (!m?.processedAt) { console.log("No manifest — proceeding"); return; }
+            const ageMin = (Date.now() - new Date(m.processedAt).getTime()) / 60000;
+            if (ageMin < 25) {
+              console.log(`Manifest is ${ageMin.toFixed(0)} min old — skipping`);
+              require("fs").appendFileSync(process.env.GITHUB_OUTPUT, "skip=true\n");
+            }
+          }).catch(e => console.log(`Freshness check failed (${e.message}) — proceeding`));
+          EOF
+
+      # ── Python: satellite science ───────────────────────────────────────────
       - name: Set up Python 3.11
+        if: steps.freshness.outputs.skip != 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Cache pip packages
+        if: steps.freshness.outputs.skip != 'true'
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
@@ -39,53 +61,22 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-himawari-pip-
 
-      - name: Install dependencies
+      - name: Install Python dependencies
+        if: steps.freshness.outputs.skip != 'true'
         run: pip install -r scripts/requirements-himawari.txt
 
-      # ── Skip if already fresh (< 25 min old) unless forced ─────────────
-      - name: Check manifest freshness
-        id: freshness
-        if: ${{ !inputs.force }}
+      - name: Generate Himawari tiles (Python)
+        if: steps.freshness.outputs.skip != 'true'
         env:
-          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
-        run: |
-          python - <<'EOF'
-          import os, requests, json
-          from datetime import datetime, timezone
+          AWS_DEFAULT_REGION: us-east-1
+        run: python scripts/himawari_pipeline.py
 
-          token = os.environ["BLOB_READ_WRITE_TOKEN"]
-          try:
-              # Public blobs are at {storeId}.public.blob.vercel-storage.com — no auth needed
-              store_id = token.split("_")[3] if len(token.split("_")) > 3 else ""
-              url = f"https://{store_id}.public.blob.vercel-storage.com/himawari/manifest.json"
-              r = requests.get(url, timeout=10)
-              if r.status_code == 200:
-                  m = r.json()
-                  age = m.get("ageMinutes", 9999)
-                  processed = m.get("processedAt", "")
-                  if processed:
-                      from datetime import timedelta
-                      proc = datetime.fromisoformat(processed.replace("Z", "+00:00"))
-                      mins_since = (datetime.now(timezone.utc) - proc).total_seconds() / 60
-                      if mins_since < 25:
-                          print(f"Manifest is {mins_since:.0f} min old — skipping")
-                          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-                              f.write("skip=true\n")
-                          raise SystemExit(0)
-          except SystemExit:
-              raise
-          except Exception as e:
-              print(f"Freshness check failed ({e}) — proceeding")
-          EOF
-
-      # ── Run pipeline ────────────────────────────────────────────────────
-      - name: Run Himawari pipeline
+      # ── Node.js: upload via @vercel/blob SDK ───────────────────────────────
+      - name: Upload tiles to Vercel Blob (Node.js)
         if: steps.freshness.outputs.skip != 'true'
         env:
           BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
-          # AWS credentials not needed — bucket is public
-          AWS_DEFAULT_REGION: us-east-1
-        run: python scripts/himawari_pipeline.py
+        run: node scripts/himawari_upload.mjs
 
       - name: Summary
         if: always()
