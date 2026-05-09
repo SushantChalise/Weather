@@ -42,10 +42,10 @@ function modisManifest(): HimawariManifest & { source: "modis-fallback" } {
 }
 
 export async function GET() {
-  // Vercel Blob public files are at {storeId}.public.blob.vercel-storage.com
-  // The storeId is embedded in the token (4th segment when split by "_")
+  // Resolve storeId from either the full write token or the lighter HIMAWARI_STORE_ID var.
+  // The manifest lives on a public URL so only the storeId is needed here.
   const token = process.env.BLOB_READ_WRITE_TOKEN;
-  const storeId = token?.split("_")[3];
+  const storeId = process.env.HIMAWARI_STORE_ID ?? token?.split("_")[3];
 
   if (storeId) {
     try {
