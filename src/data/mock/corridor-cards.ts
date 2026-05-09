@@ -13,6 +13,8 @@ export const MOCK_CORRIDOR_CARDS: CorridorCardData[] = [
     confidence: "forecast",
     evidenceTier: "forecast-model",
     timestamp: nowNPTIso(),
+    currentCloud: 85,
+    tomorrowAMCloud: 45,
   },
   {
     corridorId: "ebc",
@@ -25,6 +27,8 @@ export const MOCK_CORRIDOR_CARDS: CorridorCardData[] = [
     confidence: "observed",
     evidenceTier: "observed-satellite",
     timestamp: nowNPTIso(),
+    currentCloud: 60,
+    tomorrowAMCloud: 40,
   },
   {
     corridorId: "pokhara",
@@ -37,5 +41,7 @@ export const MOCK_CORRIDOR_CARDS: CorridorCardData[] = [
     confidence: "observed",
     evidenceTier: "observed-satellite",
     timestamp: nowNPTIso(),
+    currentCloud: 90,
+    tomorrowAMCloud: 65,
   },
 ];

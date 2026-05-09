@@ -131,6 +131,8 @@ export type CorridorCardData = {
   confidence: ConfidenceLevel;
   evidenceTier: EvidenceTier;
   timestamp: string; // ISO with +05:45
+  currentCloud: number; // 0–100, current hour cloud cover
+  tomorrowAMCloud: number; // 0–100, avg cloud cover tomorrow 5–10 AM NPT
 };
 
 // Step 2 types

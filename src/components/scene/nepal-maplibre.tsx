@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { Layer, Map as MapGL, Marker, Source } from "react-map-gl/maplibre";
+import useSWR from "swr";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Feature, LineString } from "geojson";
 import type { StyleSpecification } from "maplibre-gl";
@@ -9,11 +10,27 @@ import type { MapRef } from "react-map-gl/maplibre";
 import { ABC_WAYPOINTS } from "@/data/corridors/abc";
 import { EBC_WAYPOINTS } from "@/data/corridors/ebc";
 import { DESTINATIONS } from "@/data/destinations";
+import { MOCK_CORRIDOR_CARDS } from "@/data/mock/corridor-cards";
 import { MOCK_DESTINATION_CONDITIONS } from "@/data/mock/destination-conditions";
 import { NEPAL_CENTER } from "@/data/nepal-bbox";
 import { useSelectionStore } from "@/state/selectionStore";
 import { useWorldStore } from "@/state/worldStore";
-import type { CorridorId, DestinationCondition, HaloColor } from "@/types/weather";
+import type {
+  CorridorCardData,
+  CorridorId,
+  DestinationCondition,
+  HaloColor,
+} from "@/types/weather";
+
+// Cloud % → ribbon color: gold = clear, gray = partly cloudy, steel = overcast
+function cloudToColor(cloud: number): string {
+  if (cloud < 30) return "#D4A843";
+  if (cloud < 60) return "#9B9B9B";
+  return "#5B7FA5";
+}
+
+const fetcher = (url: string) =>
+  fetch(url).then((r) => r.json() as Promise<{ cards: CorridorCardData[] }>);
 
 // MapLibre throws AbortError as an unhandled Promise rejection when it cancels
 // in-flight tile fetches (normal behaviour on pan/zoom). Suppress it globally
@@ -145,7 +162,25 @@ export function NepalMapLibre({ liveConditions }: Props) {
   useSupressMapLibreAbortErrors();
   const { set } = useSelectionStore();
   const cameraMode = useWorldStore((s) => s.cameraMode);
+  const timeMode = useWorldStore((s) => s.timeMode);
   const mapRef = useRef<MapRef>(null);
+
+  const { data: cardData } = useSWR("/api/corridor-cards", fetcher, {
+    refreshInterval: 10 * 60 * 1000,
+    revalidateOnFocus: false,
+    revalidateOnMount: true,
+    dedupingInterval: 0,
+  });
+  const cards = cardData?.cards ?? MOCK_CORRIDOR_CARDS;
+
+  // Ribbon color responds to time mode: use tomorrowAMCloud in AM mode, currentCloud otherwise
+  const useAM = timeMode === "tomorrow_am" || timeMode === "afternoon";
+  const abcCloud = useAM
+    ? (cards.find((c) => c.corridorId === "abc")?.tomorrowAMCloud ?? 80)
+    : (cards.find((c) => c.corridorId === "abc")?.currentCloud ?? 80);
+  const ebcCloud = useAM
+    ? (cards.find((c) => c.corridorId === "ebc")?.tomorrowAMCloud ?? 80)
+    : (cards.find((c) => c.corridorId === "ebc")?.currentCloud ?? 80);
 
   const condByDest = new globalThis.Map(
     (liveConditions ?? MOCK_DESTINATION_CONDITIONS).map((c) => [c.destinationId, c]),
@@ -190,8 +225,8 @@ export function NepalMapLibre({ liveConditions }: Props) {
         style={{ width: "100%", height: "100%" }}
         attributionControl={false}
       >
-        <RouteLine id="abc-route" waypoints={ABC_WAYPOINTS} color="#D4A843" />
-        <RouteLine id="ebc-route" waypoints={EBC_WAYPOINTS} color="#4A90C4" />
+        <RouteLine id="abc-route" waypoints={ABC_WAYPOINTS} color={cloudToColor(abcCloud)} />
+        <RouteLine id="ebc-route" waypoints={EBC_WAYPOINTS} color={cloudToColor(ebcCloud)} />
 
         {DESTINATIONS.map((dest) => {
           const cond = condByDest.get(dest.id);

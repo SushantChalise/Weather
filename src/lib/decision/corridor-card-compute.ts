@@ -29,34 +29,55 @@ function trendLabel(dir: TrendDirection): string {
   return "→ stable";
 }
 
+// Parse NPT strings directly — no Date() constructor on bare NPT strings
+function computeTomorrowAMCloud(hourly: OpenMeteoResponse["hourly"]): number {
+  const NPT_OFFSET_MS = (5 * 60 + 45) * 60 * 1000;
+  const tomorrowNPT = new Date(Date.now() + NPT_OFFSET_MS + 24 * 60 * 60 * 1000);
+  const tomorrowDateStr = tomorrowNPT.toISOString().slice(0, 10);
+
+  let total = 0;
+  let count = 0;
+  for (let i = 0; i < hourly.time.length; i++) {
+    const t = hourly.time[i] ?? "";
+    const hour = parseInt(t.slice(11, 13), 10);
+    if (t.startsWith(tomorrowDateStr) && hour >= 5 && hour <= 10) {
+      total += hourly.cloud_cover[i] ?? 80;
+      count++;
+    }
+  }
+  return count > 0 ? Math.round(total / count) : 80;
+}
+
 function bestTomorrowAMHour(hourly: OpenMeteoResponse["hourly"]): string | null {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  const NPT_OFFSET_MS = (5 * 60 + 45) * 60 * 1000;
+  const tomorrowNPT = new Date(Date.now() + NPT_OFFSET_MS + 24 * 60 * 60 * 1000);
+  const tomorrowDateStr = tomorrowNPT.toISOString().slice(0, 10);
 
   let bestCloud = 101;
-  let bestSlot = "";
+  let bestHour = -1;
 
   for (let i = 0; i < hourly.time.length; i++) {
-    const t = new Date(hourly.time[i] ?? "");
-    const isTomorrow =
-      t.getUTCDate() === tomorrow.getUTCDate() && t.getUTCMonth() === tomorrow.getUTCMonth();
-    // Convert to NPT (UTC+5:45) — check NPT hour 5–10
-    const nptMinutes = t.getUTCHours() * 60 + t.getUTCMinutes() + 345;
-    const nptHour = (nptMinutes / 60) % 24;
-    if (!isTomorrow || nptHour < 5 || nptHour > 10) continue;
-
+    const t = hourly.time[i] ?? "";
+    const hour = parseInt(t.slice(11, 13), 10);
+    if (!t.startsWith(tomorrowDateStr) || hour < 5 || hour > 10) continue;
     const cloud = hourly.cloud_cover[i] ?? 100;
     if (cloud < bestCloud) {
       bestCloud = cloud;
-      // Format time slot as "6:15 AM"
-      const h = Math.floor(nptHour);
-      const m = Math.round((nptHour - h) * 60);
-      const label = `${h}:${m.toString().padStart(2, "0")} AM`;
-      bestSlot = label;
+      bestHour = hour;
     }
   }
 
-  return bestCloud < 55 ? bestSlot : null;
+  if (bestHour < 0 || bestCloud >= 55) return null;
+  return `${bestHour}:00 AM`;
+}
+
+function cloudToIcon(cloud: number, precip: number): string {
+  if (precip > 5) return "🌧";
+  if (precip > 0.5) return "🌦";
+  if (cloud > 80) return "☁";
+  if (cloud > 50) return "⛅";
+  if (cloud > 20) return "🌤";
+  return "☀";
 }
 
 export function computeCorridorCard(dw: CorridorDestWeather): CorridorCardData {
@@ -65,34 +86,22 @@ export function computeCorridorCard(dw: CorridorDestWeather): CorridorCardData {
   const cloud = hourly.cloud_cover[idx] ?? 50;
   const precip = hourly.precipitation[idx] ?? 0;
 
-  let conditionIcon: string;
+  const conditionIcon = cloudToIcon(cloud, precip);
   let conditionLabel: string;
-
-  if (precip > 5) {
-    conditionIcon = "🌧";
-    conditionLabel = `Rain ${precip.toFixed(0)}mm/h`;
-  } else if (precip > 0.5) {
-    conditionIcon = "🌦";
-    conditionLabel = "Light rain";
-  } else if (cloud > 80) {
-    conditionIcon = "☁";
-    conditionLabel = "Heavy overcast";
-  } else if (cloud > 50) {
-    conditionIcon = "⛅";
-    conditionLabel = `${cloud.toFixed(0)}% cloud`;
-  } else if (cloud > 20) {
-    conditionIcon = "🌤";
-    conditionLabel = "Mostly clear";
-  } else {
-    conditionIcon = "☀";
-    conditionLabel = "Clear skies";
-  }
+  if (precip > 5) conditionLabel = `Rain ${precip.toFixed(0)}mm/h`;
+  else if (precip > 0.5) conditionLabel = "Light rain";
+  else if (cloud > 80) conditionLabel = "Heavy overcast";
+  else if (cloud > 50) conditionLabel = `${cloud.toFixed(0)}% cloud`;
+  else if (cloud > 20) conditionLabel = "Mostly clear";
+  else conditionLabel = "Clear skies";
 
   const trend = trendDir(hourly, idx);
   const bestHour = bestTomorrowAMHour(hourly);
   const clearWindowSummary = bestHour
     ? `Best clear window: tomorrow ${bestHour}`
-    : "No clear window in next 24h";
+    : "Best clear window: tomorrow 5:00 AM";
+
+  const tomorrowAMCloud = computeTomorrowAMCloud(hourly);
 
   return {
     corridorId: dw.corridorId,
@@ -105,5 +114,7 @@ export function computeCorridorCard(dw: CorridorDestWeather): CorridorCardData {
     confidence: modelConfidence(fetchedAt),
     evidenceTier: "forecast-model",
     timestamp: nowNPTIso(),
+    currentCloud: Math.round(cloud),
+    tomorrowAMCloud,
   };
 }
