@@ -18,7 +18,9 @@ export function YesterdayCard({ destId, destName }: Props) {
   if (isLoading) {
     return (
       <div className="w-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4">
-        <p className="text-xs text-[var(--color-text-muted)]">Loading yesterday's conditions…</p>
+        <p className="text-xs text-[var(--color-text-muted)]">
+          Loading yesterday&rsquo;s conditions…
+        </p>
       </div>
     );
   }
