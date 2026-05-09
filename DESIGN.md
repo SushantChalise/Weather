@@ -347,10 +347,14 @@ Hero display sizes are clamped: `clamp(2.25rem, 6vw, 3.5rem)`. They scale with v
 | `--font-weight-medium` | 500 | Labels, secondary headings, navigation active state |
 | `--font-weight-semibold` | 600 | Card titles, pill text, callouts |
 | `--font-weight-bold` | 700 | Page titles in body context |
-| `--font-weight-display-light` | 300 | Source Serif Light — display headlines (lighter feels editorial) |
-| `--font-weight-display-regular` | 400 | Source Serif Regular — display body |
+| `--font-weight-display-light` | 300 | Source Serif Light — display headlines at 56px+ ONLY |
+| `--font-weight-display-regular` | 400 | Source Serif Regular — display headlines default |
 
-**Display headlines use Light weight** by default. Bold display headlines feel shouty. Light Source Serif at 56px feels like a magazine.
+**Display headlines default to Regular weight (400).** Light weight at sub-display sizes (32px and below) renders anaemic on low-end Android devices common in South Asia — Gemini's critique was specific: "it will look like a rendering bug."
+
+Light weight is permitted only at 56px+ on confirmed high-DPI rendering (we detect via `devicePixelRatio` and screen width gates). Below that threshold, display headlines stay at Regular.
+
+The "magazine" feel comes from the typeface choice (Source Serif 4) and generous line-height / tracking — not from the weight. Don't trade legibility for aesthetic.
 
 ### 6.4 Line height
 
@@ -404,6 +408,24 @@ When a place has both Latin and Devanagari names, present them as:
 > Sagarmatha · सगरमाथा (interpunct separator)
 
 Not parenthesised. Both names are legitimate; neither is a translation of the other.
+
+**Mixed-script line-height fix (mandatory):** Devanagari glyphs have taller ascenders than Latin. Without correction, mixed-script lines visibly jump 2–4px when a Nepali word appears mid-paragraph. Set `line-gap-override`, `ascent-override`, and `descent-override` in the `@font-face` declaration for Noto Sans Devanagari to normalise its metrics to Inter:
+
+```css
+@font-face {
+  font-family: 'Noto Sans Devanagari';
+  src: url('/fonts/NotoSansDevanagari.woff2') format('woff2');
+  ascent-override: 90%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+```
+
+Same treatment for Source Serif 4 Devanagari relative to Source Serif 4 Latin. Without this, every page with mixed-script content will have visible vertical-rhythm breakage. Test cases for mixed-script lines are part of the Storybook visual-regression suite (see §21).
+
+### 6.9 Tibetan (future)
+
+For Tibetan-script place names (north-face glaciers, Tibetan-side place pages), use **Noto Serif Tibetan** with the same metric-override treatment. Tibetan introduces additional concerns (vertical text in some contexts; we use horizontal only). Coverage planned for v1.1.
 
 ---
 
