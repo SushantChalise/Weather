@@ -1,0 +1,18 @@
+{
+  "slug": "DATASET_SLUG",
+  "name": "Human-Readable Dataset Name",
+  "version": "1.0",
+  "license": "CC-BY-4.0",
+  "citation": "Author et al. (YEAR). Title. Publisher. https://doi.org/...",
+  "source_url": "https://example.com/dataset",
+  "description": "One-paragraph description of what this dataset contains.",
+  "spatial_res": "5 km",
+  "temporal_res": "daily",
+  "variables": ["var1", "var2"],
+  "places": ["everest-base-camp", "namche-bazaar"],
+  "schedule": "0 6 * * *",
+  "scrape": {
+    "type": "http",
+    "auth": "none"
+  }
+}

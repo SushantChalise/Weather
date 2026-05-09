@@ -1,0 +1,21 @@
+{
+  "slug": "himawari-9-b13",
+  "name": "Himawari-9 Band 13 (10.4 µm Thermal IR) Cloud Tiles",
+  "version": "live",
+  "license": "public domain (NOAA AWS Open Data)",
+  "citation": "Japan Meteorological Agency / NOAA. Himawari-9 AHI Level-1b Full Disk. NOAA Big Data Program. https://registry.opendata.aws/noaa-himawari/",
+  "source_url": "s3://noaa-himawari9/AHI-L1b-FLDK/",
+  "description": "30-min cloud cover tiles derived from Himawari-9 AHI Band 13 (thermal IR). Covers Nepal + surrounding HKH region at zoom levels 5–8. Stored as PNG tiles in Vercel Blob.",
+  "spatial_res": "2 km (GEOS native) → resampled to XYZ tiles",
+  "temporal_res": "30 min",
+  "variables": ["cloud_bt_ir"],
+  "places": [],
+  "schedule": "*/30 * * * *",
+  "scrape": {
+    "type": "s3",
+    "bucket": "noaa-himawari9",
+    "auth": "none (anonymous)"
+  },
+  "output": "vercel-blob",
+  "note": "This dataset drives the live cloud overlay on the map. It does not write to Postgres."
+}
