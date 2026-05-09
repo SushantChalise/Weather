@@ -82,17 +82,57 @@ Optimized for "should I bring an umbrella" not "should I trek next month." US-bi
 
 → **Constraint we adopt:** assume our user has a real question — a trip in 8 weeks, a research deadline, an article going to print. Design for that user, not the someone-might-glance user.
 
-### 2.11 What unifies the failures
+### 2.11 FATMAP (now part of Strava)
 
-| Pattern | Examples |
+The gold standard for high-fidelity 3D mountain terrain + decision support. Used seriously by mountain guides, ski guides, alpinists. The 3D rendering, route-overlay clarity, and snow-cover layer are best-in-class. Acquired by Strava and now folded into their offering, with the standalone product wound down.
+
+→ **Constraint we adopt:** for the trekker pillar, FATMAP is the bar. We don't try to out-3D them at v1 (we'd lose). We focus on what they don't do — climate context, historical change, source attribution, peer-reviewed grounding.
+
+### 2.12 IPCC Interactive Atlas
+
+The exact "scientifically authoritative climate-first atlas" we claim to supersede. Comprehensive CMIP6 underpinnings. But: cluttered, slow, generalist (global focus), built for IPCC report cycles not for everyday use. Mobile is rough. Citation pathways are buried.
+
+→ **Constraint we adopt:** every chart we ship should be more legible, more place-specific, and more shareable than the equivalent IPCC Atlas chart. If we can't beat them on those three axes for a given metric, we don't ship that metric — we link to them instead.
+
+### 2.13 meteoblue
+
+Genuinely high-quality forecast UI. Used by serious mountaineers. Multiple model comparison, 14-day outlook, hourly fidelity. But: subscription-walled for the most useful features, ad-supported on the free tier, no climate or historical context.
+
+→ **Constraint we adopt:** never paywall climate or historical data. The forecast tier may have rate limits (Open-Meteo's cap is real), but the climate atlas is permanently free.
+
+### 2.14 Ventusky
+
+A Windy alternative with cleaner UX. Smooth animations. But same shallow-but-beautiful pattern: real-time only, no climate, no narrative, no place-based browsing.
+
+→ **Constraint we adopt:** same as Windy — the map is one surface, never the entire product.
+
+### 2.15 IQAir / AQICN
+
+The product Kathmandu and Pokhara users actually open today for air quality. Excellent station coverage, dependable updates, instant-recognition EPA AQI scale. Ugly UI. Aggressive in-app upsell. No climate context — only "what is PM2.5 right now."
+
+→ **Constraint we adopt:** for AQ specifically, we don't try to replace IQAir's station network. We use it (via OpenAQ) and add what they lack: the climate context, the smoke source attribution, the historical trend.
+
+### 2.16 What unifies the failures
+
+The original framing was "beautiful but shallow vs deep but ugly vs narrative without data vs data without narrative." That's a quadrant, and quadrants are clean rhetorical devices. Codex's critique was sharper: the real axes are **task-fit** and **interpretive burden.**
+
+| Axis | Question |
 |---|---|
-| **Beautiful but shallow** | Apple Weather, Windy |
-| **Deep but ugly** | ICIMOD, Climate Reanalyzer, NOAA |
-| **Narrative without data** | Carbon Brief (article-bound) |
-| **Data without narrative** | NASA Worldview, ICIMOD |
-| **Western-built for everywhere** | Most of the above |
+| **Task-fit** | Can this help me make the decision I came to make? |
+| **Interpretive burden** | How much prior knowledge do I need to extract value? |
 
-Nobody has cracked: **deeply researched, beautifully presented, place-first, narrative-aware, source-honest, mobile-first, citable, regionally specific.** That gap is the design space we operate in.
+| Quadrant | Examples |
+|---|---|
+| **High task-fit, low burden** | Apple Weather (umbrella), AQICN (PM2.5 number) — but trivial questions |
+| **High task-fit, high burden** | meteoblue, FATMAP — capable for the trained user |
+| **Low task-fit, low burden** | Carbon Brief — beautifully explained, but you didn't come for a one-off article |
+| **Low task-fit, high burden** | ICIMOD RDS, IPCC Atlas, Climate Reanalyzer — gold data trapped behind expertise |
+
+The Atlas operates in **high task-fit, low burden** for both audiences — but the tasks differ:
+- For a trekker: "Is the EBC October window better or worse than usual this year?" — answered in 5 seconds.
+- For a journalist: "Has the EBC trekking window shifted in the last 30 years?" — answered in 60 seconds with a citable chart.
+
+Neither requires expertise. Both get a real answer to a real question. That's the gap.
 
 ---
 
