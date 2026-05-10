@@ -354,6 +354,325 @@ function TotalAreaCard({ year }: { year: GlacierYear }) {
   );
 }
 
+// ─── Nepal focus panel ────────────────────────────────────────────────────────
+
+type NepalDeltaRow = {
+  glims_id: string;
+  area_1990: number;
+  area_2020: number;
+  delta_km2: number;
+  delta_pct: number;
+  lon: number;
+  lat: number;
+  range: string;
+  basin: string;
+  named?: string;
+};
+
+type NepalDeltas = {
+  generated_at: string;
+  source: string;
+  totals_by_year: Record<string, { count: number; area_km2: number }>;
+  total_delta_km2: number;
+  total_delta_pct: number;
+  disappeared_count: number;
+  appeared_count: number;
+  top_shrunk_absolute: NepalDeltaRow[];
+  top_shrunk_pct: NepalDeltaRow[];
+  by_region: {
+    region: string;
+    lon_min: number;
+    lon_max: number;
+    count_1990: number;
+    count_2020: number;
+    area_1990: number;
+    area_2020: number;
+    delta_km2: number;
+    delta_pct: number;
+  }[];
+  named_glaciers: NepalDeltaRow[];
+};
+
+let nepalDeltasCache: NepalDeltas | null = null;
+
+function useNepalDeltas() {
+  const [data, setData] = useState<NepalDeltas | null>(nepalDeltasCache);
+  useEffect(() => {
+    if (nepalDeltasCache) {
+      setData(nepalDeltasCache);
+      return;
+    }
+    let cancelled = false;
+    fetch("/glaciers/nepal-deltas.json")
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json() as Promise<NepalDeltas>;
+      })
+      .then((d) => {
+        if (cancelled) return;
+        nepalDeltasCache = d;
+        setData(d);
+      })
+      .catch((err) => {
+        console.error("[nepal-deltas] fetch failed:", err);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  return data;
+}
+
+function NepalFocusPanel() {
+  const data = useNepalDeltas();
+  const [open, setOpen] = useState(false); // collapsed by default — opt-in deep dive
+  const [tab, setTab] = useState<"region" | "named">("region");
+
+  if (!data) {
+    // Reserve a small chip while loading so layout doesn't jump
+    return (
+      <div className="absolute right-4 bottom-6 md:right-6 md:bottom-8 z-20">
+        <div className="rounded-xl bg-black/55 backdrop-blur-md border border-white/15 px-3 py-2 text-white/40 text-[10px] uppercase tracking-wider">
+          Loading Nepal focus…
+        </div>
+      </div>
+    );
+  }
+
+  const total1990 = data.totals_by_year["1990"]?.area_km2 ?? 0;
+  const total2020 = data.totals_by_year["2020"]?.area_km2 ?? 0;
+  const count1990 = data.totals_by_year["1990"]?.count ?? 0;
+  const count2020 = data.totals_by_year["2020"]?.count ?? 0;
+  const totalDelta = data.total_delta_km2;
+  const totalDeltaPct = data.total_delta_pct;
+
+  // Collapsed chip — clicks open the panel.
+  if (!open) {
+    return (
+      <div className="absolute right-4 bottom-6 md:right-6 md:bottom-8 z-20">
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label="Open Nepal-focus deep dive"
+          className="rounded-xl bg-black/75 backdrop-blur-md border border-white/15 hover:border-white/30 transition-colors px-4 py-3 shadow-2xl text-left max-w-xs"
+        >
+          <p className="text-white/60 text-[10px] uppercase tracking-wider font-medium">
+            Nepal focus
+          </p>
+          <p className="text-white text-xl font-bold tracking-tight tabular-nums mt-0.5 leading-none">
+            −{Math.abs(totalDelta).toFixed(0)} km² lost
+          </p>
+          <p className="text-rose-300 text-xs font-semibold tabular-nums mt-1">
+            {totalDeltaPct.toFixed(1)}% since 1990 · tap for details ▸
+          </p>
+        </button>
+      </div>
+    );
+  }
+
+  // Expanded panel.
+  const topRegionAbsLoss = data.by_region.reduce((m, r) => Math.max(m, Math.abs(r.delta_km2)), 1);
+  const namedSorted = data.named_glaciers.filter((r) => r.delta_km2 < 0).slice(0, 12);
+  const namedTopAbs = namedSorted.reduce((m, r) => Math.max(m, Math.abs(r.delta_km2)), 1);
+
+  // top_shrunk_pct already filtered to area_1990 >= 3 km² and area_2020 >= 0.5
+  // (drops border artifacts) — show top 8 with their nearest-famous label.
+  const topPctRows = data.top_shrunk_pct.slice(0, 8);
+
+  return (
+    <div className="absolute right-2 bottom-2 md:right-6 md:bottom-8 z-20 w-[calc(100vw-1rem)] max-w-sm md:max-w-md">
+      <div className="rounded-xl bg-black/85 backdrop-blur-md border border-white/15 shadow-2xl overflow-hidden">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3 px-4 pt-3 pb-2 border-b border-white/10">
+          <div>
+            <p className="text-white/60 text-[10px] uppercase tracking-wider font-medium">
+              Nepal focus · 1990 → 2020
+            </p>
+            <p className="text-white text-lg font-bold tracking-tight leading-tight mt-0.5">
+              Lost {Math.abs(totalDelta).toFixed(0)} km² of ice{" "}
+              <span className="text-rose-300 tabular-nums">({totalDeltaPct.toFixed(1)}%)</span>
+            </p>
+            <p className="text-white/60 text-[11px] mt-0.5 leading-snug">
+              {total1990.toFixed(0).toLocaleString()} km² → {total2020.toFixed(0).toLocaleString()}{" "}
+              km² across{" "}
+              <span className="text-white tabular-nums">{count1990.toLocaleString()}</span> glaciers
+              in 1990, now{" "}
+              <span className="text-white tabular-nums">{count2020.toLocaleString()}</span> (more,
+              smaller pieces — {data.disappeared_count} disappeared entirely).
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label="Close Nepal-focus panel"
+            className="shrink-0 w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/10 text-white/60 hover:text-white"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+              <path
+                d="M3.5 3.5l7 7M10.5 3.5l-7 7"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                fill="none"
+              />
+            </svg>
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-1 px-3 pt-2 border-b border-white/10">
+          <button
+            type="button"
+            onClick={() => setTab("region")}
+            className={[
+              "px-3 py-1.5 rounded-t-md text-xs font-medium transition-colors",
+              tab === "region" ? "bg-white/10 text-white" : "text-white/50 hover:text-white/80",
+            ].join(" ")}
+          >
+            Where it's lost
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab("named")}
+            className={[
+              "px-3 py-1.5 rounded-t-md text-xs font-medium transition-colors",
+              tab === "named" ? "bg-white/10 text-white" : "text-white/50 hover:text-white/80",
+            ].join(" ")}
+          >
+            Which glaciers
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="px-4 py-3 max-h-[55vh] md:max-h-[420px] overflow-y-auto">
+          {tab === "region" && (
+            <>
+              <p className="text-white/70 text-[11px] leading-snug mb-3">
+                Glacier ice loss by sub-region of Nepal — every region is shrinking, with the far
+                west and west losing the largest <em>fraction</em> of their ice.
+              </p>
+              <div className="space-y-2.5">
+                {data.by_region.map((r) => {
+                  const w = (Math.abs(r.delta_km2) / topRegionAbsLoss) * 100;
+                  return (
+                    <div key={r.region}>
+                      <div className="flex items-baseline justify-between gap-2 mb-1">
+                        <span className="text-white text-xs font-medium">{r.region}</span>
+                        <span className="text-rose-300 text-xs tabular-nums font-semibold">
+                          −{Math.abs(r.delta_km2).toFixed(0)} km²{" "}
+                          <span className="text-white/50">({r.delta_pct.toFixed(1)}%)</span>
+                        </span>
+                      </div>
+                      <div
+                        className="h-2 rounded-full bg-white/10 overflow-hidden"
+                        aria-hidden="true"
+                      >
+                        <div
+                          className="h-full bg-gradient-to-r from-rose-400 to-rose-300 rounded-full transition-all duration-500"
+                          style={{ width: `${w}%` }}
+                        />
+                      </div>
+                      <p className="text-white/50 text-[10px] mt-0.5 tabular-nums">
+                        {r.area_1990.toFixed(0)} → {r.area_2020.toFixed(0)} km² · {r.count_1990} →{" "}
+                        {r.count_2020} glaciers
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-white/40 text-[10px] mt-3 leading-snug">
+                Sub-regions split by longitude along the Himalayan crest. Far-West Nepal's steeper
+                proportional loss reflects smaller, lower-elevation glaciers more exposed to warming
+                air.
+              </p>
+            </>
+          )}
+
+          {tab === "named" && (
+            <>
+              <p className="text-white/70 text-[11px] leading-snug mb-3">
+                Loss on glaciers you may know by name — Khumbu (Everest's south flank), Imja (which
+                feeds the fastest-growing glacial lake in Nepal), and others. Each bar shows 1990
+                area in white and 2020 area in blue.
+              </p>
+              <ul className="space-y-2">
+                {namedSorted.map((g) => {
+                  const w1990 = (g.area_1990 / namedTopAbs) * 100;
+                  const w2020 = (g.area_2020 / namedTopAbs) * 100;
+                  return (
+                    <li key={`${g.named}-${g.glims_id}`}>
+                      <div className="flex items-baseline justify-between gap-2 mb-0.5">
+                        <span className="text-white text-xs font-medium">{g.named}</span>
+                        <span className="text-rose-300 text-[11px] tabular-nums font-semibold">
+                          −{Math.abs(g.delta_km2).toFixed(1)} km²{" "}
+                          <span className="text-white/50">({g.delta_pct.toFixed(0)}%)</span>
+                        </span>
+                      </div>
+                      <div
+                        className="relative h-2 rounded-full bg-white/10 overflow-hidden"
+                        aria-hidden="true"
+                      >
+                        <div
+                          className="absolute inset-y-0 left-0 bg-white/40 rounded-full"
+                          style={{ width: `${w1990}%` }}
+                        />
+                        <div
+                          className="absolute inset-y-0 left-0 bg-sky-300 rounded-full transition-all duration-500"
+                          style={{ width: `${w2020}%` }}
+                        />
+                      </div>
+                      <p className="text-white/50 text-[10px] mt-0.5 tabular-nums">
+                        {g.area_1990.toFixed(1)} → {g.area_2020.toFixed(1)} km²
+                      </p>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              {topPctRows.length > 0 && (
+                <>
+                  <p className="text-white/60 text-[11px] uppercase tracking-wider mt-4 mb-2 font-medium">
+                    Steepest proportional losses
+                  </p>
+                  <ul className="space-y-1.5">
+                    {topPctRows.map((g) => (
+                      <li
+                        key={g.glims_id}
+                        className="flex items-baseline justify-between gap-2 text-[11px]"
+                      >
+                        <span className="text-white/80 truncate">
+                          {g.named ?? `Unnamed glacier`}{" "}
+                          <span className="text-white/40">· {g.range || "—"}</span>
+                        </span>
+                        <span className="text-rose-300 tabular-nums font-semibold shrink-0">
+                          {g.delta_pct.toFixed(0)}%{" "}
+                          <span className="text-white/50">
+                            ({g.area_1990.toFixed(1)}→{g.area_2020.toFixed(1)})
+                          </span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              <p className="text-white/40 text-[10px] mt-3 leading-snug">
+                Per-glacier deltas are computed by summing all 2020 inventory polygons closest to
+                each 1990 glacier centroid (Voronoi assignment), so glacier fragmentation is
+                captured in the new total.
+              </p>
+            </>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-4 py-2 border-t border-white/10 bg-white/[0.02] text-[10px] text-white/40">
+          Source: ICIMOD HKH Glacier Inventory · Filter: Natural Earth 10m admin polygon
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function YearControl({
   year,
   disabled,
@@ -1004,6 +1323,10 @@ export function Atlas30YearsClient() {
 
       {/* Total-area card — bottom-left, the visceral "how much ice is left" stat */}
       <TotalAreaCard year={year} />
+
+      {/* Nepal-focus deep dive — bottom-right, opt-in expanded view with
+          per-region and per-named-glacier loss rankings. */}
+      <NepalFocusPanel />
 
       {/* Year control — top center */}
       <div className="absolute top-4 md:top-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2">

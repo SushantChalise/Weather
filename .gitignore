@@ -41,7 +41,9 @@ yarn-error.log*
 .dev.vars
 .open-next/
 
-# local data files (large shapefiles, not committed)
+# local data files (large shapefiles, not committed). Specific small,
+# reusable boundary files are force-added with `git add -f` (e.g., the
+# extracted Nepal polygon used by the glacier-deltas transform).
 /data
 
 # typescript

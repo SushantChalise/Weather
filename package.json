@@ -27,7 +27,8 @@
     "db:firms-historical": "tsx --env-file=.env.local scripts/ingestion/firms-historical/run.ts",
     "icimod:download": "tsx --env-file=.env.local scripts/scrape-icimod-downloads/run.ts",
     "transform:icimod-glacier-decades": "tsx --env-file=.env.local scripts/transform/icimod-glacier-decades/run.ts",
-    "transform:icimod-glacial-lakes": "tsx scripts/transform/icimod-glacial-lakes/run.ts"
+    "transform:icimod-glacial-lakes": "tsx scripts/transform/icimod-glacial-lakes/run.ts",
+    "transform:nepal-glacier-deltas": "tsx scripts/transform/nepal-glacier-deltas/run.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
