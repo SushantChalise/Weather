@@ -1,9 +1,47 @@
 ---
 schema: v3
-last_updated: "2026-05-10T09:50:00Z"
-status: complete
-session: post-overnight + Round 13 + data-load + Round 14 + Round 15 + ICIMOD downloads + infra-migration + Round 16 retry (in flight)
+last_updated: "2026-05-10T15:30:00Z"
+status: ready_to_execute
+session: water-cycle build (v7 plan locked after 5 review rounds)
+water_cycle:
+  status: docs_complete_ready_to_build
+  spec: WATER_CYCLE_SPEC.md
+  mother_runbook: scripts/agent/MOTHER_AGENT_WATER_CYCLE.md
+  task_graph: docs/water-cycle/07-task-graph.md
+  open_prs: []
+  completed_tasks: 0
+  total_tasks: 21
+  next_available:
+    - T1.1
+    - T1.2
+    - T1.3
+    - T1.4
+    - T1.5
+    - T2.1
+  blocked_tasks: []
+  notes: |
+    All 11 spec docs written (master + 11 sub-docs in docs/water-cycle/).
+    Phase 1 (5 foundation tasks) all parallelizable and unblocked.
+    T2.1 also unblocked (no upstream deps).
+    Mother should start by spawning T1.1, T1.2, T2.1 in sequence (respect 2-parallel cap).
 ---
+
+# Project Status — Water Cycle Build (post-spec lock)
+
+## Active workstream: /atlas/water-cycle
+
+After 5 council review rounds (Codex × 2, Gemini × 3, Claude × 2), the v7 plan is locked. Documentation suite is complete (~50,000 words across 12 files). Mother (Opus 4.7) executes the task graph by spawning Sonnet 4.6 workers via Agent tool with `isolation: worktree`.
+
+**Read first**:
+1. `WATER_CYCLE_SPEC.md`
+2. `scripts/agent/MOTHER_AGENT_WATER_CYCLE.md` (mother runbook)
+3. `docs/water-cycle/07-task-graph.md` (task queue)
+
+**Live URL target**: https://himalayan-atlas.devil-soul30.workers.dev/atlas/water-cycle
+
+---
+
+# Earlier work (still relevant for context)
 
 # Project Status — Post Cloudflare Migration
 
