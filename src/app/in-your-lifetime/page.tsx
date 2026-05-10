@@ -1,7 +1,8 @@
+import { sql } from "drizzle-orm";
 import type { Metadata } from "next";
 import { Source_Serif_4 } from "next/font/google";
 import Link from "next/link";
-import { pool } from "@/db/client";
+import { db } from "@/db/client";
 
 export const metadata: Metadata = {
   title: "In Your Lifetime — Himalayan Atlas",
@@ -52,8 +53,8 @@ async function fetchClimateIndicators(birthYear: number): Promise<Indicators> {
   const startYear = Math.max(birthYear, 2020);
   const endYear = 2024;
 
-  const climateResult = await pool.query<ClimateRow>(
-    `
+  const climateResult = await db.execute<ClimateRow>(
+    sql`
     SELECT
       EXTRACT(YEAR FROM o.time)::int AS yr,
       AVG(o.value) FILTER (WHERE o.variable = 'temp_2m_mean') AS avg_temp,
@@ -67,11 +68,10 @@ async function fetchClimateIndicators(birthYear: number): Promise<Indicators> {
     JOIN places p ON p.id = o.place_id
     WHERE p.country = 'Nepal'
       AND o.variable IN ('temp_2m_mean', 'precip', 'temp_2m_max')
-      AND EXTRACT(YEAR FROM o.time) IN ($1, $2)
+      AND EXTRACT(YEAR FROM o.time) IN (${startYear}, ${endYear})
     GROUP BY EXTRACT(YEAR FROM o.time)
     ORDER BY yr
     `,
-    [startYear, endYear],
   );
 
   const thenRow = climateResult.rows.find((r) => Number(r.yr) === startYear);
@@ -112,16 +112,15 @@ async function fetchClimateIndicators(birthYear: number): Promise<Indicators> {
     const glacierEndYear = 2019;
 
     if (glacierStartYear < glacierEndYear) {
-      const glacierResult = await pool.query<GlacierRow>(
-        `
+      const glacierResult = await db.execute<GlacierRow>(
+        sql`
         SELECT
-          SUM(value) FILTER (WHERE EXTRACT(YEAR FROM time) = $1) AS mb_start,
-          SUM(value) FILTER (WHERE EXTRACT(YEAR FROM time) = $2) AS mb_end,
+          SUM(value) FILTER (WHERE EXTRACT(YEAR FROM time) = ${glacierStartYear}) AS mb_start,
+          SUM(value) FILTER (WHERE EXTRACT(YEAR FROM time) = ${glacierEndYear}) AS mb_end,
           COUNT(DISTINCT place_id)::text AS glacier_count
         FROM cryo_glacier_mass_balance
-        WHERE EXTRACT(YEAR FROM time) IN ($1, $2)
+        WHERE EXTRACT(YEAR FROM time) IN (${glacierStartYear}, ${glacierEndYear})
         `,
-        [glacierStartYear, glacierEndYear],
       );
 
       const gr = glacierResult.rows[0];

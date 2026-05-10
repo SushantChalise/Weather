@@ -7,6 +7,8 @@ import { PLACE_REGISTRY } from "@/data/places";
 import { db } from "@/db/client";
 import { obsWeatherDaily, places } from "@/db/schema";
 
+export const revalidate = 600;
+
 const VALID_MONTHS = new Set([
   "01",
   "02",

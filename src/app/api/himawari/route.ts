@@ -1,75 +1,33 @@
 import { NextResponse } from "next/server";
+import type { DataMirrorManifest } from "@/hooks/use-himawari";
 
-export const revalidate = 120; // 2 min
+export const revalidate = 300;
 
-export type HimawariManifest = {
-  satellite: string;
-  band: string;
-  capturedAt: string;
-  processedAt: string;
-  ageMinutes: number;
-  tileBaseUrl: string;
-  tileTemplate: string;
-  minZoom: number;
-  maxZoom: number;
-  bbox: [number, number, number, number];
-};
-
-// Fallback: today's MODIS Terra from GIBS (always available after 06:00 UTC)
-function modisManifest(): HimawariManifest & { source: "modis-fallback" } {
-  const now = new Date();
-  const useToday = now.getUTCHours() >= 6;
-  const d = new Date(now);
-  if (!useToday) d.setUTCDate(d.getUTCDate() - 1);
-  const date = d.toISOString().slice(0, 10);
-  const capturedAt = `${date}T05:30:00Z`;
-  const ageMinutes = Math.floor((Date.now() - new Date(capturedAt).getTime()) / 60_000);
-
-  return {
-    satellite: "MODIS Terra",
-    band: "True Colour (B01/B02/B03)",
-    capturedAt,
-    processedAt: `${date}T06:30:00Z`,
-    ageMinutes,
-    tileBaseUrl: `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${date}/GoogleMapsCompatible_Level9`,
-    tileTemplate: "{z}/{y}/{x}.jpg",
-    minZoom: 1,
-    maxZoom: 9,
-    bbox: [78, 23, 92, 33],
-    source: "modis-fallback",
-  };
-}
+const MANIFEST_URL =
+  "https://cdn.jsdelivr.net/gh/SushantChalise/weather-data-mirror@data-mirror/himawari/latest/manifest.json";
 
 export async function GET() {
-  // Resolve storeId from either the full write token or the lighter HIMAWARI_STORE_ID var.
-  // The manifest lives on a public URL so only the storeId is needed here.
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-  const storeId = process.env.HIMAWARI_STORE_ID ?? token?.split("_")[3];
-
-  if (storeId) {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 5_000);
     try {
-      const manifestUrl = `https://${storeId}.public.blob.vercel-storage.com/himawari/manifest.json`;
-      const res = await fetch(manifestUrl, { next: { revalidate: 120 } });
-
+      const res = await fetch(MANIFEST_URL, {
+        cache: "no-store",
+        signal: controller.signal,
+      });
       if (res.ok) {
-        const manifest = (await res.json()) as HimawariManifest;
+        const manifest = (await res.json()) as DataMirrorManifest;
         const ageMinutes = Math.floor(
-          (Date.now() - new Date(manifest.capturedAt).getTime()) / 60_000,
+          (Date.now() - new Date(manifest.frame_time_utc).getTime()) / 60_000,
         );
-        return NextResponse.json({
-          himawari: { ...manifest, ageMinutes },
-          isStale: ageMinutes > 45,
-          source: "himawari-9",
-        });
+        return NextResponse.json({ manifest, ageMinutes, isStale: ageMinutes > 45 });
       }
-    } catch {
-      // Blob store not seeded yet — fall through to MODIS
+    } finally {
+      clearTimeout(timer);
     }
+  } catch {
+    // Network or timeout
   }
 
-  return NextResponse.json({
-    himawari: modisManifest(),
-    isStale: true,
-    source: "modis-fallback",
-  });
+  return NextResponse.json({ error: "Manifest unavailable" }, { status: 503 });
 }

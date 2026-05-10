@@ -3,12 +3,12 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Layer, Map as MapGL, Marker, Source } from "react-map-gl/maplibre";
 import useSWR from "swr";
+import type { DataMirrorManifest } from "@/hooks/use-himawari";
 import { useHimawari } from "@/hooks/use-himawari";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Feature, LineString } from "geojson";
 import type { StyleSpecification } from "maplibre-gl";
 import type { MapRef } from "react-map-gl/maplibre";
-import type { HimawariManifest } from "@/app/api/himawari/route";
 import { ABC_WAYPOINTS } from "@/data/corridors/abc";
 import { EBC_WAYPOINTS } from "@/data/corridors/ebc";
 import { DESTINATIONS } from "@/data/destinations";
@@ -65,14 +65,13 @@ function gibsDate(): string {
   return now.toISOString().slice(0, 10);
 }
 
-function buildMapStyle(himawari: HimawariManifest | null): StyleSpecification {
+function buildMapStyle(himawari: DataMirrorManifest | null): StyleSpecification {
   const date = gibsDate();
   const cloudSource: StyleSpecification["sources"][string] = himawari
     ? {
         type: "raster",
-        tiles: [`${himawari.tileBaseUrl}/${himawari.tileTemplate}`],
+        tiles: [himawari.tile_template],
         tileSize: 256,
-        maxzoom: himawari.maxZoom,
         attribution: "JAXA · Himawari-9 B13",
       }
     : {
@@ -248,7 +247,8 @@ export function NepalMapLibre({ liveConditions }: Props) {
   // Build the MapLibre style once per Himawari manifest update. Passing the
   // manifest into buildMapStyle means the cloud source URL is correct from
   // first load and doesn't revert to MODIS on re-renders.
-  const { manifest: himawariManifest } = useHimawari();
+  const himawariState = useHimawari();
+  const himawariManifest = himawariState.manifest;
   const mapStyle = useMemo(() => buildMapStyle(himawariManifest), [himawariManifest]);
 
   // Animate pitch when tilt mode toggles

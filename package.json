@@ -6,6 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "cf:build": "opennextjs-cloudflare build",
+    "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "prebuild": "tsx scripts/check/public-asset-budget.ts",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "lint": "biome check --write src/",
@@ -25,6 +29,7 @@
     "transform:icimod-glacier-decades": "tsx --env-file=.env.local scripts/transform/icimod-glacier-decades/run.ts"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
     "@vercel/blob": "^2.3.3",
@@ -43,6 +48,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.4.14",
     "@eslint/eslintrc": "^3",
+    "@opennextjs/cloudflare": "^1.19.8",
     "@playwright/test": "^1.45.0",
     "@tailwindcss/postcss": "^4",
     "@turf/area": "^7.3.5",

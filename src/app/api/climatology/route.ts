@@ -1,5 +1,6 @@
+import { sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { pool } from "@/db/client";
+import { db } from "@/db/client";
 
 export const revalidate = 3600;
 
@@ -44,20 +45,19 @@ export async function GET(request: Request) {
     const series: number[][] = [];
 
     for (const year of DATA_YEARS) {
-      const result = await pool.query<DailyRow>(
-        `
+      const result = await db.execute<DailyRow>(
+        sql`
         SELECT
           EXTRACT(DAY FROM o.time)::int AS day,
           o.value
         FROM obs_weather_daily o
         JOIN places p ON p.id = o.place_id
-        WHERE p.slug = $1
-          AND o.variable = $2
-          AND EXTRACT(YEAR FROM o.time) = $3
-          AND EXTRACT(MONTH FROM o.time) = $4
+        WHERE p.slug = ${place}
+          AND o.variable = ${variable}
+          AND EXTRACT(YEAR FROM o.time) = ${year}
+          AND EXTRACT(MONTH FROM o.time) = ${month}
         ORDER BY o.time
         `,
-        [place, variable, year, month],
       );
 
       series.push(result.rows.map((r) => r.value ?? 0));

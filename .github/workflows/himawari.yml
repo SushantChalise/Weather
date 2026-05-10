@@ -27,22 +27,22 @@ jobs:
       - name: Check manifest freshness
         id: freshness
         if: ${{ !inputs.force }}
-        env:
-          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
         run: |
           node - <<'EOF'
-          const token = process.env.BLOB_READ_WRITE_TOKEN || "";
-          const storeId = token.split("_")[3] || "";
-          if (!storeId) { console.log("No storeId — proceeding"); process.exit(0); }
-          const url = `https://${storeId}.public.blob.vercel-storage.com/himawari/manifest.json`;
-          fetch(url).then(r => r.ok ? r.json() : null).then(m => {
-            if (!m?.processedAt) { console.log("No manifest — proceeding"); return; }
-            const ageMin = (Date.now() - new Date(m.processedAt).getTime()) / 60000;
-            if (ageMin < 25) {
-              console.log(`Manifest is ${ageMin.toFixed(0)} min old — skipping`);
-              require("fs").appendFileSync(process.env.GITHUB_OUTPUT, "skip=true\n");
-            }
-          }).catch(e => console.log(`Freshness check failed (${e.message}) — proceeding`));
+          const url = "https://cdn.jsdelivr.net/gh/SushantChalise/weather-data-mirror@data-mirror/himawari/latest/manifest.json";
+          fetch(url, { cache: "no-store" })
+            .then(r => r.ok ? r.json() : null)
+            .then(m => {
+              if (!m?.generated_at) { console.log("No manifest — proceeding"); return; }
+              const ageMin = (Date.now() - new Date(m.generated_at).getTime()) / 60000;
+              if (ageMin < 25) {
+                console.log(`Manifest is ${ageMin.toFixed(0)} min old — skipping`);
+                require("fs").appendFileSync(process.env.GITHUB_OUTPUT, "skip=true\n");
+              } else {
+                console.log(`Manifest is ${ageMin.toFixed(0)} min old — proceeding`);
+              }
+            })
+            .catch(e => console.log(`Freshness check failed (${e.message}) — proceeding`));
           EOF
 
       # ── Python: satellite science ───────────────────────────────────────────
@@ -71,22 +71,22 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
         run: python scripts/ingestion/himawari/pipeline.py
 
-      # ── Node.js: upload via @vercel/blob SDK ───────────────────────────────
+      # ── Node.js: commit-and-push to weather-data-mirror ───────────────────
       - name: Install Node dependencies
         if: steps.freshness.outputs.skip != 'true'
         run: npm ci --ignore-scripts
 
-      - name: Upload tiles to Vercel Blob (Node.js)
+      - name: Upload tiles to weather-data-mirror (Node.js)
         if: steps.freshness.outputs.skip != 'true'
         env:
-          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+          WEATHER_DATA_MIRROR_TOKEN: ${{ secrets.WEATHER_DATA_MIRROR_TOKEN }}
         run: node scripts/ingestion/himawari/upload.mjs
 
       - name: Summary
         if: always()
         run: |
           if [ "${{ steps.freshness.outputs.skip }}" = "true" ]; then
-            echo "⏭️  Skipped — manifest is fresh"
+            echo "Skipped — manifest is fresh"
           else
-            echo "✅  Pipeline complete"
+            echo "Pipeline complete"
           fi

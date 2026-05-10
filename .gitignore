@@ -37,6 +37,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# cloudflare
+.dev.vars
+.open-next/
+
 # local data files (large shapefiles, not committed)
 /data
 

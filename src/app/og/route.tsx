@@ -1,6 +1,5 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
 export const revalidate = 86400; // 24 hours
 
 const DEFAULT_TITLE = "Himalayan Atlas";
