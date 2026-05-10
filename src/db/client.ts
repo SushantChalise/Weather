@@ -18,14 +18,11 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as schema from "./schema";
 
-const databaseUrl = process.env.DATABASE_URL;
-
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is not set. Add it to .env.local (see .env.local.example).");
-}
-
+// Lazy: pg.Pool doesn't actually connect on construction, so we only
+// surface the missing-env error when something tries to query. Throwing
+// at import time breaks `next build` in CI, where DATABASE_URL is absent.
 export const pool = new Pool({
-  connectionString: databaseUrl,
+  connectionString: process.env.DATABASE_URL,
   // Conservative defaults for Neon free tier (~100 connection limit).
   max: 5,
   idleTimeoutMillis: 30_000,
