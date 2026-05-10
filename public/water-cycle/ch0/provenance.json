@@ -4,12 +4,52 @@
   "duration_s": 30,
   "frames": 900,
   "fps": 30,
-  "resolution": { "w": 1280, "h": 720 },
+  "resolution": {
+    "w": 1280,
+    "h": 720
+  },
   "camera_path": {
     "keyframes": [
-      { "t": 0, "lon": 86.9, "lat": 27.9, "alt_m": 12000, "pitch_deg": -35, "yaw_deg": 0 },
-      { "t": 15, "lon": 86.92, "lat": 27.95, "alt_m": 8000, "pitch_deg": -20, "yaw_deg": 10 },
-      { "t": 30, "lon": 86.93, "lat": 27.98, "alt_m": 4500, "pitch_deg": -10, "yaw_deg": 15 }
+      {
+        "t": 0.0,
+        "lon": 73.0,
+        "lat": 36.0,
+        "alt_m": 200000,
+        "pitch_deg": -45,
+        "yaw_deg": 90
+      },
+      {
+        "t": 15.0,
+        "lon": 98.0,
+        "lat": 28.0,
+        "alt_m": 200000,
+        "pitch_deg": -45,
+        "yaw_deg": 90
+      },
+      {
+        "t": 17.0,
+        "lon": 86.93,
+        "lat": 27.95,
+        "alt_m": 8000,
+        "pitch_deg": -55,
+        "yaw_deg": 0
+      },
+      {
+        "t": 27.0,
+        "lon": 86.93,
+        "lat": 27.95,
+        "alt_m": 12000,
+        "pitch_deg": -60,
+        "yaw_deg": 0
+      },
+      {
+        "t": 30.0,
+        "lon": 86.93,
+        "lat": 27.9,
+        "alt_m": 12000,
+        "pitch_deg": -60,
+        "yaw_deg": 0
+      }
     ]
   },
   "scene_layers": [
@@ -21,13 +61,15 @@
         "url": "https://rds.icimod.org/Home/DataDetail?metadataId=1972729",
         "doi": "10.26066/rds.1972729",
         "year_keyframe": 1990,
-        "filter": "all polygons",
+        "filter": "all HKH polygons (Points simplified; area_km2 per feature)",
         "n_features": 65188,
-        "preprocessing": ["mapshaper -simplify 5%"]
+        "preprocessing": [
+          "public/glaciers/hkh/1990-points.geojson (existing atlas data)"
+        ]
       },
-      "render_geometry_id": "blender-collection://glacier-1990",
+      "render_geometry_id": "Glacier-1990",
       "thickness_model": {
-        "method": "Farinotti 2019 consensus estimate",
+        "method": "Farinotti 2019 consensus estimate (OGGM G2TI, mean_thickness_m = vol_m3/area_m2)",
         "doi": "10.5194/tc-13-665-2019",
         "uncertainty_pct": 25
       },
@@ -41,11 +83,13 @@
         "url": "https://rds.icimod.org/Home/DataDetail?metadataId=1972729",
         "doi": "10.26066/rds.1972729",
         "year_keyframe": 2020,
-        "filter": "all polygons",
+        "filter": "all HKH polygons (Points simplified)",
         "n_features": 63761,
-        "preprocessing": ["mapshaper -simplify 5%"]
+        "preprocessing": [
+          "public/glaciers/hkh/2020-points.geojson (existing atlas data)"
+        ]
       },
-      "render_geometry_id": "blender-collection://glacier-2020",
+      "render_geometry_id": "Glacier-2020",
       "thickness_model": {
         "method": "Farinotti 2019 consensus estimate",
         "doi": "10.5194/tc-13-665-2019",
@@ -54,17 +98,29 @@
       "color": "#7DD3FC"
     },
     {
-      "id": "lake-current",
+      "id": "imja-ring",
       "type": "polygon-flat",
       "source": {
-        "dataset": "ICIMOD Glacial Lake Inventory 2024",
+        "dataset": "Imja Tsho keyframes (digitized from Somos-Valenzuela 2014 + ICIMOD 2024)",
         "url": "https://rds.icimod.org/Home/DataDetail?metadataId=9362830",
         "doi": "10.26066/rds.9362830",
-        "filter": "HKH extent, area > 0.01 km²",
-        "n_features": 28694
+        "year_keyframe": 2020,
+        "filter": "Imja Tsho 2020 outline only"
       },
-      "render_geometry_id": "blender-collection://lake-current",
+      "render_geometry_id": "ImjaLake-ring",
       "color": "#0E7490"
+    },
+    {
+      "id": "terrain-hkh",
+      "type": "raster",
+      "source": {
+        "dataset": "SRTM 30m DEM (OpenTopography SRTMGL1_E) — procedural fallback if file absent",
+        "url": "https://portal.opentopography.org/raster?opentopoID=OTSRTM.082015.4326.1",
+        "doi": "10.5069/G9445JDF",
+        "filter": "HKH bbox [70°E, 26°N, 95°E, 36°N]"
+      },
+      "render_geometry_id": "HKH-DEM",
+      "color": "#475569"
     }
   ],
   "headline_numbers": [
@@ -85,8 +141,9 @@
       "citation": "doi:10.26066/icimod.hkh-cryosphere-2026"
     }
   ],
-  "caption_text": "Between 1990 and 2020, the Hindu Kush Himalaya lost 9% of all glacier ice — 516 km³ of water-equivalent. This reservoir is draining.",
-  "generated_at": "2026-05-11T00:00:00Z",
-  "blender_version": "placeholder",
-  "bpy_script_hash": "0000000000000000000000000000000000000000000000000000000000000000"
+  "caption_text": "Between 1990 and 2020, the Hindu Kush Himalaya lost 9% of all glacier ice — 516 km³ of water-equivalent. This reservoir is draining.",
+  "generated_at": "2026-05-10T23:24:48.851368+00:00",
+  "blender_version": "5.1.1",
+  "bpy_script_hash": "e45dd063951725285cab473d7fac8bf272d16e6d6b03d5cde531e36af3023119",
+  "_used_real_dem": true
 }
