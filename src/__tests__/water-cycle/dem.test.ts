@@ -22,9 +22,15 @@ const PROJECT_ROOT = path.resolve(__dirname, "..", "..", "..");
 
 const DEM_PATH = path.join(PROJECT_ROOT, "data", "water-cycle", "dem", "srtm-hkh-30m.tif");
 
-/** GeoTIFF magic bytes: TIFF little-endian (II*\0) or big-endian (MM\0*) */
-const GEOTIFF_MAGIC_LE = Buffer.from([0x49, 0x49, 0x2a, 0x00]);
-const GEOTIFF_MAGIC_BE = Buffer.from([0x4d, 0x4d, 0x00, 0x2a]);
+/**
+ * Valid TIFF/BigTIFF magic bytes.
+ * Standard TIFF: magic number 42 (0x002A)
+ * BigTIFF: magic number 43 (0x002B) — required for files > 4 GB (the merged HKH DEM is ~7 GB)
+ */
+const GEOTIFF_MAGIC_LE = Buffer.from([0x49, 0x49, 0x2a, 0x00]); // TIFF LE
+const GEOTIFF_MAGIC_BE = Buffer.from([0x4d, 0x4d, 0x00, 0x2a]); // TIFF BE
+const BIGTIFF_MAGIC_LE = Buffer.from([0x49, 0x49, 0x2b, 0x00]); // BigTIFF LE
+const BIGTIFF_MAGIC_BE = Buffer.from([0x4d, 0x4d, 0x00, 0x2b]); // BigTIFF BE
 
 describe("SRTM HKH DEM", () => {
   it("exists and is a valid GeoTIFF", () => {
@@ -48,9 +54,14 @@ describe("SRTM HKH DEM", () => {
     fs.closeSync(fd);
 
     const isValidGeoTiff =
-      buf.subarray(0, 4).equals(GEOTIFF_MAGIC_LE) || buf.subarray(0, 4).equals(GEOTIFF_MAGIC_BE);
+      buf.subarray(0, 4).equals(GEOTIFF_MAGIC_LE) ||
+      buf.subarray(0, 4).equals(GEOTIFF_MAGIC_BE) ||
+      buf.subarray(0, 4).equals(BIGTIFF_MAGIC_LE) ||
+      buf.subarray(0, 4).equals(BIGTIFF_MAGIC_BE);
 
-    expect(isValidGeoTiff, `${DEM_PATH} does not start with GeoTIFF magic bytes`).toBe(true);
+    expect(isValidGeoTiff, `${DEM_PATH} does not start with GeoTIFF or BigTIFF magic bytes`).toBe(
+      true,
+    );
 
     console.log(`DEM file: ${DEM_PATH}`);
     console.log(`Size: ${(size / 1024 / 1024 / 1024).toFixed(2)} GB`);
