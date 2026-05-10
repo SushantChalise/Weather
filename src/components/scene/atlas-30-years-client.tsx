@@ -247,7 +247,7 @@ function TotalAreaCard({ year }: { year: GlacierYear }) {
 
   if (current == null) return null;
 
-  const fmt = (km2: number): string =>
+  const fmtKm2 = (km2: number): string =>
     km2 >= 10000
       ? `${(km2 / 1000).toFixed(1)}k km²`
       : `${km2.toLocaleString(undefined, { maximumFractionDigits: 0 })} km²`;
@@ -256,29 +256,98 @@ function TotalAreaCard({ year }: { year: GlacierYear }) {
   const delta = hasBaseline ? current - baseline : null;
   const deltaPct = hasBaseline && delta != null ? (delta / baseline) * 100 : null;
 
+  // Layman-readable framings, attached when delta is available.
+  // Annual rate: average loss per year over the (year - 1990) span.
+  const yearsElapsed = year - 1990;
+  const annualLossKm2 = delta != null && yearsElapsed > 0 ? Math.abs(delta) / yearsElapsed : null;
+
+  // Volume estimate: HKH glaciers average ~150 m thickness (Farinotti 2019);
+  // 1 km² × 0.15 km = 0.15 km³ of ice per km² of footprint. Conversion is
+  // an order-of-magnitude framing for a layperson, not a precise IPCC number.
+  const volumeLossKm3 = delta != null ? Math.abs(delta) * 0.15 : null;
+
+  // Sparkline: every loaded year's total, rendered as a tiny bar chart.
+  const sparklineData: { y: GlacierYear; v: number }[] = [];
+  for (const y of GLACIER_YEARS) {
+    const v = glacierTotalKm2.get(y);
+    if (v != null) sparklineData.push({ y, v });
+  }
+  const sparkMax = sparklineData.reduce((m, d) => Math.max(m, d.v), 0);
+  const sparkMin = sparklineData.reduce((m, d) => Math.min(m, d.v), sparkMax);
+  const sparkRange = sparkMax - sparkMin || 1;
+
   return (
     <div className="absolute left-4 bottom-6 md:left-6 md:bottom-8 z-20 pointer-events-none">
-      <div className="rounded-lg bg-black/70 backdrop-blur-md border border-white/15 px-4 py-3 shadow-lg">
+      <div className="rounded-xl bg-black/75 backdrop-blur-md border border-white/15 px-5 py-4 shadow-2xl max-w-xs">
         <p className="text-white/60 text-[10px] uppercase tracking-wider font-medium">
           HKH glacier ice in {year}
         </p>
-        <p className="text-white text-2xl md:text-3xl font-bold tracking-tight tabular-nums mt-0.5">
-          {fmt(current)}
+        <p className="text-white text-3xl font-bold tracking-tight tabular-nums mt-0.5 leading-none">
+          {fmtKm2(current)}
         </p>
-        {delta != null && deltaPct != null ? (
-          <p
-            className={`text-xs md:text-sm font-medium mt-1 tabular-nums ${
-              delta < 0 ? "text-rose-300" : "text-emerald-300"
-            }`}
-          >
-            {delta > 0 ? "+" : ""}
-            {fmt(Math.abs(delta))} ({deltaPct > 0 ? "+" : ""}
-            {deltaPct.toFixed(1)}%) vs 1990
-          </p>
+
+        {/* Sparkline of all loaded years */}
+        {sparklineData.length >= 2 && (
+          <div className="flex items-end gap-1 h-7 mt-3" aria-hidden="true">
+            {sparklineData.map((d) => {
+              const h = ((d.v - sparkMin) / sparkRange) * 100;
+              const isActive = d.y === year;
+              return (
+                <div key={d.y} className="flex-1 flex flex-col items-center gap-0.5">
+                  <div
+                    className={`w-full rounded-sm transition-all duration-300 ${
+                      isActive ? "bg-sky-300" : "bg-white/30"
+                    }`}
+                    style={{ height: `${Math.max(8, h)}%` }}
+                  />
+                  <span
+                    className={`text-[9px] tabular-nums ${
+                      isActive ? "text-white" : "text-white/40"
+                    }`}
+                  >
+                    {String(d.y).slice(2)}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {delta != null && deltaPct != null && annualLossKm2 != null ? (
+          <div className="mt-3 pt-3 border-t border-white/10 space-y-1.5">
+            <p
+              className={`text-sm font-semibold tabular-nums ${
+                delta < 0 ? "text-rose-300" : "text-emerald-300"
+              }`}
+            >
+              {delta > 0 ? "+" : "−"}
+              {fmtKm2(Math.abs(delta))} ({deltaPct > 0 ? "+" : ""}
+              {deltaPct.toFixed(1)}%) since 1990
+            </p>
+            <p className="text-white/70 text-[11px] leading-snug">
+              Average loss:{" "}
+              <span className="text-white font-medium tabular-nums">
+                {annualLossKm2.toFixed(0)} km²/year
+              </span>{" "}
+              — about the size of Kathmandu Valley each year.
+            </p>
+            {volumeLossKm3 != null && (
+              <p className="text-white/70 text-[11px] leading-snug">
+                Roughly{" "}
+                <span className="text-white font-medium tabular-nums">
+                  {volumeLossKm3.toFixed(0)} km³
+                </span>{" "}
+                of ice gone — equivalent to ~{(volumeLossKm3 * 0.92).toFixed(0)} km³ of meltwater
+                released downstream into the Indus, Ganges, and Brahmaputra basins.
+              </p>
+            )}
+          </div>
         ) : year === 1990 ? (
-          <p className="text-white/40 text-xs md:text-sm mt-1">baseline year</p>
+          <p className="text-white/50 text-[11px] mt-2">
+            baseline · click later years to see the loss
+          </p>
         ) : (
-          <p className="text-white/40 text-xs md:text-sm mt-1">loading 1990 baseline…</p>
+          <p className="text-white/40 text-[11px] mt-2">loading 1990 baseline for comparison…</p>
         )}
       </div>
     </div>
@@ -1087,15 +1156,40 @@ export function Atlas30YearsClient() {
           </Source>
         )}
 
-        {/* Glacial lakes — all */}
+        {/* Glacial lakes — all. Lakes are tiny (median ~0.05 km²) so polygons
+            are sub-pixel at HKH-bbox zoom. The dot layer renders one warm
+            cyan point per lake at low zoom (visible against ice-blue
+            glaciers); the polygon fill takes over at higher zoom. */}
         {activeLayers.lakes && lakesData && glofFilter === "all" && (
           <Source id="lakes" type="geojson" data={lakesData}>
+            <Layer
+              id="lakes-dots"
+              type="circle"
+              paint={{
+                "circle-radius": [
+                  "interpolate",
+                  ["linear"],
+                  ["zoom"],
+                  3,
+                  ["max", 1, ["*", ["sqrt", ["coalesce", ["get", "area_km2"], 0]], 4]],
+                  6,
+                  ["max", 2, ["*", ["sqrt", ["coalesce", ["get", "area_km2"], 0]], 8]],
+                  9,
+                  ["max", 3, ["*", ["sqrt", ["coalesce", ["get", "area_km2"], 0]], 14]],
+                ],
+                "circle-color": "#FB923C",
+                "circle-opacity": ["interpolate", ["linear"], ["zoom"], 3, 0.85, 9, 0.55, 11, 0],
+                "circle-stroke-width": 0.5,
+                "circle-stroke-color": "#7C2D12",
+                "circle-stroke-opacity": ["interpolate", ["linear"], ["zoom"], 3, 0.5, 10, 0],
+              }}
+            />
             <Layer
               id="lakes-fill"
               type="fill"
               paint={{
-                "fill-color": "#12B5CB",
-                "fill-opacity": 0.5,
+                "fill-color": "#FB923C",
+                "fill-opacity": 0.6,
               }}
             />
           </Source>
