@@ -21,7 +21,8 @@
     "db:hugonnet-2021": "tsx --env-file=.env.local scripts/ingestion/hugonnet-2021/run.ts",
     "db:usgs-earthquakes": "tsx --env-file=.env.local scripts/ingestion/usgs-earthquakes/run.ts",
     "db:firms-historical": "tsx --env-file=.env.local scripts/ingestion/firms-historical/run.ts",
-    "icimod:download": "tsx --env-file=.env.local scripts/scrape-icimod-downloads/run.ts"
+    "icimod:download": "tsx --env-file=.env.local scripts/scrape-icimod-downloads/run.ts",
+    "transform:icimod-glacier-decades": "tsx --env-file=.env.local scripts/transform/icimod-glacier-decades/run.ts"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
@@ -44,21 +45,29 @@
     "@eslint/eslintrc": "^3",
     "@playwright/test": "^1.45.0",
     "@tailwindcss/postcss": "^4",
+    "@turf/area": "^7.3.5",
     "@types/node": "^20",
     "@types/pg": "^8.20.0",
+    "@types/proj4": "^2.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/shapefile": "^0.6.4",
     "@types/suncalc": "^1.9.2",
     "@types/three": "^0.184.1",
+    "@types/yauzl": "^2.10.3",
     "@vitest/ui": "^1.6.0",
     "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "15.5.18",
+    "mapshaper": "^0.7.12",
     "playwright": "^1.59.1",
+    "proj4": "^2.20.8",
+    "shapefile": "^0.6.6",
     "tailwindcss": "^4.2.4",
     "tsx": "^4.21.0",
     "typescript": "5.5",
-    "vitest": "^1.6.0"
+    "vitest": "^1.6.0",
+    "yauzl": "^3.3.0"
   }
 }
