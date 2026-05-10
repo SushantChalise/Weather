@@ -18,6 +18,7 @@
     "db:openmeteo-historical": "tsx --env-file=.env.local scripts/ingestion/openmeteo-historical/run.ts",
     "db:openmeteo-aq": "tsx --env-file=.env.local scripts/ingestion/openmeteo-aq/run.ts",
     "db:icimod-mb": "tsx --env-file=.env.local scripts/ingestion/icimod-mb/run.ts",
+    "db:hugonnet-2021": "tsx --env-file=.env.local scripts/ingestion/hugonnet-2021/run.ts",
     "db:usgs-earthquakes": "tsx --env-file=.env.local scripts/ingestion/usgs-earthquakes/run.ts",
     "icimod:download": "tsx --env-file=.env.local scripts/scrape-icimod-downloads/run.ts"
   },
