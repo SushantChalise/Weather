@@ -166,21 +166,25 @@ async function main() {
     gitIn(cloneDir, ["add", join(MIRROR_DEST, "tiles"), join(MIRROR_DEST, "preview.webp")]);
 
     if (!DRY_RUN) {
-      // Commit tiles first to obtain the SHA, then amend adding the manifest
-      // which references that SHA for commit-pinned tile URLs.
+      // Two-commit flow so the manifest can reference an existing tile commit:
+      //   1. Commit A — tiles only. SHA = tileCommitSha (becomes manifest's commit_sha).
+      //   2. Commit B on top of A — adds manifest referencing tileCommitSha.
+      // Pushing HEAD pushes both A and B; @tileCommitSha resolves on jsDelivr
+      // because A is reachable as B's parent. Amending A would have rewritten
+      // its SHA, leaving the manifest pointing at an orphan commit.
       gitIn(cloneDir, [
         "commit",
         "--allow-empty",
         "-m",
         `feat(himawari): tiles ${capturedAt}`,
       ]);
-      const commitSha = gitOutIn(cloneDir, ["rev-parse", "HEAD"]);
+      const tileCommitSha = gitOutIn(cloneDir, ["rev-parse", "HEAD"]);
 
-      const tileTemplate = `https://cdn.jsdelivr.net/gh/SushantChalise/weather-data-mirror@${commitSha}/himawari/latest/tiles/{z}/{x}/{y}.webp`;
-      const previewUrl = `https://cdn.jsdelivr.net/gh/SushantChalise/weather-data-mirror@${commitSha}/himawari/latest/preview.webp`;
+      const tileTemplate = `https://cdn.jsdelivr.net/gh/SushantChalise/weather-data-mirror@${tileCommitSha}/himawari/latest/tiles/{z}/{x}/{y}.webp`;
+      const previewUrl = `https://cdn.jsdelivr.net/gh/SushantChalise/weather-data-mirror@${tileCommitSha}/himawari/latest/preview.webp`;
       const manifest = {
         frame_time_utc: capturedAt,
-        commit_sha: commitSha,
+        commit_sha: tileCommitSha,
         tile_template: tileTemplate,
         preview: previewUrl,
         generated_at: processedAt,
@@ -190,13 +194,17 @@ async function main() {
       };
       writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
       gitIn(cloneDir, ["add", join(MIRROR_DEST, "manifest.json")]);
-      gitIn(cloneDir, ["commit", "--amend", "--no-edit"]);
+      gitIn(cloneDir, [
+        "commit",
+        "-m",
+        `chore(himawari): manifest -> ${tileCommitSha.slice(0, 10)}`,
+      ]);
 
       console.log("[INFO] Pushing to data-mirror branch…");
       execFileSync("git", ["-C", cloneDir, "push", "origin", `HEAD:${MIRROR_BRANCH}`], {
         stdio: "inherit",
       });
-      console.log(`[INFO] Pushed commit ${commitSha}`);
+      console.log(`[INFO] Pushed tile commit ${tileCommitSha}`);
 
       console.log("[INFO] Purging jsDelivr manifest cache…");
       try {
