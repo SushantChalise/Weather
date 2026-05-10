@@ -6,6 +6,9 @@ import type { CitationDataset } from "@/components/ui/citation-pill";
 import { CitationPill } from "@/components/ui/citation-pill";
 import { PLACE_REGISTRY } from "@/data/places";
 import { db } from "@/db/client";
+
+export const revalidate = 600;
+
 import { obsWeatherDaily, places } from "@/db/schema";
 
 const HOT_THRESHOLD = 30;

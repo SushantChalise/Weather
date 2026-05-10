@@ -1,34 +1,25 @@
-/**
- * Postgres client + Drizzle wrapper.
- *
- * Two flavours:
- *
- *   - `pool`: node-postgres connection pool. Use in long-running contexts
- *     (ingestion scripts, dev server). Cheap to keep open, expensive to
- *     create per-request.
- *
- *   - `db`: Drizzle wrapper around the pool. Type-safe query builder.
- *
- * For Vercel serverless functions, swap to `@neondatabase/serverless`'s
- * HTTP driver in a follow-up — pool-based clients eat connection slots
- * fast under serverless concurrency.
- */
-
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "./schema";
 
-// Lazy: pg.Pool doesn't actually connect on construction, so we only
-// surface the missing-env error when something tries to query. Throwing
-// at import time breaks `next build` in CI, where DATABASE_URL is absent.
-export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  // Conservative defaults for Neon free tier (~100 connection limit).
-  max: 5,
-  idleTimeoutMillis: 30_000,
-  connectionTimeoutMillis: 10_000,
-});
+type DbInstance = ReturnType<typeof drizzle<typeof schema>>;
 
-export const db = drizzle(pool, { schema });
+// Lazy singleton: neon() validates DATABASE_URL at call time, so we defer
+// construction until the first actual query. This prevents build failures in
+// environments where DATABASE_URL is absent (Next.js static-analysis pass).
+let _db: DbInstance | undefined;
+
+function getDb(): DbInstance {
+  if (!_db) {
+    _db = drizzle(neon(process.env.DATABASE_URL ?? ""), { schema });
+  }
+  return _db;
+}
+
+export const db = new Proxy({} as DbInstance, {
+  get(_target, prop) {
+    return (getDb() as unknown as Record<string | symbol, unknown>)[prop];
+  },
+});
 
 export { schema };

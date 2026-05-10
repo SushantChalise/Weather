@@ -5,6 +5,8 @@ import { PlaceTabs } from "@/components/places/place-tabs";
 import { PLACE_REGISTRY } from "@/data/places";
 import type { Destination, DestinationId } from "@/types/weather";
 
+export const revalidate = 600;
+
 type PlacePageProps = {
   params: Promise<{ slug: string }>;
 };
