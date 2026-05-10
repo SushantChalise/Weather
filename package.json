@@ -20,6 +20,7 @@
     "db:icimod-mb": "tsx --env-file=.env.local scripts/ingestion/icimod-mb/run.ts",
     "db:hugonnet-2021": "tsx --env-file=.env.local scripts/ingestion/hugonnet-2021/run.ts",
     "db:usgs-earthquakes": "tsx --env-file=.env.local scripts/ingestion/usgs-earthquakes/run.ts",
+    "db:firms-historical": "tsx --env-file=.env.local scripts/ingestion/firms-historical/run.ts",
     "icimod:download": "tsx --env-file=.env.local scripts/scrape-icimod-downloads/run.ts"
   },
   "dependencies": {
