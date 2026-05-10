@@ -421,15 +421,16 @@ async function downloadWithToken(
   }
 
   const ctx = (await contextResp.json()) as Record<string, unknown>;
-  const mode = ctx["download_mode"];
+  const rawMode = ctx["download_mode"];
+  const mode = String(rawMode ?? "").toLowerCase();
 
   if (mode === "direct") {
     return downloadDirect(uuid, token, datasetDir);
   }
-  if (mode === "multi") {
+  if (mode === "multi" || mode === "multi_file") {
     return downloadMulti(uuid, token, datasetDir);
   }
-  console.warn(`  [WARN] Unknown download_mode "${String(mode)}"`);
+  console.warn(`  [WARN] Unknown download_mode "${String(rawMode)}"`);
   return [];
 }
 
@@ -470,7 +471,7 @@ async function downloadDirect(
     {
       method: "POST",
       headers: { Authorization: token, "Content-Type": "application/json", Accept: "*/*" },
-      body: JSON.stringify({ purpose: "research" }),
+      body: JSON.stringify({ purpose: "RESEARCH" }),
     },
   );
   if (!resp.ok) {
@@ -492,7 +493,7 @@ async function downloadMulti(
     {
       method: "POST",
       headers: { Authorization: token, "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({ purpose: "research" }),
+      body: JSON.stringify({ purpose: "RESEARCH" }),
     },
   );
 
