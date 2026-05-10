@@ -123,8 +123,12 @@ async function main(): Promise<void> {
 
   // 3. Build place_id lookup map (only for the 6 target cities)
   const citiesArray = [...CITIES];
+  const slugList = sql.join(
+    citiesArray.map((c) => sql`${c}`),
+    sql`, `,
+  );
   const placesResult = await db.execute<{ id: number; slug: string }>(
-    sql`SELECT id, slug FROM places WHERE slug = ANY(${citiesArray})`,
+    sql`SELECT id, slug FROM places WHERE slug IN (${slugList})`,
   );
   const placeIdBySlug = new Map(placesResult.rows.map((r) => [r.slug, r.id]));
 

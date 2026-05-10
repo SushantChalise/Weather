@@ -98,8 +98,12 @@ async function main(): Promise<void> {
 
   // 3. Build place_id lookup map
   const glacierSlugs = Object.keys(GLACIER_RATES);
+  const slugList = sql.join(
+    glacierSlugs.map((s) => sql`${s}`),
+    sql`, `,
+  );
   const placesResult = await db.execute<{ id: number; slug: string }>(
-    sql`SELECT id, slug FROM places WHERE slug = ANY(${glacierSlugs})`,
+    sql`SELECT id, slug FROM places WHERE slug IN (${slugList})`,
   );
   const placeIdBySlug = new Map(placesResult.rows.map((r) => [r.slug, r.id]));
 

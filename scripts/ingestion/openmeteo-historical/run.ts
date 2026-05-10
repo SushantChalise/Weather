@@ -204,6 +204,10 @@ async function main(): Promise<void> {
 
     console.log(`${rows.length} rows`);
     totalRows += rows.length;
+
+    // Open-Meteo's per-minute cap counts each year×variable combo as a "call",
+    // so 5y × 5 vars hits the limit fast without a delay between places.
+    await new Promise((resolve) => setTimeout(resolve, 7000));
   }
 
   console.log(`\nDone.`);
