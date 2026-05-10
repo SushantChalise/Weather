@@ -188,18 +188,26 @@ function useGlacierData(year: GlacierYear, enabled: boolean) {
     // tessellation + GPU upload). The circle layer reads centroids only and
     // doesn't need polygon geometry; switching to Points cut layer setup
     // from ~10-30s to <1s on slower machines.
-    fetch(`/glaciers/hkh/${year}-points.geojson.br`)
+    const url = `/glaciers/hkh/${year}-points.geojson.br`;
+    const t0 = performance.now();
+    console.log(`[glacier] fetching ${url}`);
+    fetch(url)
       .then((r) => {
-        if (!r.ok) throw new Error(`${r.status}`);
+        console.log(
+          `[glacier] ${url} status=${r.status} content-type=${r.headers.get("content-type")} content-encoding=${r.headers.get("content-encoding")}`,
+        );
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json() as Promise<GeoData>;
       })
       .then((d) => {
         if (cancelled) return;
+        const elapsed = (performance.now() - t0).toFixed(0);
+        console.log(`[glacier] ${url} parsed in ${elapsed}ms — features=${d.features.length}`);
         glacierCache.set(year, d);
         setData(d);
       })
-      .catch(() => {
-        // Fail silently — empty state shows the basemap with a loading pill.
+      .catch((err) => {
+        console.error(`[glacier] fetch failed for ${url}:`, err);
       });
     return () => {
       cancelled = true;
