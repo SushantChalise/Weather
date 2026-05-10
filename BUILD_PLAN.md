@@ -147,3 +147,54 @@ The plan stops being "vibecoding" and converts to "feature freeze + polish" when
 ---
 
 *Original v1 BUILD_PLAN.md (the 8-step trekker plan) is preserved in git history. The trekker product is fully shipped and now becomes Pillar 3 (Real-time + anomaly layer) of the Atlas.*
+
+---
+
+## Round 16 — HKH Cryosphere Atlas (real ICIMOD data, post-download)
+
+**Context:** Hour 21–22 ("ICIMOD decadal glacier changes 1990–2020") was originally scoped as a single ingestion. With the authenticated downloader (#65 / #67 / #68) we now have 665 MB of real ICIMOD data on local disk including:
+
+- HKH Glacier outlines for **1990, 2000, 2010, 2020** (~520 MB combined)
+- GLOF database of HMA, glacial-lake polygons (Koshi/Gandaki/Karnali), potentially dangerous glacial lakes
+- HKH master glacier inventory
+- Yala 1 micromet station ground-truth time series
+- Gorkha 2015 hazard mapping suite (landslide-dam, geological data, internal relief)
+
+**Outcome target:** A single landing page that lets a visitor swipe through 30 years of HKH glacier shrinkage, with overlaid GLOF-risk lakes, in under 2s on 3G. This is the emotional anchor of the product.
+
+### Sequence
+
+| # | Output | Acceptance gate |
+|---|---|---|
+| 16.1 | Data pipeline script `scripts/transform/icimod-glacier-decades/run.ts`: read the four HKH Glacier ZIPs, extract shapefiles, simplify with `mapshaper` (npm) at ~5% tolerance, emit GeoJSON FeatureCollections per decade with stable RGI-style IDs, upload to Vercel Blob under `glaciers/hkh/{year}.geojson.gz`. | 4 GeoJSON files in Blob, each < 30 MB compressed, polygon counts within 10% of source |
+| 16.2 | Per-glacier area / centroid / bbox computed for each decade, written to a new Postgres table `cryo_glacier_outlines_summary` keyed on (rgi_id, year). | Table populated; `SELECT rgi_id, year, area_km2 FROM cryo_glacier_outlines_summary WHERE rgi_id LIKE 'RGI%-15%' ORDER BY rgi_id, year` shows monotonic-ish shrinkage per glacier |
+| 16.3 | Same pipeline for `glacial-lakes-koshi-gandaki-karnali.zip` and `potentially-dangerous-glacial-lakes.zip`. Output as `glacial-lakes/{current,risky}.geojson.gz` in Blob. Risk-tier preserved as a feature property. | Two more GeoJSON files in Blob, ≤ 5 MB each |
+| 16.4 | New page `/atlas/30-years` — single MapLibre canvas, time slider (1990/2000/2010/2020), layer toggles for glaciers / current lakes / risky lakes. Layers fetched lazily from Blob. URL state encodes year + visible layers so views are linkable. | Page TTI < 2s on simulated 3G; year slider produces a visible morph; tested at 360px and 1440px |
+| 16.5 | Click handler on a glacier polygon → side drawer with: glacier name, RGI ID, area in selected year, % change since 1990, link to `/charts/glacier-loss/[slug]` if matched to a tracked place. Click on a glacial lake → drawer with area, basin, downstream district, risk tier (if risky), link to dataset citation. | Manual test: clicking 5 glaciers and 5 lakes opens correct drawers with correct numbers |
+| 16.6 | `/atlas/glaciers` (current placeholder with point markers) becomes a 308 redirect to `/atlas/30-years`. Update internal links + sitemap. | Redirect honored; old URL no longer indexed; nav updated |
+| 16.7 | `scripts/ingestion/icimod-yala-micromet/run.ts`: parse the Yala 1 ZIP, locate the time-series CSV, ingest into `obs_weather_daily` with a new `icimod-yala-micromet-1` dataset slug. Match to `places.slug='yala'`. | `SELECT COUNT(*) FROM obs_weather_daily WHERE source_id = (SELECT id FROM datasets WHERE slug='icimod-yala-micromet-1')` returns rows; Yala-specific charts now have ground-truth data |
+| 16.8 | "Ground truth" comparison badge on `/places/yala`: shows last full month's measured value vs the same month from Open-Meteo, with delta. Surfaced beside the existing variables, not as a separate tab. | Badge renders only when both sources have data for the period; honest about the comparison window |
+| 16.9 | `/charts/glacier-loss/[place]` enhancement: when the glacier has decadal-outline data, append a tiny inline map showing the 1990 vs 2020 outline silhouettes side-by-side. Uses the same Blob-served GeoJSON. | Inline map renders for the 4 tracked glaciers; fallback to text-only when polygon data is absent |
+| 16.10 | New `/events/gorkha-2015` page using the Gorkha hazard mapping ZIPs (Anti Dip Slope / Possible Damming / Internal Relief / Geological / Dip Slope / Dip Normal Slope / Geological Structural). Combined narrative: April 25 quake → cascading landslide-dam hazards → which valleys were affected. Toggleable layers + place-anchored events from the `earthquakes` table for the M ≥ 6 aftershocks. | Page renders; layer toggles work; cross-links to `/places/langtang`, `/places/sindhupalchok` (new place if missing) |
+
+### Data budget / performance gates
+
+- All glacier + lake GeoJSON served gzipped from Vercel Blob with `Cache-Control: public, max-age=86400, immutable`.
+- Page total transfer (initial visit) ≤ 8 MB on `/atlas/30-years` after gzip.
+- LCP ≤ 2.5s on simulated 3G (Lighthouse desktop emulation, "fast 3G" preset).
+- No layer fetch occurs until the user toggles it on (lazy-loading), except the default Glaciers-1990 layer.
+- Subsequent year toggles use HTTP cache hits.
+
+### Cross-cutting design rules
+
+- **Map is the spine, not the side dish.** Don't fragment this data across N small pages. The combined view is the unique value.
+- **Always link out from the map.** Every clickable feature has a "see this glacier's full chart" or "see this place's history" out-link, so the map drives traffic into the rest of the product.
+- **Honest about what the polygons are.** ICIMOD's HKH Glacier 1990 outlines are themselves derived from Landsat/AST etc. — surface the per-decade source method in the citation pill on the drawer, don't hide it.
+- **Don't redo the back-end on the front-end.** The aggregation (area, % change) is computed once in step 16.2 and stored in Postgres. The frontend reads pre-computed numbers. No client-side polygon math.
+
+### What this round explicitly does NOT do
+
+- **No tippecanoe / MVT yet.** Simplified GeoJSON is enough until we have evidence we're losing users to load time. Revisit in a perf-focused round.
+- **No animation between years.** A 4-tick slider is plenty. Smooth-morph between decadal outlines isn't worth the implementation cost or perceptual confusion (these are measurements, not interpolated data).
+- **No 3D.** Tempting with the glacier polygons + DEM, but it's a different product surface. Park.
+- **No reanalysis of Hugonnet rates against ICIMOD outlines.** That's a research paper, not a webpage.
