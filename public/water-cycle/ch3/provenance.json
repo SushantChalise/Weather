@@ -1,0 +1,31 @@
+{
+  "chapter_id": "ch3",
+  "shot_id": "moisture-sankey",
+  "duration_s": 15,
+  "frames": 450,
+  "fps": 30,
+  "resolution": { "w": 1280, "h": 720 },
+  "camera_path": {
+    "keyframes": [
+      { "t": 0, "lon": 84.0, "lat": 28.0, "alt_m": 15000, "pitch_deg": -25, "yaw_deg": 0 },
+      { "t": 15, "lon": 84.0, "lat": 28.0, "alt_m": 12000, "pitch_deg": -20, "yaw_deg": 0 }
+    ]
+  },
+  "scene_layers": [],
+  "headline_numbers": [
+    {
+      "value": "~120 km³/yr",
+      "label": "glacier meltwater runoff to rivers (HKH total)",
+      "citation": "doi:10.1038/s41467-021-23073-4"
+    },
+    {
+      "value": "~250 million",
+      "label": "people in water-scarce IGB zones dependent on glacier melt",
+      "citation": "doi:10.1038/s41467-021-23073-4"
+    }
+  ],
+  "caption_text": "Where does glacier water go? A Sankey of moisture flux through the HKH system shows how precipitation, ice, melt, lakes, and rivers are interconnected.",
+  "generated_at": "2026-05-11T00:00:00Z",
+  "blender_version": "placeholder",
+  "bpy_script_hash": "0000000000000000000000000000000000000000000000000000000000000003"
+}

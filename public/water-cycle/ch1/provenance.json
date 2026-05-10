@@ -1,0 +1,53 @@
+{
+  "chapter_id": "ch1",
+  "shot_id": "glacier-retreat-grid",
+  "duration_s": 25,
+  "frames": 750,
+  "fps": 30,
+  "resolution": { "w": 1280, "h": 720 },
+  "camera_path": {
+    "keyframes": [
+      { "t": 0, "lon": 86.83, "lat": 27.98, "alt_m": 6000, "pitch_deg": -30, "yaw_deg": 0 },
+      { "t": 25, "lon": 86.93, "lat": 27.95, "alt_m": 4000, "pitch_deg": -20, "yaw_deg": 5 }
+    ]
+  },
+  "scene_layers": [
+    {
+      "id": "glacier-retreat-imja-1962",
+      "type": "polygon-flat",
+      "source": {
+        "dataset": "Somos-Valenzuela 2014 — Imja Glacier 1962",
+        "url": "https://doi.org/10.5194/tc-8-1297-2014",
+        "doi": "10.5194/tc-8-1297-2014",
+        "year_keyframe": 1962,
+        "filter": "Imja Glacier outline, digitized from Fig. 2"
+      },
+      "render_geometry_id": "blender-collection://imja-1962",
+      "color": "#7DD3FC"
+    },
+    {
+      "id": "glacier-retreat-imja-2020",
+      "type": "polygon-flat",
+      "source": {
+        "dataset": "ICIMOD HKH Glacier Inventory 2020",
+        "url": "https://rds.icimod.org/Home/DataDetail?metadataId=1972729",
+        "doi": "10.26066/rds.1972729",
+        "year_keyframe": 2020,
+        "filter": "Imja Glacier (RGI 15-10316)"
+      },
+      "render_geometry_id": "blender-collection://imja-2020",
+      "color": "#7DD3FC"
+    }
+  ],
+  "headline_numbers": [
+    {
+      "value": "~30 years",
+      "label": "of synchronized retreat across Khumbu, Yala, Annapurna I, Imja",
+      "citation": "doi:10.26066/rds.1972729"
+    }
+  ],
+  "caption_text": "Four glaciers — Khumbu, Yala, Annapurna I, and Imja — simultaneously retreating. The year ticker drives home synchronized loss across the Himalayan arc.",
+  "generated_at": "2026-05-11T00:00:00Z",
+  "blender_version": "placeholder",
+  "bpy_script_hash": "0000000000000000000000000000000000000000000000000000000000000001"
+}

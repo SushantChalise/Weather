@@ -1,16 +1,24 @@
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  // Disable CSS processing so Vitest does not load postcss.config.mjs.
-  // The test suite is Node-only (no CSS imports); this is safe.
-  css: false,
-test: {
+  // Override postcss to no-op so Vite's optimizer doesn't load postcss.config.mjs.
+  // postcss.config.mjs uses the string-form "@tailwindcss/postcss" plugin which is
+  // valid for Next.js / @tailwindcss/postcss v4 but Vite's bundler rejects it.
+  // This is safe: the test suite has zero CSS imports.
+  css: {
+    postcss: {
+      plugins: [],
+    },
+  },
+  test: {
     environment: "node",
     include: ["src/**/__tests__/**/*.test.ts", "src/**/*.test.ts"],
-    // Point deps.optimizer to nothing so Vite doesn't scan for PostCSS config.
     deps: {
       optimizer: {
         ssr: {
+          enabled: false,
+        },
+        web: {
           enabled: false,
         },
       },

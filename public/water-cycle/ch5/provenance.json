@@ -1,0 +1,31 @@
+{
+  "chapter_id": "ch5",
+  "shot_id": "impurity-transect",
+  "duration_s": 20,
+  "frames": 600,
+  "fps": 30,
+  "resolution": { "w": 1280, "h": 720 },
+  "camera_path": {
+    "keyframes": [
+      { "t": 0, "lon": 85.0, "lat": 27.5, "alt_m": 8000, "pitch_deg": -20, "yaw_deg": -30 },
+      { "t": 20, "lon": 86.5, "lat": 28.0, "alt_m": 6000, "pitch_deg": -15, "yaw_deg": -20 }
+    ]
+  },
+  "scene_layers": [],
+  "headline_numbers": [
+    {
+      "value": "6–10%",
+      "label": "albedo reduction from black carbon (Kaspari 2014)",
+      "citation": "doi:10.3189/2014JoG13J153"
+    },
+    {
+      "value": "dominant",
+      "label": "role of dust vs BC in Solu-Khumbu region",
+      "citation": "doi:10.3189/2014JoG13J153"
+    }
+  ],
+  "caption_text": "Light-absorbing impurities — black carbon, dust, and algae — settle on snow and ice, reducing albedo. Dust dominates in Solu-Khumbu (Kaspari 2014). Less reflection means more melt: a self-reinforcing feedback loop.",
+  "generated_at": "2026-05-11T00:00:00Z",
+  "blender_version": "placeholder",
+  "bpy_script_hash": "0000000000000000000000000000000000000000000000000000000000000005"
+}
