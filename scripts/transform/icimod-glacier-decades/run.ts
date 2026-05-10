@@ -5,28 +5,25 @@
  *
  * Reads four ICIMOD shapefile ZIPs (1990/2000/2010/2020), extracts and
  * reprojects from HKH Albers Equal Area Conic → WGS84, simplifies at 5%
- * Visvalingam tolerance, and uploads gzipped GeoJSON to Vercel Blob under
- * glaciers/hkh/{year}.geojson.gz
+ * Visvalingam tolerance, Brotli-compresses at quality 11, and writes to
+ * public/glaciers/hkh/{year}.geojson.br for Cloudflare Pages edge serving.
  *
  * Usage:
  *   npm run transform:icimod-glacier-decades
- *
- * Requires BLOB_READ_WRITE_TOKEN in .env.local.
  */
 
 import crypto from "node:crypto";
 import fs from "node:fs";
-import { createGzip } from "node:zlib";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { brotliCompressSync, constants as zlibConstants } from "node:zlib";
 
-import { put } from "@vercel/blob";
 import turfAreaModule from "@turf/area";
+import mapshaper from "mapshaper";
 import proj4 from "proj4";
 import * as shapefile from "shapefile";
 import yauzl from "yauzl";
-import mapshaper from "mapshaper";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(__dirname, "..", "..", "..");
@@ -104,10 +101,12 @@ function extractShapefile(zipPath: string, tmpDir: string): Promise<ExtractedPat
             if (err2) return reject(err2);
             const ws = fs.createWriteStream(outPath);
             stream.pipe(ws);
-            writes.push(new Promise<void>((res, rej) => {
-              ws.on("finish", res);
-              ws.on("error", rej);
-            }));
+            writes.push(
+              new Promise<void>((res, rej) => {
+                ws.on("finish", res);
+                ws.on("error", rej);
+              }),
+            );
             zf.readEntry();
           });
         } else {
@@ -161,10 +160,7 @@ interface GlacierProperties {
   M_Basin: string;
 }
 
-type GlacierFeature = GeoJSON.Feature<
-  GeoJSON.Polygon | GeoJSON.MultiPolygon,
-  GlacierProperties
->;
+type GlacierFeature = GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon, GlacierProperties>;
 
 type GlacierCollection = GeoJSON.FeatureCollection<
   GeoJSON.Polygon | GeoJSON.MultiPolygon,
@@ -174,19 +170,13 @@ type GlacierCollection = GeoJSON.FeatureCollection<
 // ─── Per-year processing ──────────────────────────────────────────────────────
 
 async function processYear(year: number): Promise<{
-  blobUrl: string;
+  outPath: string;
   countIn: number;
   countOut: number;
   bytesIn: number;
   bytesOut: number;
 }> {
-  const zipPath = path.join(
-    PROJECT_ROOT,
-    "data",
-    "icimod",
-    "1973447",
-    `HKH Glacier ${year}.zip`,
-  );
+  const zipPath = path.join(PROJECT_ROOT, "data", "icimod", "1973447", `HKH Glacier ${year}.zip`);
   if (!fs.existsSync(zipPath)) throw new Error(`ZIP not found: ${zipPath}`);
 
   const bytesIn = fs.statSync(zipPath).size;
@@ -254,33 +244,22 @@ async function processYear(year: number): Promise<{
     const countOut = outGeoJson.features.length;
     console.log(`${countOut} features`);
 
-    // 4. Gzip and upload to Vercel Blob
-    process.stdout.write(`  [${year}] Gzipping + uploading … `);
-
-    const gzipped = await new Promise<Buffer>((resolve, reject) => {
-      const gzip = createGzip({ level: 9 });
-      const chunks: Buffer[] = [];
-      gzip.on("data", (c: Buffer) => chunks.push(c));
-      gzip.on("end", () => resolve(Buffer.concat(chunks)));
-      gzip.on("error", reject);
-      gzip.write(outBuf);
-      gzip.end();
+    // 4. Brotli-compress at quality 11 (write-once, decadal data — maximize ratio)
+    process.stdout.write(`  [${year}] Brotli-compressing (quality 11) … `);
+    const compressed = brotliCompressSync(outBuf, {
+      params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 11 },
     });
+    const bytesOut = compressed.length;
+    console.log(`${(bytesOut / 1024 / 1024).toFixed(2)} MB`);
 
-    const token = process.env["BLOB_READ_WRITE_TOKEN"];
-    if (!token) throw new Error("BLOB_READ_WRITE_TOKEN is not set");
+    // 5. Write to public/glaciers/hkh/{year}.geojson.br
+    const outDir = path.join(PROJECT_ROOT, "public", "glaciers", "hkh");
+    fs.mkdirSync(outDir, { recursive: true });
+    const outPath = path.join(outDir, `${year}.geojson.br`);
+    fs.writeFileSync(outPath, compressed);
+    console.log(`  [${year}] Written: ${outPath}`);
 
-    const blob = await put(`glaciers/hkh/${year}.geojson.gz`, gzipped, {
-      access: "public",
-      contentType: "application/json",
-      addRandomSuffix: false,
-      token,
-    });
-
-    const bytesOut = gzipped.length;
-    console.log(`${(bytesOut / 1024).toFixed(1)} KB compressed`);
-
-    return { blobUrl: blob.url, countIn, countOut, bytesIn, bytesOut };
+    return { outPath, countIn, countOut, bytesIn, bytesOut };
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   }
@@ -289,14 +268,14 @@ async function processYear(year: number): Promise<{
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 async function main(): Promise<void> {
-  console.log("HKH Glacier Decades → Vercel Blob");
+  console.log("HKH Glacier Decades → public/glaciers/hkh/");
   console.log(`  Input  : data/icimod/1973447/HKH Glacier {year}.zip`);
-  console.log(`  Output : glaciers/hkh/{year}.geojson.gz\n`);
+  console.log(`  Output : public/glaciers/hkh/{year}.geojson.br\n`);
 
   const years = [1990, 2000, 2010, 2020] as const;
   const results: Array<{
     year: number;
-    blobUrl: string;
+    outPath: string;
     countIn: number;
     countOut: number;
     bytesIn: number;
@@ -307,19 +286,21 @@ async function main(): Promise<void> {
     console.log(`\n── ${year} ──`);
     const r = await processYear(year);
     results.push({ year, ...r });
-    console.log(`  Blob URL: ${r.blobUrl}`);
   }
 
   console.log("\n=== Summary ===");
+  let totalPolygons = 0;
   for (const r of results) {
     const ratio = ((r.bytesOut / r.bytesIn) * 100).toFixed(1);
     const pct = (((r.countIn - r.countOut) / r.countIn) * 100).toFixed(1);
+    totalPolygons += r.countOut;
     console.log(
-      `  ${r.year}: ${r.countIn} → ${r.countOut} features (${pct}% removed), ` +
-        `${(r.bytesOut / 1024 / 1024).toFixed(1)} MB gz (${ratio}% of source), ` +
-        `${r.blobUrl}`,
+      `  ${r.year}: ${r.countIn} glaciers in → ${r.countOut} out (${pct}% removed), ` +
+        `${(r.bytesOut / 1024 / 1024).toFixed(2)} MB Brotli (${ratio}% of source ZIP), ` +
+        `${r.outPath}`,
     );
   }
+  console.log(`  Total polygons across all decades: ${totalPolygons}`);
 
   process.exit(0);
 }
