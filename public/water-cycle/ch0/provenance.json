@@ -117,7 +117,7 @@
         "dataset": "SRTM 30m DEM (OpenTopography SRTMGL1_E) — procedural fallback if file absent",
         "url": "https://portal.opentopography.org/raster?opentopoID=OTSRTM.082015.4326.1",
         "doi": "10.5069/G9445JDF",
-        "filter": "HKH bbox [70°E, 26°N, 95°E, 36°N]"
+        "filter": "HKH bbox [70 deg E, 26 deg N, 95 deg E, 36 deg N]"
       },
       "render_geometry_id": "HKH-DEM",
       "color": "#475569"
@@ -125,14 +125,14 @@
   ],
   "headline_numbers": [
     {
-      "value": "516 km³",
-      "label": "water-equivalent ice lost 1990–2020",
+      "value": "516 km3",
+      "label": "water-equivalent ice lost 1990-2020",
       "citation": "doi:10.26066/icimod.hkh-cryosphere-2026",
-      "uncertainty": "±25 km³ (95% CI)"
+      "uncertainty": "plus or minus 25 km3 (95% CI)"
     },
     {
       "value": "~9%",
-      "label": "of all HKH ice lost 1990–2020",
+      "label": "of all HKH ice lost 1990-2020",
       "citation": "doi:10.26066/icimod.hkh-cryosphere-2026"
     },
     {
@@ -141,8 +141,8 @@
       "citation": "doi:10.26066/icimod.hkh-cryosphere-2026"
     }
   ],
-  "caption_text": "Between 1990 and 2020, the Hindu Kush Himalaya lost 9% of all glacier ice — 516 km³ of water-equivalent. This reservoir is draining.",
-  "generated_at": "2026-05-10T21:33:56.568966+00:00",
+  "caption_text": "Between 1990 and 2020, the Hindu Kush Himalaya lost 9% of all glacier ice -- 516 km3 of water-equivalent. This reservoir is draining.",
+  "generated_at": "2026-05-10T22:22:25.234770+00:00",
   "blender_version": "5.1.1",
   "bpy_script_hash": "9932363306f91344d49d27f6d902373776be25c76978edb35096aed72537eed7",
   "_used_real_dem": false
