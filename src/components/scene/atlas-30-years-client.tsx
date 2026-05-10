@@ -44,11 +44,16 @@ type ClickedFeature = {
 const GLACIER_YEARS: GlacierYear[] = [1990, 2000, 2010, 2020];
 const DEFAULT_YEAR: GlacierYear = 2020;
 
+// Single coherent ice-blue across all years — the previous zigzag palette
+// (light → medium → DEEP → light) read as random because there's no
+// monotonic story it could tell. Year change is shown by *radius* alone
+// (sqrt of area_km2 per year), not color. Halo + stroke make the dots
+// pop against the satellite basemap.
 const GLACIER_PALETTE: Record<GlacierYear, { fill: string; opacity: number; haloWidth: number }> = {
-  1990: { fill: "#B9F3FF", opacity: 0.35, haloWidth: 0.5 },
-  2000: { fill: "#7FDBFF", opacity: 0.5, haloWidth: 0.5 },
-  2010: { fill: "#39B5E8", opacity: 0.7, haloWidth: 0.75 },
-  2020: { fill: "#DDF7FF", opacity: 0.85, haloWidth: 1 },
+  1990: { fill: "#7DD3FC", opacity: 0.85, haloWidth: 0.6 },
+  2000: { fill: "#7DD3FC", opacity: 0.85, haloWidth: 0.6 },
+  2010: { fill: "#7DD3FC", opacity: 0.85, haloWidth: 0.6 },
+  2020: { fill: "#7DD3FC", opacity: 0.85, haloWidth: 0.6 },
 };
 
 // HKH bounding box: lon 70-95, lat 26-36
@@ -171,6 +176,16 @@ function useGeoData(url: string, enabled: boolean) {
 
 // Cache previously fetched years so toggling back doesn't re-fetch
 const glacierCache = new Map<GlacierYear, GeoData>();
+const glacierTotalKm2 = new Map<GlacierYear, number>();
+
+function computeTotalArea(d: GeoData): number {
+  let s = 0;
+  for (const f of d.features) {
+    const a = (f.properties as { area_km2?: unknown } | null)?.area_km2;
+    if (typeof a === "number") s += a;
+  }
+  return s;
+}
 
 function useGlacierData(year: GlacierYear, enabled: boolean) {
   const [data, setData] = useState<GeoData | null>(() => glacierCache.get(year) ?? null);
@@ -202,8 +217,12 @@ function useGlacierData(year: GlacierYear, enabled: boolean) {
       .then((d) => {
         if (cancelled) return;
         const elapsed = (performance.now() - t0).toFixed(0);
-        console.log(`[glacier] ${url} parsed in ${elapsed}ms — features=${d.features.length}`);
+        const total = computeTotalArea(d);
+        console.log(
+          `[glacier] ${url} parsed in ${elapsed}ms — features=${d.features.length} total=${total.toFixed(0)} km²`,
+        );
         glacierCache.set(year, d);
+        glacierTotalKm2.set(year, total);
         setData(d);
       })
       .catch((err) => {
@@ -218,6 +237,53 @@ function useGlacierData(year: GlacierYear, enabled: boolean) {
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
+
+function TotalAreaCard({ year }: { year: GlacierYear }) {
+  // Reads from the module-level totals map populated by useGlacierData.
+  // Re-renders whenever the parent re-renders (which happens on data load
+  // because useGlacierData triggers a setState).
+  const current = glacierTotalKm2.get(year);
+  const baseline = glacierTotalKm2.get(1990);
+
+  if (current == null) return null;
+
+  const fmt = (km2: number): string =>
+    km2 >= 10000
+      ? `${(km2 / 1000).toFixed(1)}k km²`
+      : `${km2.toLocaleString(undefined, { maximumFractionDigits: 0 })} km²`;
+
+  const hasBaseline = baseline != null && baseline > 0 && year !== 1990;
+  const delta = hasBaseline ? current - baseline : null;
+  const deltaPct = hasBaseline && delta != null ? (delta / baseline) * 100 : null;
+
+  return (
+    <div className="absolute left-4 bottom-6 md:left-6 md:bottom-8 z-20 pointer-events-none">
+      <div className="rounded-lg bg-black/70 backdrop-blur-md border border-white/15 px-4 py-3 shadow-lg">
+        <p className="text-white/60 text-[10px] uppercase tracking-wider font-medium">
+          HKH glacier ice in {year}
+        </p>
+        <p className="text-white text-2xl md:text-3xl font-bold tracking-tight tabular-nums mt-0.5">
+          {fmt(current)}
+        </p>
+        {delta != null && deltaPct != null ? (
+          <p
+            className={`text-xs md:text-sm font-medium mt-1 tabular-nums ${
+              delta < 0 ? "text-rose-300" : "text-emerald-300"
+            }`}
+          >
+            {delta > 0 ? "+" : ""}
+            {fmt(Math.abs(delta))} ({deltaPct > 0 ? "+" : ""}
+            {deltaPct.toFixed(1)}%) vs 1990
+          </p>
+        ) : year === 1990 ? (
+          <p className="text-white/40 text-xs md:text-sm mt-1">baseline year</p>
+        ) : (
+          <p className="text-white/40 text-xs md:text-sm mt-1">loading 1990 baseline…</p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function YearControl({
   year,
@@ -687,11 +753,14 @@ export function Atlas30YearsClient() {
 
   // Glacier data (lazy per year, cached)
   const glacierData = useGlacierData(year, activeLayers.glaciers);
+  // Always fetch 1990 in the background as the shrinkage baseline; the
+  // TotalAreaCard reads both totals out of glacierTotalKm2 to compute Δ.
+  useGlacierData(1990, activeLayers.glaciers);
 
   // Lakes data
-  const { data: lakesData } = useGeoData("/glacial-lakes/current.geojson.br", activeLayers.lakes);
+  const { data: lakesData } = useGeoData("/glacial-lakes/current.geojson", activeLayers.lakes);
   const { data: riskyLakesData } = useGeoData(
-    "/glacial-lakes/risky.geojson.br",
+    "/glacial-lakes/risky.geojson",
     activeLayers.lakes && glofFilter !== "all",
   );
 
@@ -863,6 +932,9 @@ export function Atlas30YearsClient() {
           </p>
         </div>
       </div>
+
+      {/* Total-area card — bottom-left, the visceral "how much ice is left" stat */}
+      <TotalAreaCard year={year} />
 
       {/* Year control — top center */}
       <div className="absolute top-4 md:top-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2">
