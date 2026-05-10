@@ -47,7 +47,7 @@ export default function AtlasIndexPage() {
           {/* Glaciers — active */}
           <li>
             <Link
-              href="/atlas/glaciers"
+              href="/atlas/30-years"
               className="block h-full rounded-lg border border-neutral-200 hover:border-neutral-400 transition-colors duration-150 px-5 py-5 bg-white group"
             >
               <span className="block text-base font-semibold text-neutral-900 mb-1 group-hover:text-neutral-600 transition-colors duration-150">
