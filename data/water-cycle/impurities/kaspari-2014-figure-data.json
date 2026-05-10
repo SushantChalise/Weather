@@ -1,0 +1,63 @@
+{
+  "source": {
+    "title": "Seasonal and elevational variations of black carbon and dust in snow and ice in the Solu-Khumbu, Nepal and estimated radiative forcings",
+    "authors": ["S. Kaspari", "T. H. Painter", "M. Gysel", "S. M. Skiles", "M. Schwikowski"],
+    "journal": "Atmospheric Chemistry and Physics",
+    "volume": 14,
+    "pages": "8089–8103",
+    "year": 2014,
+    "doi": "10.5194/acp-14-8089-2014",
+    "url": "https://acp.copernicus.org/articles/14/8089/2014/",
+    "license": "CC-BY 3.0",
+    "site": "Mera Glacier, Solu-Khumbu, Nepal",
+    "site_type": "Snow pits and crevasse profiles",
+    "elevation_range_m": { "min": 5400, "max": 6400 },
+    "sampling_period": "Spring and fall 2009"
+  },
+  "bc_albedo_reduction_pct": {
+    "min": 6,
+    "max": 10,
+    "unit": "%",
+    "note": "Relative to clean snow; from instantaneous radiative forcing model at Mera Glacier elevations"
+  },
+  "bc_forcing_W_m2": {
+    "min": 75,
+    "max": 120,
+    "unit": "W/m²",
+    "note": "Instantaneous, localized radiative forcing from BC alone"
+  },
+  "dust_albedo_reduction_pct": {
+    "min": 40,
+    "max": 42,
+    "unit": "%",
+    "note": "Relative to clean snow; substantially larger than BC contribution"
+  },
+  "dust_forcing_W_m2": {
+    "min": 488,
+    "max": 525,
+    "unit": "W/m²",
+    "note": "Instantaneous, localized radiative forcing from dust; dominates over BC at this site"
+  },
+  "combined_bc_plus_dust_additional_bc_forcing_W_m2": {
+    "value": 3,
+    "unit": "W/m²",
+    "note": "Additional forcing from BC when combined with dust; BC contribution becomes negligible relative to dust when dust concentrations are elevated"
+  },
+  "dust_to_bc_forcing_ratio": {
+    "min": 4.1,
+    "max": 7.0,
+    "note": "Dust forcing is approximately 4–7× larger than BC forcing at Mera Glacier"
+  },
+  "key_finding": "Dust dominates over BC in absorption, snow albedo reduction, and radiative forcing in the Solu-Khumbu — dust forcing (488–525 W/m²) is 4–7× larger than BC forcing (75–120 W/m²) at Mera Glacier. This refutes single-agent 'soot' narratives; light-absorbing impurities are a mixed BC + dust signal.",
+  "elevational_pattern": "BC and Fe (dust proxy) concentrations substantially elevated below 6,000 m a.s.l., driven by post-depositional processes and lower tropospheric loading",
+  "notes": [
+    "Values used for Chapter 5 (light-absorbing impurities) of the Water-Cycle Atlas",
+    "Per WATER_CYCLE_SPEC.md §11: Ch 5 framing is 'light-absorbing impurities (BC + dust)', NOT BC-only 'soot apocalypse'",
+    "Dust proxy = Fe concentrations; paper does not speciate mineral dust further",
+    "Radiative forcing values are instantaneous and localized — not annual mean forcing",
+    "Sampling site: southern Himalayan slope; may differ from northern (Tibetan Plateau) slope dynamics"
+  ],
+  "spec_chapter": "ch5",
+  "spec_field": "impurities",
+  "staged_at": "2026-05-11"
+}
