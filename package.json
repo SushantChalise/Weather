@@ -19,7 +19,8 @@
     "db:openmeteo-aq": "tsx --env-file=.env.local scripts/ingestion/openmeteo-aq/run.ts",
     "db:icimod-mb": "tsx --env-file=.env.local scripts/ingestion/icimod-mb/run.ts",
     "db:hugonnet-2021": "tsx --env-file=.env.local scripts/ingestion/hugonnet-2021/run.ts",
-    "db:usgs-earthquakes": "tsx --env-file=.env.local scripts/ingestion/usgs-earthquakes/run.ts"
+    "db:usgs-earthquakes": "tsx --env-file=.env.local scripts/ingestion/usgs-earthquakes/run.ts",
+    "icimod:download": "tsx --env-file=.env.local scripts/scrape-icimod-downloads/run.ts"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
@@ -40,6 +41,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.4.14",
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.45.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/pg": "^8.20.0",
@@ -47,15 +49,15 @@
     "@types/react-dom": "^19",
     "@types/suncalc": "^1.9.2",
     "@types/three": "^0.184.1",
+    "@vitest/ui": "^1.6.0",
     "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "15.5.18",
+    "playwright": "^1.59.1",
     "tailwindcss": "^4.2.4",
     "tsx": "^4.21.0",
     "typescript": "5.5",
-    "vitest": "^1.6.0",
-    "@vitest/ui": "^1.6.0",
-    "@playwright/test": "^1.45.0"
+    "vitest": "^1.6.0"
   }
 }
