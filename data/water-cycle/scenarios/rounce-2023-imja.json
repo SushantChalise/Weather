@@ -1,0 +1,139 @@
+{
+  "description": "Imja-region glacier volume projections (Khumbu sub-region, East Nepal, near 86.93°E 27.95°N, ~5 km radius) under SSP1-2.6 and SSP5-8.5. Derived by proportional scaling of RGI region 15 totals by Imja-complex area fraction (~11 km² of 14,734 km² total RGI15 area). For exact per-glacier values, re-run with EARTHDATA_TOKEN set.",
+  "citation": {
+    "rounce_2023": {
+      "title": "Global glacier change in the 21st century: Every increase in temperature matters",
+      "journal": "Science",
+      "doi": "10.1126/science.abo1324",
+      "nsidc_dataset_doi": "10.5067/H118TCMSUH3Q",
+      "note": "PyGEM output requires NASA Earthdata Login (https://nsidc.org/data/HMA_GL_RCPR/versions/1). Set EARTHDATA_TOKEN env var and re-run to use the primary Rounce 2023 dataset."
+    },
+    "oggm_fallback": {
+      "title": "OGGM v1.6.1 standard glacier projections (CMIP6)",
+      "url": "https://cluster.klima.uni-bremen.de/~oggm/oggm-standard-projections/oggm-standard-projections-csv-files/1.6.1/",
+      "version": "1.6.1",
+      "note": "Publicly available without authentication. Based on Marzeion et al. 2020 (doi:10.3389/fclim.2020.00012). Uses same RGI 6.0 glacier inventory and CMIP6 SSP forcings as Rounce 2023, but different ice-dynamics model (OGGM vs PyGEM). Volume calibration differs: OGGM uses Farinotti 2019 consensus thickness, PyGEM uses region-specific geodetic mass balance calibration."
+    }
+  },
+  "data_source_used": "oggm-fallback",
+  "generated_at": "2026-05-10T18:15:00.987Z",
+  "rgi_regions": [
+    15
+  ],
+  "bbox": [
+    86.88,
+    27.9,
+    86.98,
+    28
+  ],
+  "scenarios": [
+    {
+      "scenario": "ssp1-2.6",
+      "model_source": "OGGM v1.6.1 / CMIP6 ssp126, 19 GCMs (RGI15 proportional)",
+      "data": [
+        {
+          "year": 2020,
+          "volume_km3_mean": 0.547,
+          "volume_km3_median": 0.547,
+          "volume_km3_min": 0.547,
+          "volume_km3_max": 0.547,
+          "n_glaciers": 8
+        },
+        {
+          "year": 2025,
+          "volume_km3_mean": 0.506,
+          "volume_km3_median": 0.504,
+          "volume_km3_min": 0.484,
+          "volume_km3_max": 0.551,
+          "n_glaciers": 8
+        },
+        {
+          "year": 2030,
+          "volume_km3_mean": 0.457,
+          "volume_km3_median": 0.454,
+          "volume_km3_min": 0.42,
+          "volume_km3_max": 0.498,
+          "n_glaciers": 8
+        },
+        {
+          "year": 2050,
+          "volume_km3_mean": 0.308,
+          "volume_km3_median": 0.286,
+          "volume_km3_min": 0.247,
+          "volume_km3_max": 0.397,
+          "n_glaciers": 8
+        },
+        {
+          "year": 2075,
+          "volume_km3_mean": 0.23,
+          "volume_km3_median": 0.228,
+          "volume_km3_min": 0.151,
+          "volume_km3_max": 0.32,
+          "n_glaciers": 8
+        },
+        {
+          "year": 2100,
+          "volume_km3_mean": 0.219,
+          "volume_km3_median": 0.204,
+          "volume_km3_min": 0.143,
+          "volume_km3_max": 0.308,
+          "n_glaciers": 8
+        }
+      ]
+    },
+    {
+      "scenario": "ssp5-8.5",
+      "model_source": "OGGM v1.6.1 / CMIP6 ssp585, 19 GCMs (RGI15 proportional)",
+      "data": [
+        {
+          "year": 2020,
+          "volume_km3_mean": 0.547,
+          "volume_km3_median": 0.547,
+          "volume_km3_min": 0.547,
+          "volume_km3_max": 0.547,
+          "n_glaciers": 8
+        },
+        {
+          "year": 2025,
+          "volume_km3_mean": 0.501,
+          "volume_km3_median": 0.502,
+          "volume_km3_min": 0.476,
+          "volume_km3_max": 0.525,
+          "n_glaciers": 8
+        },
+        {
+          "year": 2030,
+          "volume_km3_mean": 0.45,
+          "volume_km3_median": 0.452,
+          "volume_km3_min": 0.417,
+          "volume_km3_max": 0.48,
+          "n_glaciers": 8
+        },
+        {
+          "year": 2050,
+          "volume_km3_mean": 0.255,
+          "volume_km3_median": 0.261,
+          "volume_km3_min": 0.187,
+          "volume_km3_max": 0.327,
+          "n_glaciers": 8
+        },
+        {
+          "year": 2075,
+          "volume_km3_mean": 0.102,
+          "volume_km3_median": 0.095,
+          "volume_km3_min": 0.054,
+          "volume_km3_max": 0.169,
+          "n_glaciers": 8
+        },
+        {
+          "year": 2100,
+          "volume_km3_mean": 0.044,
+          "volume_km3_median": 0.038,
+          "volume_km3_min": 0.011,
+          "volume_km3_max": 0.093,
+          "n_glaciers": 8
+        }
+      ]
+    }
+  ]
+}
