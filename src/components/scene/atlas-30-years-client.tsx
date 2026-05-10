@@ -188,7 +188,7 @@ function useGlacierData(year: GlacierYear, enabled: boolean) {
     // tessellation + GPU upload). The circle layer reads centroids only and
     // doesn't need polygon geometry; switching to Points cut layer setup
     // from ~10-30s to <1s on slower machines.
-    const url = `/glaciers/hkh/${year}-points.geojson.br`;
+    const url = `/glaciers/hkh/${year}-points.geojson`;
     const t0 = performance.now();
     console.log(`[glacier] fetching ${url}`);
     fetch(url)

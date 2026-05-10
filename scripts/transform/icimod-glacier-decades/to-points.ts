@@ -1,18 +1,13 @@
 #!/usr/bin/env tsx
 
 /**
- * HKH glacier polygons → Points-only sibling files.
+ * HKH glacier polygons → Points-only sibling files (uncompressed).
  *
- * The full polygon files are 8.7 MB Brotli / 44 MB raw / 65k polygons.
- * MapLibre tessellation + GPU upload takes 10-30s on slower machines,
- * which makes /atlas/30-years feel broken on first paint.
- *
- * This script reads each public/glaciers/hkh/{year}.geojson.br, computes
- * polygon centroids, and writes a sibling {year}-points.geojson.br with
- * just Point features. Same per-feature properties as the polygon file
- * (id, area_km2, year, GLIMS_ID, Mt_Range, M_Basin) so the circle layer
- * reads the same data shape. Result: ~500 KB compressed per file, parses
- * + uploads in < 100 ms.
+ * Stores plain .geojson (not .geojson.br). Cloudflare's edge auto-compresses
+ * on the wire via Accept-Encoding negotiation. This sidesteps the
+ * Content-Encoding handshake bug we hit when shipping pre-Brotli'd files
+ * through OpenNext's static asset binding (browser received raw Brotli
+ * bytes without the matching Content-Encoding header).
  *
  * Usage:
  *   npm run transform:icimod-glacier-decades-points
@@ -21,7 +16,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { brotliCompressSync, brotliDecompressSync, constants as zlibConstants } from "node:zlib";
+import { brotliDecompressSync } from "node:zlib";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(__dirname, "..", "..", "..");
@@ -45,9 +40,6 @@ interface FeatureCollection {
 }
 
 function flattenRings(coords: unknown): number[][] {
-  // For Polygon: coords is rings: [[ring1], [ring2hole], ...]
-  // For MultiPolygon: coords is [[[ring1], [ring2]...], [[ring1]...]]
-  // We want every coordinate pair to compute centroid.
   const out: number[][] = [];
   function walk(node: unknown): void {
     if (!Array.isArray(node)) return;
@@ -76,7 +68,7 @@ function centroidOf(geom: Geometry): [number, number] | null {
 async function main(): Promise<void> {
   for (const year of YEARS) {
     const inputPath = path.join(INPUT_DIR, `${year}.geojson.br`);
-    const outputPath = path.join(INPUT_DIR, `${year}-points.geojson.br`);
+    const outputPath = path.join(INPUT_DIR, `${year}-points.geojson`);
     if (!fs.existsSync(inputPath)) {
       console.warn(`[SKIP] ${inputPath} — input file missing`);
       continue;
@@ -103,15 +95,11 @@ async function main(): Promise<void> {
 
     const out: FeatureCollection = { type: "FeatureCollection", features: points };
     const outJson = JSON.stringify(out);
-    const outBuf = brotliCompressSync(Buffer.from(outJson, "utf8"), {
-      params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 11 },
-    });
-    fs.writeFileSync(outputPath, outBuf);
+    fs.writeFileSync(outputPath, outJson, "utf8");
 
     console.log(
       `[OK] ${year}: ${points.length} points (${dropped} dropped) — ` +
-        `${(compressed.length / 1024 / 1024).toFixed(2)} MB poly → ` +
-        `${(outBuf.length / 1024).toFixed(1)} KB points`,
+        `${(outJson.length / 1024 / 1024).toFixed(2)} MB raw .geojson`,
     );
   }
 }
