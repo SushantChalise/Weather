@@ -2,6 +2,15 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  async redirects() {
+    return [
+      {
+        source: "/atlas/glaciers",
+        destination: "/atlas/30-years",
+        permanent: true,
+      },
+    ];
+  },
   outputFileTracingRoot: __dirname,
   experimental: {
     staleTimes: {
