@@ -529,7 +529,7 @@ function NepalFocusPanel() {
               tab === "region" ? "bg-white/10 text-white" : "text-white/50 hover:text-white/80",
             ].join(" ")}
           >
-            Where it's lost
+            Where it&apos;s lost
           </button>
           <button
             type="button"
@@ -581,9 +581,9 @@ function NepalFocusPanel() {
                 })}
               </div>
               <p className="text-white/40 text-[10px] mt-3 leading-snug">
-                Sub-regions split by longitude along the Himalayan crest. Far-West Nepal's steeper
-                proportional loss reflects smaller, lower-elevation glaciers more exposed to warming
-                air.
+                Sub-regions split by longitude along the Himalayan crest. Far-West Nepal&apos;s
+                steeper proportional loss reflects smaller, lower-elevation glaciers more exposed
+                to warming air.
               </p>
             </>
           )}
@@ -591,9 +591,9 @@ function NepalFocusPanel() {
           {tab === "named" && (
             <>
               <p className="text-white/70 text-[11px] leading-snug mb-3">
-                Loss on glaciers you may know by name — Khumbu (Everest's south flank), Imja (which
-                feeds the fastest-growing glacial lake in Nepal), and others. Each bar shows 1990
-                area in white and 2020 area in blue.
+                Loss on glaciers you may know by name — Khumbu (Everest&apos;s south flank), Imja
+                (which feeds the fastest-growing glacial lake in Nepal), and others. Each bar
+                shows 1990 area in white and 2020 area in blue.
               </p>
               <ul className="space-y-2">
                 {namedSorted.map((g) => {
