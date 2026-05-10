@@ -1,89 +1,122 @@
-# ICIMOD RDS Authenticated Bulk Downloader
+﻿# ICIMOD RDS Metadata Scraper
 
-Downloads the top-ranked datasets from the [ICIMOD Regional Data Sharing portal](https://rds.icimod.org/) using a logged-in session managed by Playwright.
+Scrapes metadata from the [ICIMOD Regional Database System](https://rds.icimod.org/) and builds a local catalog with `enableDownload` status and external source links for each dataset.
+
+## Key insight: ICIMOD is a catalog, not a CDN
+
+ICIMOD RDS is a SvelteKit SPA that mirrors a GeoNetwork 4 catalog.
+Most datasets have `enable_download: false` and point to external canonical sources:
+
+| Dataset | metadataId | enableDownload | Canonical source |
+|---------|-----------|----------------|-----------------|
+| Glacier mass balance — Rikha Samba | 1972483 | false | [WGMS](https://wgms.ch/data_databaseversions/) |
+| Yala glacier mass balance | 1972482 | false | [WGMS](https://wgms.ch/data_databaseversions/) |
+| GLOF database of High Mountain Asia | 1973283 | true | ICIMOD-hosted, login required |
+| Status of Glaciers in HKH | 9359 | true | ICIMOD-hosted, login required |
+| Micromet station: Yala 1 | 1972412 | true | ICIMOD-hosted, login required |
+
+Across the top-20 datasets: 14 have `enableDownload: true` (ICIMOD-hosted, need login),
+and 6 have `enableDownload: false` (external-only, links in `externalSources`).
+
+Datasets with `enable_download: true` use a login-gated download wizard:
+`/download/flow/{uuid}` -> `POST /geoapi/datasets/{uuid}/download/direct/confirm/`.
+The actual file is served from the `geoapi` backend with a JWT token from `localStorage`,
+so anonymous fetch cannot retrieve it. Use `--with-login` to authenticate.
 
 ## Prerequisites
 
-1. An ICIMOD RDS account (register free at https://rds.icimod.org/Account/Register)
-2. The catalog must be generated first:
+1. Catalog must be generated first:
    ```
    node scripts/scrape-icimod-rds.mjs
    ```
-   This writes `scripts/output/icimod-rds-all.json` which the downloader reads.
+   This writes `output/icimod-rds-all.json` which the scraper reads.
+   The scraper also checks `scripts/output/icimod-rds-all.json` as a fallback.
 
-## Setting credentials
+2. (Optional) For ICIMOD-hosted downloads only: an ICIMOD RDS account.
 
-Add your credentials to `.env.local` in the project root:
+## Running
+
+```bash
+# Scrape metadata for the top 20 datasets (default)
+npm run icimod:download
+
+# Scrape specific datasets by metadata ID
+npm run icimod:download -- --ids 1972483,1972482,1973283
+
+# Preview the dataset list without making any network calls
+npm run icimod:download -- --dry-run
+
+# Authenticate and attempt actual file downloads where available
+npm run icimod:download -- --with-login
+```
+
+## Credentials (only needed for --with-login)
+
+Add to `.env.local` in the project root:
 
 ```env
 ICIMOD_USERNAME=your@email.com
 ICIMOD_PASSWORD=yourpassword
 ```
 
-**Finding saved passwords in Edge:**
-Settings → Profiles → Passwords → search "icimod"
+The `.env.local` file is gitignored.
 
-The `.env.local` file is gitignored — credentials will never be committed.
-
-## Running
-
-```bash
-# Download the top 20 datasets by score (default)
-npm run icimod:download
-
-# Download specific datasets by metadata ID
-npm run icimod:download -- --ids 1972483,1972482,1972480
-
-# Preview the dataset list without downloading anything
-npm run icimod:download -- --dry-run
-
-# Open a visible browser window (useful for debugging or solving captchas)
-npm run icimod:download -- --headed
-```
-
-## Where downloads land
+## Output
 
 All files are saved under `data/icimod/` in the project root:
 
 ```
 data/icimod/
-├── manifest.json              # maps metadataId → { title, files[] }
-├── .playwright-state/         # Playwright session cookies (persists login)
-├── 1972483/
-│   └── dataset-file.zip
-└── 1972482/
-    └── another-file.tif
+|-- manifest.json              # full catalog with metadata, resources, download status
+|-- 1973283/
+|   `-- glof-database.zip      # only for enable_download:true datasets with --with-login
+`-- 9359/
+    `-- glaciers-hkh.zip
 ```
 
-`data/` is gitignored — nothing here is committed.
+`data/` is gitignored -- nothing here is committed.
 
-## Resuming interrupted runs
+### Manifest shape
 
-The downloader is fully idempotent:
-- It checks `manifest.json` before downloading each dataset.
-- If a dataset already has entries in the manifest, it is skipped.
-- If individual files already exist on disk, they are also skipped.
-- Re-run the command at any time to pick up where it left off.
-
-## Troubleshooting
-
-### Session expired
-The Playwright persistent context stores session cookies in `data/icimod/.playwright-state`. If the session expires, delete that directory and re-run — the downloader will log in fresh.
-
-### Captcha on login page
-```
-CAPTCHA DETECTED. Re-run with --headed to solve manually.
-```
-Run with `--headed` to open a visible browser window. Solve the captcha manually, then the session is cached and subsequent headless runs work without a captcha.
-
-### License-acceptance click-through
-Many ICIMOD datasets show a terms-of-use modal before allowing download. The downloader automatically clicks standard "Accept" / "I Agree" buttons. If the modal uses an unusual layout, it logs a warning and skips that file — re-run with `--headed` to handle it manually.
-
-### Unknown download link shape
-If no download links are found for a dataset, the downloader logs a warning and records an empty `files: []` entry in the manifest. Inspect the landing page manually at:
-```
-https://rds.icimod.org/Home/DataDetail?metadataId=<ID>
+```json
+{
+  "1972483": {
+    "metadataId": "1972483",
+    "uuid": "c12cb336-f9c0-4096-8852-ba810e95e417",
+    "title": "Glacier mass balance data from Rikha Samba, Nepal",
+    "enableDownload": false,
+    "resources": [
+      { "url": "https://wgms.ch/data_databaseversions/", "protocol": "WWW:LINK", "name": "World Glacier Monitoring Service", "description": "..." }
+    ],
+    "downloads": [],
+    "externalSources": [
+      { "url": "https://wgms.ch/data_databaseversions/", "name": "World Glacier Monitoring Service" }
+    ],
+    "scrapedAt": "2026-05-10T..."
+  }
+}
 ```
 
-### Wrong credentials
-If login succeeds but you still land back on the login page, the portal rejected your credentials. Verify them at https://rds.icimod.org/Account/Login in a normal browser.
+## How metadata is fetched (no Playwright)
+
+The scraper uses plain `fetch` only:
+
+1. `GET /Home/DataDetail?metadataId={N}` -- follows the 302 redirect to `/metadata/{uuid}`
+2. `GET /metadata/{uuid}/__data.json?x-sveltekit-invalidated=01` -- returns the SvelteKit
+   server-side rendering payload as clean JSON (no HTML parsing needed)
+3. Parses the de-duplicated reference array in the payload to reconstruct the metadata object
+
+This works because SvelteKit exposes `__data.json` on every SSR route.
+No headless browser is needed for catalog scraping.
+
+## Playwright removed
+
+Playwright is **not** used by this scraper. The `playwright` devDependency is retained
+for `npm run test:e2e` but has no role here.
+
+## Idempotency
+
+Re-running is safe:
+- The manifest is read before processing each dataset.
+- Files that already match the manifest sha256 are skipped.
+- `externalSources` and metadata are refreshed on every run.

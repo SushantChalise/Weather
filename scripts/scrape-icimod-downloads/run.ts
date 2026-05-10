@@ -1,17 +1,21 @@
 #!/usr/bin/env tsx
 
 /**
- * ICIMOD RDS Authenticated Bulk Downloader
+ * ICIMOD RDS Metadata Scraper & Downloader
  *
- * Logs in to https://rds.icimod.org using ICIMOD_USERNAME + ICIMOD_PASSWORD
- * from the environment, then bulk-downloads the top-ranked datasets identified
- * by scripts/scrape-icimod-rds.mjs.
+ * ICIMOD RDS is a SvelteKit SPA that acts as a metadata catalog.
+ * Most datasets point to canonical external sources (WGMS, Copernicus, etc.)
+ * and do NOT host files on ICIMOD servers.
+ *
+ * Datasets with enable_download:true use a login-gated download wizard at
+ * /download/flow/{uuid} => POST /geoapi/datasets/{uuid}/download/direct/confirm/
+ * Attempting those without --with-login records the DOI as a known entry point.
  *
  * Usage:
- *   npm run icimod:download                        # top 20 by score
- *   npm run icimod:download -- --ids 1972483,1972482
- *   npm run icimod:download -- --headed            # visible browser for debugging
- *   npm run icimod:download -- --dry-run           # print dataset list and exit
+ *   npm run icimod:download                           # top 20 by score
+ *   npm run icimod:download -- --ids 1972483,1972482  # specific datasets
+ *   npm run icimod:download -- --dry-run              # print dataset list and exit
+ *   npm run icimod:download -- --with-login           # enable authenticated download
  */
 
 import crypto from "node:crypto";
@@ -19,18 +23,15 @@ import fs from "node:fs";
 import path from "node:path";
 import { pipeline } from "node:stream/promises";
 import { fileURLToPath } from "node:url";
-import { chromium } from "playwright";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(__dirname, "..", "..");
 
-// ─── CLI flags ────────────────────────────────────────────────────────────────
-
 const args = process.argv.slice(2);
-const HEADED = args.includes("--headed");
 const DRY_RUN = args.includes("--dry-run");
+const WITH_LOGIN = args.includes("--with-login");
 const idsFlag = args.find((a) => a.startsWith("--ids=") || a === "--ids");
-let OVERRIDE_IDS: number[] | null = null;
+let OVERRIDE_IDS: string[] | null = null;
 if (idsFlag) {
   const raw =
     idsFlag === "--ids"
@@ -39,61 +40,81 @@ if (idsFlag) {
   if (raw) {
     OVERRIDE_IDS = raw
       .split(",")
-      .map((s) => parseInt(s.trim(), 10))
-      .filter((n) => !isNaN(n));
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
   }
 }
 
-// ─── Paths ────────────────────────────────────────────────────────────────────
-
-const CATALOG_PATH = path.join(
-  PROJECT_ROOT,
-  "scripts",
-  "output",
-  "icimod-rds-all.json",
-);
+const CATALOG_CANDIDATES = [
+  path.join(PROJECT_ROOT, "output", "icimod-rds-all.json"),
+  path.join(PROJECT_ROOT, "scripts", "output", "icimod-rds-all.json"),
+];
 const DATA_ROOT = path.join(PROJECT_ROOT, "data", "icimod");
-const STATE_DIR = path.join(DATA_ROOT, ".playwright-state");
 const MANIFEST_PATH = path.join(DATA_ROOT, "manifest.json");
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const LOGIN_URL = "https://rds.icimod.org/Account/Login";
 const LANDING_BASE = "https://rds.icimod.org/Home/DataDetail?metadataId=";
-const PROTECTED_CHECK_URL = "https://rds.icimod.org/Account/UserInfo";
+const GEOAPI_BASE = "https://rds.icimod.org/geoapi";
 const TOP_N_DEFAULT = 20;
-const DELAY_BETWEEN_DATASETS_MS = 4000;
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+const DELAY_MS = 2500;
+const UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
 interface CatalogRecord {
   id: string;
   title: string;
   landingPage: string;
-  ranking: {
-    score: number;
-    tier: string;
-  };
+  ranking: { score: number; tier: string };
 }
 
-interface FileEntry {
-  name: string;
-  size: number;
-  sha256: string;
+interface IcimodResource {
   url: string;
+  protocol: string;
+  name: string;
+  description: string;
+}
+
+interface IcimodMetadata {
+  uuid: string;
+  title: string;
+  abstract: string;
+  purpose: string | null;
+  citation: string | null;
+  keywords: { theme: string[]; place: string[] };
+  thumbnail: string | null;
+  contact: { organization: string; individual: string; position: string; email: string };
+  dates: { creation: string; publication: string };
+  spatial: { west: string; east: string; south: string; north: string };
+  license: string;
+  language: string;
+  link: string;
+  resources: IcimodResource[];
+  enable_download: boolean;
+  error: string | null;
+  doi: string | null;
+}
+
+interface DownloadEntry {
+  url: string;
+  filename: string;
+  sizeBytes: number;
+  sha256: string;
   downloadedAt: string;
 }
 
-interface DatasetManifest {
+interface ManifestEntry {
+  metadataId: string;
+  uuid: string;
   title: string;
-  files: FileEntry[];
+  enableDownload: boolean;
+  resources: IcimodResource[];
+  downloads: DownloadEntry[];
+  externalSources: { url: string; name: string }[];
+  scrapedAt: string;
 }
 
 interface ManifestFile {
-  [metadataId: string]: DatasetManifest;
+  [metadataId: string]: ManifestEntry;
 }
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -108,9 +129,7 @@ function ensureDir(dirPath: string): void {
 function loadManifest(): ManifestFile {
   if (fs.existsSync(MANIFEST_PATH)) {
     try {
-      return JSON.parse(
-        fs.readFileSync(MANIFEST_PATH, "utf-8"),
-      ) as ManifestFile;
+      return JSON.parse(fs.readFileSync(MANIFEST_PATH, "utf-8")) as ManifestFile;
     } catch {
       return {};
     }
@@ -133,408 +152,462 @@ async function sha256File(filePath: string): Promise<string> {
   });
 }
 
-/** Download a file using the session cookies extracted from the Playwright context. */
-async function downloadWithCookies(
-  url: string,
-  destPath: string,
-  cookies: Array<{ name: string; value: string; domain: string }>,
-): Promise<number> {
-  const cookieHeader = cookies
-    .filter((c) => url.includes(c.domain.replace(/^\./, "")))
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
-
-  const response = await fetch(url, {
-    headers: {
-      Cookie: cookieHeader,
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-    },
-    redirect: "follow",
-  });
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status} for ${url}`);
+function findCatalogPath(): string {
+  for (const candidate of CATALOG_CANDIDATES) {
+    if (fs.existsSync(candidate)) return candidate;
   }
-  if (!response.body) {
-    throw new Error(`No response body for ${url}`);
-  }
-
-  ensureDir(path.dirname(destPath));
-  const fileStream = fs.createWriteStream(destPath);
-  await pipeline(response.body as unknown as NodeJS.ReadableStream, fileStream);
-
-  const stat = fs.statSync(destPath);
-  return stat.size;
+  console.error(
+    "Catalog not found at any of:\n" +
+      CATALOG_CANDIDATES.map((p) => `  ${p}`).join("\n") +
+      "\nRun: node scripts/scrape-icimod-rds.mjs first.",
+  );
+  process.exit(1);
 }
 
-// ─── Catalog loader ───────────────────────────────────────────────────────────
-
-function loadTargetDatasets(): Array<{ id: number; title: string; landingPage: string }> {
-  if (!fs.existsSync(CATALOG_PATH)) {
-    console.error(
-      `Catalog not found at ${CATALOG_PATH}.\n` +
-        `Run: node scripts/scrape-icimod-rds.mjs first.`,
-    );
-    process.exit(1);
-  }
-
-  const raw = JSON.parse(
-    fs.readFileSync(CATALOG_PATH, "utf-8"),
-  ) as CatalogRecord[];
+function loadTargetDatasets(): Array<{ id: string; title: string }> {
+  const catalogPath = findCatalogPath();
+  const raw = JSON.parse(fs.readFileSync(catalogPath, "utf-8")) as CatalogRecord[];
 
   if (OVERRIDE_IDS !== null) {
     const idSet = new Set(OVERRIDE_IDS);
-    return raw
-      .filter((r) => idSet.has(parseInt(r.id, 10)))
-      .map((r) => ({
-        id: parseInt(r.id, 10),
-        title: r.title,
-        landingPage: r.landingPage,
-      }));
+    const found = raw.filter((r) => idSet.has(r.id));
+    const missing = OVERRIDE_IDS.filter((id) => !raw.some((r) => r.id === id));
+    for (const id of missing) {
+      found.push({
+        id,
+        title: `Unknown dataset ${id}`,
+        landingPage: `${LANDING_BASE}${id}`,
+        ranking: { score: 0, tier: "unknown" },
+      });
+    }
+    return found.map((r) => ({ id: r.id, title: r.title }));
   }
 
   return raw
     .sort((a, b) => b.ranking.score - a.ranking.score)
     .slice(0, TOP_N_DEFAULT)
-    .map((r) => ({
-      id: parseInt(r.id, 10),
-      title: r.title,
-      landingPage: r.landingPage,
-    }));
+    .map((r) => ({ id: r.id, title: r.title }));
 }
 
-// ─── Auth ─────────────────────────────────────────────────────────────────────
+/**
+ * Fetches dataset metadata via the SvelteKit __data.json endpoint.
+ *
+ * The /Home/DataDetail?metadataId={N} page 302-redirects to /metadata/{uuid}.
+ * SvelteKit exposes a __data.json endpoint on every route that returns the
+ * hydration payload as structured JSON -- no HTML parsing, no browser needed.
+ */
+async function fetchMetadata(metadataId: string): Promise<IcimodMetadata | null> {
+  const landingResp = await fetch(`${LANDING_BASE}${metadataId}`, {
+    headers: { "User-Agent": UA },
+    redirect: "follow",
+  });
 
-import type { BrowserContext } from "playwright";
-
-async function isLoggedIn(context: BrowserContext): Promise<boolean> {
-  const page = await context.newPage();
-  try {
-    await page.goto(PROTECTED_CHECK_URL, {
-      waitUntil: "domcontentloaded",
-      timeout: 15_000,
-    });
-    const finalUrl = page.url();
-    return !finalUrl.includes("/Account/Login");
-  } catch {
-    return false;
-  } finally {
-    await page.close();
-  }
-}
-
-async function login(
-  context: BrowserContext,
-  username: string,
-  password: string,
-): Promise<void> {
-  const page = await context.newPage();
-  try {
-    console.log(`  Navigating to login page: ${LOGIN_URL}`);
-    await page.goto(LOGIN_URL, { waitUntil: "domcontentloaded", timeout: 30_000 });
-
-    const pageTitle = await page.title();
-    console.log(`  Page title: ${pageTitle}`);
-
-    // Check for captcha — log clearly and bail with helpful message
-    const captchaFrame = page.frameLocator("iframe[src*='recaptcha']");
-    const hasCaptcha = await captchaFrame
-      .locator("body")
-      .isVisible()
-      .catch(() => false);
-    if (hasCaptcha) {
-      console.error(
-        "\n  CAPTCHA DETECTED. Re-run with --headed to solve manually.\n" +
-          "  The session will be cached after you solve it.\n",
-      );
-      if (!HEADED) {
-        await page.close();
-        process.exit(1);
-      }
-      console.log("  Waiting for you to solve the captcha (up to 2 min)...");
-      await page.waitForURL((url) => !url.toString().includes("/Account/Login"), {
-        timeout: 120_000,
-      });
-      return;
-    }
-
-    // Fill credentials — try common field name patterns
-    const usernameSelectors = [
-      'input[name="Username"]',
-      'input[name="username"]',
-      'input[name="Email"]',
-      'input[name="email"]',
-      'input[type="email"]',
-      'input[id="Username"]',
-    ];
-    const passwordSelectors = [
-      'input[name="Password"]',
-      'input[name="password"]',
-      'input[type="password"]',
-    ];
-
-    let filledUsername = false;
-    for (const sel of usernameSelectors) {
-      const el = page.locator(sel).first();
-      if (await el.isVisible().catch(() => false)) {
-        await el.fill(username);
-        filledUsername = true;
-        console.log(`  Filled username via selector: ${sel}`);
-        break;
-      }
-    }
-    if (!filledUsername) {
-      throw new Error(
-        "Could not find username field. Run with --headed to inspect the page.",
-      );
-    }
-
-    let filledPassword = false;
-    for (const sel of passwordSelectors) {
-      const el = page.locator(sel).first();
-      if (await el.isVisible().catch(() => false)) {
-        await el.fill(password);
-        filledPassword = true;
-        console.log(`  Filled password via selector: ${sel}`);
-        break;
-      }
-    }
-    if (!filledPassword) {
-      throw new Error(
-        "Could not find password field. Run with --headed to inspect the page.",
-      );
-    }
-
-    // Submit
-    const submitSelectors = [
-      'button[type="submit"]',
-      'input[type="submit"]',
-      'button:has-text("Login")',
-      'button:has-text("Sign in")',
-      'button:has-text("Log in")',
-    ];
-    let submitted = false;
-    for (const sel of submitSelectors) {
-      const el = page.locator(sel).first();
-      if (await el.isVisible().catch(() => false)) {
-        await Promise.all([
-          page.waitForNavigation({ timeout: 30_000 }).catch(() => {}),
-          el.click(),
-        ]);
-        submitted = true;
-        console.log(`  Submitted via selector: ${sel}`);
-        break;
-      }
-    }
-    if (!submitted) {
-      throw new Error(
-        "Could not find submit button. Run with --headed to inspect the page.",
-      );
-    }
-
-    const postLoginUrl = page.url();
-    console.log(`  Post-login URL: ${postLoginUrl}`);
-
-    if (postLoginUrl.includes("/Account/Login")) {
-      throw new Error(
-        "Still on login page after submit — credentials may be wrong, or " +
-          "the login form structure is different. Run with --headed to debug.",
-      );
-    }
-
-    console.log(`  Logged in successfully as: ${username}`);
-  } finally {
-    await page.close();
-  }
-}
-
-// ─── Download link extraction ─────────────────────────────────────────────────
-
-async function extractDownloadLinks(
-  context: BrowserContext,
-  metadataId: number,
-): Promise<string[]> {
-  const landingUrl = `${LANDING_BASE}${metadataId}`;
-  const page = await context.newPage();
-  const links: string[] = [];
-
-  try {
-    await page.goto(landingUrl, { waitUntil: "networkidle", timeout: 30_000 });
-
-    // Handle license/terms modal — click "Accept" if visible
-    const acceptSelectors = [
-      'button:has-text("Accept")',
-      'button:has-text("I Accept")',
-      'button:has-text("I agree")',
-      'button:has-text("Agree")',
-      'input[type="submit"][value*="Accept"]',
-      'input[type="submit"][value*="agree"]',
-      "a.btn:has-text('Accept')",
-    ];
-    for (const sel of acceptSelectors) {
-      const el = page.locator(sel).first();
-      if (await el.isVisible({ timeout: 2000 }).catch(() => false)) {
-        console.log(`    Clicking license acceptance: ${sel}`);
-        await el.click();
-        await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
-        break;
-      }
-    }
-
-    // Extract download links: prefer explicit "Download" anchors, then file-extension links
-    const downloadLinkSelectors = [
-      "a[href*='/download']",
-      "a[href*='/Download']",
-      "a[href*='download=true']",
-      "a[href*='.zip']",
-      "a[href*='.tif']",
-      "a[href*='.tiff']",
-      "a[href*='.nc']",
-      "a[href*='.csv']",
-      "a[href*='.shp']",
-      "a[href*='.geojson']",
-      "a[href*='.json']",
-      "a[href*='/geonetwork/srv/']",
-    ];
-
-    const seen = new Set<string>();
-    for (const sel of downloadLinkSelectors) {
-      const anchors = await page.locator(sel).all();
-      for (const anchor of anchors) {
-        const href = await anchor.getAttribute("href").catch(() => null);
-        if (!href) continue;
-        const absoluteUrl = href.startsWith("http")
-          ? href
-          : `https://rds.icimod.org${href}`;
-        if (!seen.has(absoluteUrl)) {
-          seen.add(absoluteUrl);
-          links.push(absoluteUrl);
-        }
-      }
-    }
-
-    // Also check GeoNetwork metadata link for associated resources
-    const geonetworkLinks = await page
-      .locator("a[href*='geonetwork']")
-      .all();
-    for (const anchor of geonetworkLinks) {
-      const href = await anchor.getAttribute("href").catch(() => null);
-      if (!href) continue;
-      const absoluteUrl = href.startsWith("http")
-        ? href
-        : `https://rds.icimod.org${href}`;
-      if (!seen.has(absoluteUrl)) {
-        seen.add(absoluteUrl);
-        links.push(absoluteUrl);
-      }
-    }
-  } catch (err) {
-    console.warn(`    Failed to extract links from ${landingUrl}: ${String(err)}`);
-  } finally {
-    await page.close();
+  if (!landingResp.ok) {
+    console.warn(`  [WARN] HTTP ${landingResp.status} for landing page ${metadataId}`);
+    return null;
   }
 
-  return links;
-}
+  const finalUrl = landingResp.url;
+  const base = finalUrl.replace(/\/$/, "");
+  const dataUrl = `${base}/__data.json?x-sveltekit-invalidated=01`;
 
-// ─── Single dataset downloader ────────────────────────────────────────────────
+  const dataResp = await fetch(dataUrl, {
+    headers: { "User-Agent": UA, Accept: "application/json" },
+  });
 
-async function downloadDataset(
-  context: BrowserContext,
-  metadataId: number,
-  title: string,
-  manifest: ManifestFile,
-): Promise<void> {
-  const key = String(metadataId);
-  const datasetDir = path.join(DATA_ROOT, key);
-
-  // Skip if already fully downloaded
-  if (manifest[key] !== undefined && manifest[key].files.length > 0) {
-    console.log(`  [SKIP] ${metadataId} — already in manifest (${manifest[key].files.length} file(s))`);
-    return;
-  }
-
-  console.log(`\n  Processing: ${metadataId} — ${title.slice(0, 70)}`);
-
-  const downloadLinks = await extractDownloadLinks(context, metadataId);
-  if (downloadLinks.length === 0) {
-    console.warn(`  [WARN] No download links found for ${metadataId}`);
-    manifest[key] = { title, files: [] };
-    return;
-  }
-
-  console.log(`  Found ${downloadLinks.length} download link(s)`);
-
-  // Collect cookies for fetch-based download
-  const cookies = await context.cookies();
-
-  const fileEntries: FileEntry[] = [];
-
-  for (const url of downloadLinks) {
-    const rawName = url.split("/").pop()?.split("?")[0] ?? `file-${Date.now()}`;
-    const safeName = rawName.replace(/[^\w.\-]/g, "_");
-    const destPath = path.join(datasetDir, safeName);
-
-    // Skip if file already exists
-    if (fs.existsSync(destPath)) {
-      console.log(`    [SKIP] ${safeName} — already on disk`);
-      const size = fs.statSync(destPath).size;
-      const sha256 = await sha256File(destPath);
-      fileEntries.push({
-        name: safeName,
-        size,
-        sha256,
-        url,
-        downloadedAt: new Date().toISOString(),
-      });
-      continue;
-    }
-
+  if (dataResp.ok) {
+    let body: unknown;
     try {
-      console.log(`    Downloading: ${safeName}`);
-      const size = await downloadWithCookies(url, destPath, cookies);
-      const sha256 = await sha256File(destPath);
-      console.log(`    Done: ${safeName} (${(size / 1024).toFixed(1)} KB, sha256: ${sha256.slice(0, 12)}…)`);
-      fileEntries.push({
-        name: safeName,
-        size,
-        sha256,
-        url,
-        downloadedAt: new Date().toISOString(),
-      });
-    } catch (err) {
-      console.error(`    [ERROR] Failed to download ${safeName}: ${String(err)}`);
+      body = await dataResp.json();
+    } catch {
+      body = null;
+    }
+    if (body) {
+      const meta = extractMetadataFromSvelteKitData(body);
+      if (meta) return meta;
     }
   }
 
-  manifest[key] = { title, files: fileEntries };
+  console.warn(`  [WARN] __data.json failed for ${metadataId}; falling back to HTML parse`);
+  const html = await landingResp.text().catch(() => "");
+  return extractMetadataFromHtml(html, metadataId);
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
+function extractMetadataFromSvelteKitData(body: unknown): IcimodMetadata | null {
+  if (!body || typeof body !== "object") return null;
+  const obj = body as Record<string, unknown>;
+  const nodes = obj["nodes"];
+  if (!Array.isArray(nodes)) return null;
+
+  for (const node of nodes) {
+    if (!node || typeof node !== "object") continue;
+    const n = node as Record<string, unknown>;
+    if (n["type"] !== "data") continue;
+    const data = n["data"];
+    if (!Array.isArray(data)) continue;
+
+    const firstItem = data[0];
+    if (!firstItem || typeof firstItem !== "object") continue;
+    const fi = firstItem as Record<string, unknown>;
+    if (!("metadata" in fi)) continue;
+
+    const metaIdx = fi["metadata"];
+    if (typeof metaIdx !== "number") continue;
+
+    const meta = data[metaIdx];
+    if (!meta || typeof meta !== "object") continue;
+
+    return resolveMetadata(data, meta as Record<string, number>);
+  }
+  return null;
+}
+
+function resolveRef<T>(data: unknown[], idx: unknown): T | null {
+  if (typeof idx !== "number") return null;
+  return (data[idx] ?? null) as T | null;
+}
+
+function resolveStringArr(data: unknown[], arrIdx: unknown): string[] {
+  if (typeof arrIdx !== "number") return [];
+  const arr = data[arrIdx];
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .map((i: unknown) => (typeof i === "number" ? data[i] : i))
+    .filter((v): v is string => typeof v === "string");
+}
+
+function resolveMetadata(data: unknown[], meta: Record<string, number>): IcimodMetadata {
+  const str = (key: string): string => {
+    const v = resolveRef<unknown>(data, meta[key]);
+    return typeof v === "string" ? v : "";
+  };
+  const bool = (key: string): boolean => resolveRef<unknown>(data, meta[key]) === true;
+  const any = (key: string): unknown => resolveRef<unknown>(data, meta[key]);
+
+  const keywordsObj = any("keywords") as Record<string, number> | null;
+  const keywords = { theme: [] as string[], place: [] as string[] };
+  if (keywordsObj && typeof keywordsObj === "object") {
+    keywords.theme = resolveStringArr(data, keywordsObj["theme"]);
+    keywords.place = resolveStringArr(data, keywordsObj["place"]);
+  }
+
+  const contactObj = any("contact") as Record<string, number> | null;
+  const contact = {
+    organization: contactObj ? (resolveRef<string>(data, contactObj["organization"]) ?? "") : "",
+    individual: contactObj ? (resolveRef<string>(data, contactObj["individual"]) ?? "") : "",
+    position: contactObj ? (resolveRef<string>(data, contactObj["position"]) ?? "") : "",
+    email: contactObj ? (resolveRef<string>(data, contactObj["email"]) ?? "") : "",
+  };
+
+  const datesObj = any("dates") as Record<string, number> | null;
+  const dates = {
+    creation: datesObj ? (resolveRef<string>(data, datesObj["creation"]) ?? "") : "",
+    publication: datesObj ? (resolveRef<string>(data, datesObj["publication"]) ?? "") : "",
+  };
+
+  const spatialObj = any("spatial") as Record<string, number> | null;
+  const spatial = {
+    west: spatialObj ? (resolveRef<string>(data, spatialObj["west"]) ?? "") : "",
+    east: spatialObj ? (resolveRef<string>(data, spatialObj["east"]) ?? "") : "",
+    south: spatialObj ? (resolveRef<string>(data, spatialObj["south"]) ?? "") : "",
+    north: spatialObj ? (resolveRef<string>(data, spatialObj["north"]) ?? "") : "",
+  };
+
+  const resourcesRaw = any("resources");
+  const resources: IcimodResource[] = [];
+  const resArray = Array.isArray(resourcesRaw)
+    ? resourcesRaw
+    : typeof resourcesRaw === "number" && Array.isArray(data[resourcesRaw])
+      ? (data[resourcesRaw] as unknown[])
+      : [];
+
+  for (const rRef of resArray) {
+    const rObj =
+      typeof rRef === "number"
+        ? (data[rRef] as Record<string, number> | null)
+        : (rRef as Record<string, number> | null);
+    if (!rObj || typeof rObj !== "object") continue;
+    resources.push({
+      url: resolveRef<string>(data, rObj["url"]) ?? "",
+      protocol: resolveRef<string>(data, rObj["protocol"]) ?? "",
+      name: resolveRef<string>(data, rObj["name"]) ?? "",
+      description: resolveRef<string>(data, rObj["description"]) ?? "",
+    });
+  }
+
+  return {
+    uuid: str("uuid"),
+    title: str("title"),
+    abstract: str("abstract"),
+    purpose: str("purpose") || null,
+    citation: str("citation") || null,
+    keywords,
+    thumbnail: str("thumbnail") || null,
+    contact,
+    dates,
+    spatial,
+    license: str("license"),
+    language: str("language"),
+    link: str("link"),
+    resources,
+    enable_download: bool("enable_download"),
+    error: str("error") || null,
+    doi: str("doi") || null,
+  };
+}
+
+function extractMetadataFromHtml(html: string, metadataId: string): IcimodMetadata | null {
+  const uuidMatch = /uuid:"([^"]+)"/.exec(html);
+  if (!uuidMatch) {
+    console.warn(`  [WARN] Could not parse HTML for ${metadataId}`);
+    return null;
+  }
+
+  const titleMatch = /title:"([^"]+)"/.exec(html);
+  const enableMatch = /enable_download:(true|false)/.exec(html);
+  const doiMatch = /doi:"([^"]+)"/.exec(html);
+  const emailMatch = /email:"([^"]+)"/.exec(html);
+
+  const resources: IcimodResource[] = [];
+  for (const m of html.matchAll(
+    /url:"([^"]+)",protocol:"([^"]*)",name:"([^"]*)",description:"([^"]*)"/g,
+  )) {
+    resources.push({
+      url: m[1] ?? "",
+      protocol: m[2] ?? "",
+      name: m[3] ?? "",
+      description: m[4] ?? "",
+    });
+  }
+
+  return {
+    uuid: uuidMatch[1] ?? "",
+    title: titleMatch ? (titleMatch[1] ?? `Dataset ${metadataId}`) : `Dataset ${metadataId}`,
+    abstract: "",
+    purpose: null,
+    citation: null,
+    keywords: { theme: [], place: [] },
+    thumbnail: null,
+    contact: {
+      organization: "ICIMOD",
+      individual: "",
+      position: "",
+      email: emailMatch ? (emailMatch[1] ?? "") : "",
+    },
+    dates: { creation: "", publication: "" },
+    spatial: { west: "", east: "", south: "", north: "" },
+    license: "",
+    language: "eng",
+    link: `https://rds.icimod.org/geonetwork/srv/eng/catalog.search#/metadata/${uuidMatch[1]}`,
+    resources,
+    enable_download: enableMatch ? enableMatch[1] === "true" : false,
+    error: null,
+    doi: doiMatch ? (doiMatch[1] ?? null) : null,
+  };
+}
+
+async function downloadWithToken(
+  uuid: string,
+  token: string,
+  datasetDir: string,
+): Promise<DownloadEntry[]> {
+  const contextResp = await fetch(
+    `${GEOAPI_BASE}/datasets/${encodeURIComponent(uuid)}/download/context/`,
+    { headers: { Authorization: token, Accept: "application/json" } },
+  );
+  if (!contextResp.ok) {
+    console.warn(`  [WARN] download/context HTTP ${contextResp.status}`);
+    return [];
+  }
+
+  const ctx = (await contextResp.json()) as Record<string, unknown>;
+  const mode = ctx["download_mode"];
+
+  if (mode === "direct") {
+    return downloadDirect(uuid, token, datasetDir);
+  }
+  if (mode === "multi") {
+    return downloadMulti(uuid, token, datasetDir);
+  }
+  console.warn(`  [WARN] Unknown download_mode "${String(mode)}"`);
+  return [];
+}
+
+async function saveBlob(
+  resp: Response,
+  datasetDir: string,
+  fallbackName: string,
+): Promise<DownloadEntry | null> {
+  const cd = resp.headers.get("Content-Disposition") ?? "";
+  const nameMatch = /filename[^;=\n]*=["']?([^"';\n]+)/.exec(cd);
+  const filename = nameMatch ? (nameMatch[1]?.trim() ?? fallbackName) : fallbackName;
+  const destPath = path.join(datasetDir, filename);
+
+  if (fs.existsSync(destPath)) {
+    const sha256 = await sha256File(destPath);
+    const sizeBytes = fs.statSync(destPath).size;
+    console.log(`  [SKIP] ${filename} -- already on disk`);
+    return { url: resp.url, filename, sizeBytes, sha256, downloadedAt: new Date().toISOString() };
+  }
+
+  if (!resp.body) return null;
+  ensureDir(datasetDir);
+  const fileStream = fs.createWriteStream(destPath);
+  await pipeline(resp.body as unknown as NodeJS.ReadableStream, fileStream);
+  const sizeBytes = fs.statSync(destPath).size;
+  const sha256 = await sha256File(destPath);
+  console.log(`  [OK] ${filename} (${(sizeBytes / 1024).toFixed(1)} KB, sha256: ${sha256.slice(0, 12)}...)`);
+  return { url: resp.url, filename, sizeBytes, sha256, downloadedAt: new Date().toISOString() };
+}
+
+async function downloadDirect(
+  uuid: string,
+  token: string,
+  datasetDir: string,
+): Promise<DownloadEntry[]> {
+  const resp = await fetch(
+    `${GEOAPI_BASE}/datasets/${encodeURIComponent(uuid)}/download/direct/confirm/`,
+    {
+      method: "POST",
+      headers: { Authorization: token, "Content-Type": "application/json", Accept: "*/*" },
+      body: JSON.stringify({ purpose: "research" }),
+    },
+  );
+  if (!resp.ok) {
+    const err = (await resp.json().catch(() => ({}))) as Record<string, unknown>;
+    console.warn(`  [WARN] direct/confirm failed: ${String(err["detail"] ?? resp.status)}`);
+    return [];
+  }
+  const entry = await saveBlob(resp, datasetDir, `${uuid}.bin`);
+  return entry ? [entry] : [];
+}
+
+async function downloadMulti(
+  uuid: string,
+  token: string,
+  datasetDir: string,
+): Promise<DownloadEntry[]> {
+  await fetch(
+    `${GEOAPI_BASE}/datasets/${encodeURIComponent(uuid)}/download/multi/confirm/`,
+    {
+      method: "POST",
+      headers: { Authorization: token, "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ purpose: "research" }),
+    },
+  );
+
+  const filesResp = await fetch(
+    `${GEOAPI_BASE}/datasets/${encodeURIComponent(uuid)}/download/multi/files/`,
+    { headers: { Authorization: token, Accept: "application/json" } },
+  );
+  if (!filesResp.ok) return [];
+
+  const body = (await filesResp.json()) as {
+    files?: Array<{ id: number; filename: string; file_available: boolean }>;
+  };
+  const files = body["files"] ?? [];
+  const entries: DownloadEntry[] = [];
+
+  for (const f of files) {
+    if (!f.file_available) continue;
+    const fileResp = await fetch(
+      `${GEOAPI_BASE}/datasets/${encodeURIComponent(uuid)}/download/multi/file/${f.id}/`,
+      { headers: { Authorization: token, Accept: "*/*" } },
+    );
+    if (!fileResp.ok) continue;
+    const entry = await saveBlob(fileResp, datasetDir, f.filename || `file-${f.id}`);
+    if (entry) entries.push(entry);
+  }
+  return entries;
+}
+
+async function loginAndGetToken(username: string, password: string): Promise<string | null> {
+  const resp = await fetch(`${GEOAPI_BASE}/auth/login_public/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({ username, password }),
+  });
+  if (!resp.ok) {
+    const body = await resp.text();
+    console.error(`  [ERROR] Login failed (${resp.status}): ${body.slice(0, 200)}`);
+    return null;
+  }
+  const data = (await resp.json()) as { token?: string; key?: string };
+  const token = data["token"] ?? data["key"];
+  return token ? `Token ${token}` : null;
+}
+
+async function processDataset(
+  metadataId: string,
+  catalogTitle: string,
+  manifest: ManifestFile,
+  authToken: string | null,
+): Promise<void> {
+  const meta = await fetchMetadata(metadataId);
+  if (!meta) {
+    console.warn(`  [WARN] Could not fetch metadata for ${metadataId}`);
+    return;
+  }
+
+  const existingDownloads = manifest[metadataId]?.downloads ?? [];
+
+  const externalSources = meta.resources
+    .filter((r) => r.url && !r.url.includes("/geonetwork/srv/api/records"))
+    .map((r) => ({ url: r.url, name: r.name || r.url }));
+
+  if (!meta.enable_download) {
+    console.log(`  [INFO] external-only -- ${meta.title.slice(0, 70)}`);
+    for (const s of externalSources) {
+      console.log(`         -> ${s.name}: ${s.url}`);
+    }
+    manifest[metadataId] = {
+      metadataId,
+      uuid: meta.uuid,
+      title: meta.title || catalogTitle,
+      enableDownload: false,
+      resources: meta.resources,
+      downloads: existingDownloads,
+      externalSources,
+      scrapedAt: new Date().toISOString(),
+    };
+    return;
+  }
+
+  let downloads: DownloadEntry[] = [...existingDownloads];
+
+  if (authToken) {
+    const datasetDir = path.join(DATA_ROOT, metadataId);
+    const alreadyDownloaded = new Set(existingDownloads.map((d) => d.filename));
+    console.log("  [INFO] enable_download:true -- attempting authenticated download");
+    const newDownloads = await downloadWithToken(meta.uuid, authToken, datasetDir);
+    for (const nd of newDownloads) {
+      if (!alreadyDownloaded.has(nd.filename)) {
+        downloads.push(nd);
+      }
+    }
+  } else {
+    const hint = meta.doi ?? `https://rds.icimod.org/download/flow/${meta.uuid}`;
+    console.log("  [INFO] enable_download:true -- login required (re-run with --with-login)");
+    console.log(`         Download entry point: ${hint}`);
+  }
+
+  manifest[metadataId] = {
+    metadataId,
+    uuid: meta.uuid,
+    title: meta.title || catalogTitle,
+    enableDownload: meta.enable_download,
+    resources: meta.resources,
+    downloads,
+    externalSources,
+    scrapedAt: new Date().toISOString(),
+  };
+}
 
 async function main(): Promise<void> {
-  // 1. Validate credentials
-  const username = process.env["ICIMOD_USERNAME"];
-  const password = process.env["ICIMOD_PASSWORD"];
+  console.log("=== ICIMOD RDS Metadata Scraper ===");
+  console.log(`  Dry run    : ${DRY_RUN}`);
+  console.log(`  With login : ${WITH_LOGIN}`);
 
-  if (!username || !password) {
-    console.error(
-      "Error: ICIMOD_USERNAME and ICIMOD_PASSWORD must be set in the environment.\n" +
-        "Add them to .env.local:\n" +
-        "  ICIMOD_USERNAME=your@email.com\n" +
-        "  ICIMOD_PASSWORD=yourpassword\n" +
-        "Then run: npm run icimod:download",
-    );
-    process.exit(1);
-  }
-
-  console.log("=== ICIMOD RDS Authenticated Downloader ===");
-  console.log(`  Username : ${username}`);
-  console.log(`  Headless : ${!HEADED}`);
-  console.log(`  Dry run  : ${DRY_RUN}`);
-
-  // 2. Load target datasets from catalog
   const targets = loadTargetDatasets();
   if (targets.length === 0) {
     console.error("No target datasets found. Check catalog or --ids flag.");
@@ -547,70 +620,67 @@ async function main(): Promise<void> {
   }
 
   if (DRY_RUN) {
-    console.log("\nDry run — exiting without downloading.");
+    console.log("\nDry run -- exiting without scraping.");
     process.exit(0);
   }
 
-  // 3. Ensure data directory structure
-  ensureDir(DATA_ROOT);
-  ensureDir(STATE_DIR);
-
-  // 4. Launch persistent Chromium context (reuses session cookies across runs)
-  console.log("\n  Launching browser...");
-  const context = await chromium.launchPersistentContext(STATE_DIR, {
-    headless: !HEADED,
-    userAgent:
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    viewport: { width: 1280, height: 900 },
-    acceptDownloads: true,
-  });
-
-  try {
-    // 5. Check existing session; log in only when needed
-    console.log("  Checking session state...");
-    const alreadyLoggedIn = await isLoggedIn(context);
-    if (alreadyLoggedIn) {
-      console.log("  Session active — skipping login.");
+  let authToken: string | null = null;
+  if (WITH_LOGIN) {
+    const username = process.env["ICIMOD_USERNAME"];
+    const password = process.env["ICIMOD_PASSWORD"];
+    if (!username || !password) {
+      console.error(
+        "Error: --with-login requires ICIMOD_USERNAME and ICIMOD_PASSWORD in the environment.\n" +
+          "Add them to .env.local:\n" +
+          "  ICIMOD_USERNAME=your@email.com\n" +
+          "  ICIMOD_PASSWORD=yourpassword",
+      );
+      process.exit(1);
+    }
+    console.log(`\n  Logging in as: ${username}`);
+    authToken = await loginAndGetToken(username, password);
+    if (!authToken) {
+      console.error("  Login failed -- continuing without download capability.");
     } else {
-      console.log("  No active session — logging in...");
-      await login(context, username, password);
+      console.log("  Login successful.");
     }
-
-    // 6. Load manifest (idempotency state)
-    const manifest = loadManifest();
-
-    // 7. Download each dataset
-    for (let i = 0; i < targets.length; i++) {
-      const target = targets[i];
-      if (!target) continue;
-
-      try {
-        await downloadDataset(context, target.id, target.title, manifest);
-        saveManifest(manifest);
-      } catch (err) {
-        console.error(`  [ERROR] Dataset ${target.id} failed: ${String(err)}`);
-      }
-
-      if (i < targets.length - 1) {
-        console.log(`  Waiting ${DELAY_BETWEEN_DATASETS_MS / 1000}s before next dataset...`);
-        await sleep(DELAY_BETWEEN_DATASETS_MS);
-      }
-    }
-
-    // 8. Final manifest write
-    saveManifest(manifest);
-    console.log(`\n  Manifest written to: ${MANIFEST_PATH}`);
-
-    const totalFiles = Object.values(manifest).reduce(
-      (sum, d) => sum + d.files.length,
-      0,
-    );
-    console.log(`\n=== DONE ===`);
-    console.log(`  Datasets processed : ${targets.length}`);
-    console.log(`  Total files        : ${totalFiles}`);
-  } finally {
-    await context.close();
   }
+
+  ensureDir(DATA_ROOT);
+  const manifest = loadManifest();
+
+  for (let i = 0; i < targets.length; i++) {
+    const target = targets[i];
+    if (!target) continue;
+
+    console.log(`\n[${i + 1}/${targets.length}] ${target.id} -- ${target.title.slice(0, 60)}`);
+    try {
+      await processDataset(target.id, target.title, manifest, authToken);
+      saveManifest(manifest);
+    } catch (err) {
+      console.error(`  [ERROR] Dataset ${target.id} failed: ${String(err)}`);
+    }
+
+    if (i < targets.length - 1) {
+      await sleep(DELAY_MS);
+    }
+  }
+
+  saveManifest(manifest);
+  console.log(`\n  Manifest written to: ${MANIFEST_PATH}`);
+
+  const total = Object.keys(manifest).length;
+  const withDownloads = Object.values(manifest).filter((e) => e.downloads.length > 0).length;
+  const externalOnly = Object.values(manifest).filter((e) => !e.enableDownload).length;
+  const loginRequired = Object.values(manifest).filter(
+    (e) => e.enableDownload && e.downloads.length === 0,
+  ).length;
+
+  console.log("\n=== DONE ===");
+  console.log(`  Datasets processed : ${total}`);
+  console.log(`  With downloads     : ${withDownloads}`);
+  console.log(`  External-only      : ${externalOnly}`);
+  console.log(`  Login required     : ${loginRequired} (re-run with --with-login)`);
 
   process.exit(0);
 }
