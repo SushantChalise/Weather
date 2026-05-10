@@ -1,17 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PLACE_REGISTRY } from "@/data/places";
 
 const VARIABLES = [
-  { id: "temperature_2m_mean", label: "Temperature (mean)", unit: "°C" },
-  { id: "precipitation_sum", label: "Precipitation", unit: "mm" },
-  { id: "snow_depth", label: "Snow depth", unit: "cm" },
+  { id: "temp_2m_mean", label: "Temperature (mean)", unit: "°C" },
+  { id: "precip", label: "Precipitation", unit: "mm" },
+  { id: "temp_2m_max", label: "Temperature (max)", unit: "°C" },
+  { id: "temp_2m_min", label: "Temperature (min)", unit: "°C" },
+  { id: "wind_max_10m", label: "Wind speed (max)", unit: "m/s" },
 ] as const;
 
 type VariableId = (typeof VARIABLES)[number]["id"];
 
-const DECADES = [1990, 2000, 2010, 2020] as const;
+const YEARS = [2020, 2021, 2022, 2023, 2024] as const;
 
 const MONTHS = [
   "Jan",
@@ -28,54 +30,75 @@ const MONTHS = [
   "Dec",
 ] as const;
 
-/** Deterministic mock climatology — Math.sin-based, varies by place + variable + decade */
-function getMockClimatology(
-  placeSlug: string,
+type ClimateData = {
+  years: number[];
+  series: number[][];
+};
+
+async function fetchClimatology(
+  place: string,
   variable: string,
-  decadeStart: number,
   month: number,
-): number[] {
-  const seed = placeSlug.charCodeAt(0) + variable.charCodeAt(0) + decadeStart + month;
-  const drift = (decadeStart - 1990) / 10; // simulate climate change drift
-  const days = 30;
-  const out: number[] = [];
-  for (let d = 0; d < days; d++) {
-    const base = Math.sin((d / days) * Math.PI * 2 + seed) * 5;
-    const value = base + drift * 1.5; // each decade warmer (or wetter) than the last
-    out.push(Number(value.toFixed(2)));
-  }
-  return out;
+): Promise<ClimateData> {
+  const url = `/api/climatology?place=${encodeURIComponent(place)}&variable=${encodeURIComponent(variable)}&month=${month}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`API error ${res.status}`);
+  return res.json() as Promise<ClimateData>;
 }
 
 export function ClimateTimeMachine() {
   const slugs = Object.keys(PLACE_REGISTRY);
   const [placeSlug, setPlaceSlug] = useState<string>("ebc");
-  const [variable, setVariable] = useState<VariableId>("temperature_2m_mean");
+  const [variable, setVariable] = useState<VariableId>("temp_2m_mean");
   const [month, setMonth] = useState<number>(10);
-  const [decade, setDecade] = useState<number>(2020);
+  const [year, setYear] = useState<number>(2024);
 
-  const data = getMockClimatology(placeSlug, variable, decade, month);
-  const allDecades = DECADES.map((d) => getMockClimatology(placeSlug, variable, d, month));
+  const [climateData, setClimateData] = useState<ClimateData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setFetchError(null);
+
+    fetchClimatology(placeSlug, variable, month)
+      .then((data) => {
+        if (!cancelled) {
+          setClimateData(data);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setFetchError("Could not load climate data. Please try again.");
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [placeSlug, variable, month]);
+
   const place = PLACE_REGISTRY[placeSlug];
   const v = VARIABLES.find((item) => item.id === variable);
 
-  // noUncheckedIndexedAccess: month is 1-based, guard access
   const monthLabel = MONTHS[month - 1] ?? "—";
+
+  const yearIndex = YEARS.indexOf(year as (typeof YEARS)[number]);
+  const current = climateData?.series[yearIndex] ?? [];
+  const allYears = climateData?.series ?? [];
 
   return (
     <main className="min-h-screen bg-white">
       <div className="px-4 py-12 md:py-16 max-w-4xl mx-auto">
-        {/* Mock-data banner */}
-        <div className="mb-6 px-4 py-2 rounded-md bg-amber-50 border border-amber-200 text-sm text-amber-900">
-          Mock data — real ERA5 ingestion coming soon. Trends and shapes are illustrative only.
-        </div>
-
         <h1 className="text-3xl md:text-5xl font-semibold text-neutral-900 mb-4">
           Climate Time Machine
         </h1>
         <p className="text-neutral-700 max-w-prose">
-          Compare any place, any variable, any month, across decades. Move the decade slider to see
-          how the climate has shifted.
+          Compare any place, any variable, any month, across years. Select a year to highlight it
+          against all others in our 2020–2024 archive.
         </p>
 
         {/* Controls */}
@@ -126,36 +149,58 @@ export function ClimateTimeMachine() {
           </label>
         </div>
 
-        {/* Decade buttons */}
+        {/* Year buttons */}
         <div className="mt-6">
-          <span className="text-sm font-medium text-neutral-700">Decade</span>
+          <span className="text-sm font-medium text-neutral-700">Year</span>
           <div className="mt-2 flex gap-2">
-            {DECADES.map((d) => (
+            {YEARS.map((y) => (
               <button
-                key={d}
+                key={y}
                 type="button"
-                onClick={() => setDecade(d)}
+                onClick={() => setYear(y)}
                 className={`px-3 py-1.5 rounded-md text-sm border ${
-                  decade === d
+                  year === y
                     ? "bg-neutral-900 text-white border-neutral-900"
                     : "bg-white text-neutral-700 border-neutral-200 hover:border-neutral-400"
                 }`}
               >
-                {d}s
+                {y}
               </button>
             ))}
           </div>
         </div>
 
+        {/* Fetch error */}
+        {fetchError && (
+          <div className="mt-6 px-4 py-2 rounded-md bg-red-50 border border-red-200 text-sm text-red-900">
+            {fetchError}
+          </div>
+        )}
+
         {/* Chart — pure SVG */}
         <div className="mt-8 p-4 rounded-lg border border-neutral-200 bg-neutral-50">
           <h2 className="text-lg font-medium text-neutral-900 mb-2">
-            {v?.label ?? variable} — {place?.name ?? placeSlug}, {monthLabel} {decade}s
+            {v?.label ?? variable} — {place?.name ?? placeSlug}, {monthLabel} {year}
           </h2>
-          <ChartSvg current={data} allDecades={allDecades} decades={DECADES} unit={v?.unit ?? ""} />
+          {loading ? (
+            <div className="flex items-center justify-center h-[280px] text-sm text-neutral-500">
+              Loading…
+            </div>
+          ) : current.length > 0 ? (
+            <ChartSvg current={current} allYears={allYears} years={YEARS} unit={v?.unit ?? ""} />
+          ) : (
+            <div className="flex items-center justify-center h-[280px] text-sm text-neutral-500">
+              No data for this selection.
+            </div>
+          )}
         </div>
 
-        {/* TODO: replace with /api/climatology when ERA5 ingestion lands */}
+        {/* Citation */}
+        <p className="mt-6 text-xs text-neutral-500 leading-relaxed max-w-prose">
+          <strong className="text-neutral-600">Data source:</strong> Open-Meteo historical archive (
+          <span className="font-mono">openmeteo-historical</span>), daily observations for{" "}
+          {slugs.length} places, 2020–2024.
+        </p>
       </div>
     </main>
   );
@@ -163,17 +208,17 @@ export function ClimateTimeMachine() {
 
 interface ChartSvgProps {
   current: number[];
-  allDecades: number[][];
-  decades: readonly number[];
+  allYears: number[][];
+  years: readonly number[];
   unit: string;
 }
 
-function ChartSvg({ current, allDecades, decades, unit }: ChartSvgProps) {
+function ChartSvg({ current, allYears, years, unit }: ChartSvgProps) {
   const W = 720;
   const H = 280;
   const PAD = 32;
 
-  const allValues = [...allDecades.flat(), ...current];
+  const allValues = [...allYears.flat(), ...current];
   const min = Math.min(...allValues);
   const max = Math.max(...allValues);
   const range = max - min || 1;
@@ -208,11 +253,11 @@ function ChartSvg({ current, allDecades, decades, unit }: ChartSvgProps) {
       <text x={4} y={H - PAD + 4} fontSize="11" fill="#525252">
         {min.toFixed(1)} {unit}
       </text>
-      {/* Decade overlays — light lines */}
-      {allDecades.map((dec, i) => (
-        <path key={decades[i] ?? i} d={toPath(dec)} fill="none" stroke="#d4d4d4" strokeWidth="1" />
+      {/* Other years — light lines */}
+      {allYears.map((yr, i) => (
+        <path key={years[i] ?? i} d={toPath(yr)} fill="none" stroke="#d4d4d4" strokeWidth="1" />
       ))}
-      {/* Current decade — bold line */}
+      {/* Selected year — bold line */}
       <path d={currentPath} fill="none" stroke="#0a0a0a" strokeWidth="2" />
     </svg>
   );
