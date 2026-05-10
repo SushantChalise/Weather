@@ -20,6 +20,7 @@ import {
   jsonb,
   pgTable,
   primaryKey,
+  real,
   serial,
   text,
   timestamp,
@@ -274,3 +275,30 @@ export const photosArchive = pgTable(
   },
   (table) => [index("photos_place_time_idx").on(table.placeId, table.captureTime)],
 );
+
+// ─── FIRMS fire hotspots (NASA MODIS + VIIRS historical) ─────────────────
+export const fires = pgTable(
+  "fires",
+  {
+    id: serial("id").primaryKey(),
+    time: timestamp("time", { withTimezone: true }).notNull(),
+    latitude: real("latitude").notNull(),
+    longitude: real("longitude").notNull(),
+    confidence: text("confidence"),
+    frp: real("frp"),
+    sourceLabel: text("source_label").notNull(),
+    daynight: text("daynight"),
+    sourceId: integer("source_id")
+      .notNull()
+      .references(() => datasets.id, { onDelete: "restrict" }),
+    ingestedAt: timestamp("ingested_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    unique("fires_dedup_idx").on(table.time, table.latitude, table.longitude, table.sourceLabel),
+    index("fires_time_idx").on(table.time),
+    index("fires_source_label_idx").on(table.sourceLabel),
+  ],
+);
+
+export type Fire = typeof fires.$inferSelect;
+export type NewFire = typeof fires.$inferInsert;
