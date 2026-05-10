@@ -152,6 +152,8 @@ The plan stops being "vibecoding" and converts to "feature freeze + polish" when
 
 ## Round 16 — HKH Cryosphere Atlas (real ICIMOD data, post-download)
 
+> **Infrastructure note (2026-05-10):** Vercel Blob references in 16.1 / 16.3 / 16.9 below are **superseded**. Glacier and glacial-lake GeoJSON now live in `/public/glaciers/...` and `/public/glacial-lakes/...` (Brotli-precompressed, served by Cloudflare Pages edge, build-time size-checked). See [INFRASTRUCTURE.md](INFRASTRUCTURE.md) for the canonical stack and per-asset constraints (≤ 20 MiB per file, ≤ 250 MB total, etc.). Read it before executing any 16.x step.
+
 **Context:** Hour 21–22 ("ICIMOD decadal glacier changes 1990–2020") was originally scoped as a single ingestion. With the authenticated downloader (#65 / #67 / #68) we now have 665 MB of real ICIMOD data on local disk including:
 
 - HKH Glacier outlines for **1990, 2000, 2010, 2020** (~520 MB combined)
