@@ -43,6 +43,7 @@ type ClickedFeature = {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const GLACIER_YEARS: GlacierYear[] = [1990, 2000, 2010, 2020];
+const DEFAULT_YEAR: GlacierYear = 2020;
 
 const GLACIER_PALETTE: Record<GlacierYear, { fill: string; opacity: number; haloWidth: number }> = {
   1990: { fill: "#B9F3FF", opacity: 0.35, haloWidth: 0.5 },
@@ -102,7 +103,7 @@ const MAP_STYLE: StyleSpecification = {
 function parseYear(raw: string | null): GlacierYear {
   const n = Number(raw);
   if (n === 1990 || n === 2000 || n === 2010 || n === 2020) return n;
-  return 2020;
+  return DEFAULT_YEAR;
 }
 
 function parseLayers(raw: string | null): ActiveLayers {
@@ -624,12 +625,22 @@ function HkhBboxMask() {
 
 // ─── Empty state when data files don't exist yet ──────────────────────────────
 
-function GlacierPosterOverlay({ dataLoaded }: { dataLoaded: boolean }) {
-  if (dataLoaded) return null;
+function GlacierPosterOverlay({
+  dataLoaded,
+  hasMapInteracted,
+}: {
+  dataLoaded: boolean;
+  hasMapInteracted: boolean;
+}) {
+  // Hide once data is loaded OR the user has touched the map. The silhouette
+  // is an absolute-positioned HTML overlay; once the map starts moving
+  // underneath it, leaving it visible feels broken (it appears "orphaned"
+  // from the basemap because it doesn't follow the map's transform).
+  if (dataLoaded || hasMapInteracted) return null;
   return (
     <div
       aria-hidden="true"
-      className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center"
+      className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center transition-opacity duration-300"
     >
       <Image
         src="/atlas/glaciers-2020-silhouette.svg"
@@ -648,9 +659,17 @@ export function Atlas30YearsClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const year = parseYear(searchParams.get("year"));
-  const activeLayers = useMemo(() => parseLayers(searchParams.get("layers")), [searchParams]);
-  const glofFilter = parseGlofFilter(searchParams.get("glof"));
+  // State is local for tight render loops (play tick at 1.5s would otherwise
+  // bottleneck on router.replace soft-navigation). URL is a downstream sync
+  // for shareability — see the effect at the bottom of this hook.
+  const [year, setYearState] = useState<GlacierYear>(() => parseYear(searchParams.get("year")));
+  const [activeLayers, setActiveLayersState] = useState<ActiveLayers>(() =>
+    parseLayers(searchParams.get("layers")),
+  );
+  const [glofFilter, setGlofFilterState] = useState<GlofFilter>(() =>
+    parseGlofFilter(searchParams.get("glof")),
+  );
+  const [hasMapInteracted, setHasMapInteracted] = useState(false);
 
   const [controlsReady, setControlsReady] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -709,35 +728,32 @@ export function Atlas30YearsClient() {
     setLoadPhase("done");
   }, [glacierData, lakesData, activeLayers.glaciers, activeLayers.lakes]);
 
-  // URL sync helpers
-  const pushParams = useCallback(
-    (updates: { year?: GlacierYear; layers?: ActiveLayers; glof?: GlofFilter }) => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (updates.year != null) params.set("year", String(updates.year));
-      if (updates.layers != null) {
-        const layerStr = layersToParam(updates.layers);
-        if (layerStr) params.set("layers", layerStr);
-        else params.delete("layers");
+  const setYear = useCallback((y: GlacierYear) => setYearState(y), []);
+
+  const setLayer = useCallback((key: keyof ActiveLayers, val: boolean) => {
+    setActiveLayersState((prev) => ({ ...prev, [key]: val }));
+  }, []);
+
+  const setGlofFilter = useCallback((f: GlofFilter) => setGlofFilterState(f), []);
+
+  // URL is a side-effect of state, not the source of truth. Debounced via
+  // requestAnimationFrame so a play-loop tick doesn't queue a navigation
+  // for every interval fire.
+  useEffect(() => {
+    const handle = requestAnimationFrame(() => {
+      const params = new URLSearchParams();
+      if (year !== DEFAULT_YEAR) params.set("year", String(year));
+      const layerStr = layersToParam(activeLayers);
+      if (layerStr) params.set("layers", layerStr);
+      if (glofFilter !== "all") params.set("glof", glofFilter);
+      const next = params.toString();
+      const current = searchParams.toString();
+      if (next !== current) {
+        router.replace(next ? `?${next}` : "?", { scroll: false });
       }
-      if (updates.glof != null) {
-        if (updates.glof === "all") params.delete("glof");
-        else params.set("glof", updates.glof);
-      }
-      router.replace(`?${params.toString()}`, { scroll: false });
-    },
-    [router, searchParams],
-  );
-
-  const setYear = useCallback((y: GlacierYear) => pushParams({ year: y }), [pushParams]);
-
-  const setLayer = useCallback(
-    (key: keyof ActiveLayers, val: boolean) => {
-      pushParams({ layers: { ...activeLayers, [key]: val } });
-    },
-    [pushParams, activeLayers],
-  );
-
-  const setGlofFilter = useCallback((f: GlofFilter) => pushParams({ glof: f }), [pushParams]);
+    });
+    return () => cancelAnimationFrame(handle);
+  }, [year, activeLayers, glofFilter, router, searchParams]);
 
   // Year navigation
   const prevYear = useCallback(() => {
@@ -940,8 +956,10 @@ export function Atlas30YearsClient() {
         <p className="text-white/40 text-[10px]">© Esri, Maxar · ICIMOD HKH Glacier Inventory</p>
       </div>
 
-      {/* Poster silhouette — shown while glacier data loads */}
-      <GlacierPosterOverlay dataLoaded={glacierDataLoaded} />
+      {/* Poster silhouette — shown only on first paint while data loads
+          and the user hasn't touched the map yet. Hidden as soon as either
+          fires so the overlay never gets out of sync with the basemap. */}
+      <GlacierPosterOverlay dataLoaded={glacierDataLoaded} hasMapInteracted={hasMapInteracted} />
 
       {/* HKH bbox mask vignette */}
       <HkhBboxMask />
@@ -973,6 +991,12 @@ export function Atlas30YearsClient() {
         style={{ width: "100%", height: "100%" }}
         attributionControl={false}
         onClick={handleMapClick}
+        onDragStart={() => setHasMapInteracted(true)}
+        onZoomStart={(e) => {
+          // initial fitBounds on mount also fires zoomstart; only count
+          // events that originated from a real input device.
+          if (e.originalEvent) setHasMapInteracted(true);
+        }}
       >
         {/* Glacier outlines for selected year */}
         {activeLayers.glaciers && glacierData && (
