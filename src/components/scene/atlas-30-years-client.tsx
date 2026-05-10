@@ -183,7 +183,12 @@ function useGlacierData(year: GlacierYear, enabled: boolean) {
       return;
     }
     let cancelled = false;
-    fetch(`/glaciers/hkh/${year}.geojson.br`)
+    // Fetch the Points-only sibling (~1.5 MB compressed, 65k Point features)
+    // instead of the full polygon file (~8.7 MB compressed, requires polygon
+    // tessellation + GPU upload). The circle layer reads centroids only and
+    // doesn't need polygon geometry; switching to Points cut layer setup
+    // from ~10-30s to <1s on slower machines.
+    fetch(`/glaciers/hkh/${year}-points.geojson.br`)
       .then((r) => {
         if (!r.ok) throw new Error(`${r.status}`);
         return r.json() as Promise<GeoData>;
@@ -194,7 +199,7 @@ function useGlacierData(year: GlacierYear, enabled: boolean) {
         setData(d);
       })
       .catch(() => {
-        // Fail silently — poster silhouette stays visible
+        // Fail silently — empty state shows the basemap with a loading pill.
       });
     return () => {
       cancelled = true;
@@ -427,7 +432,7 @@ function FeatureChooser({
               className="w-full text-left px-3 py-2 rounded-lg bg-neutral-100 hover:bg-neutral-200 transition-colors text-sm text-neutral-800"
             >
               <span className="font-medium">{f.name}</span>
-              {f.layerId === "glaciers-fill" && (
+              {f.layerId === "glaciers-dots" && (
                 <span className="ml-1 text-xs text-neutral-500">Glacier</span>
               )}
               {(f.layerId === "lakes-fill" || f.layerId === "risky-lakes-outline") && (
@@ -442,7 +447,7 @@ function FeatureChooser({
 }
 
 function FeatureCard({ feature, onClose }: { feature: ClickedFeature; onClose: () => void }) {
-  const isGlacier = feature.layerId === "glaciers-fill";
+  const isGlacier = feature.layerId === "glaciers-dots";
   const isLake = feature.layerId === "lakes-fill" || feature.layerId === "risky-lakes-outline";
 
   const chartHref = isGlacier
@@ -775,7 +780,7 @@ export function Atlas30YearsClient() {
     if (!map) return;
 
     const point = e.point;
-    const queryLayers = ["glaciers-fill", "lakes-fill", "risky-lakes-outline"].filter((id) => {
+    const queryLayers = ["glaciers-dots", "lakes-fill", "risky-lakes-outline"].filter((id) => {
       try {
         return !!map.getLayer(id);
       } catch {
@@ -997,31 +1002,6 @@ export function Atlas30YearsClient() {
                 "circle-stroke-color": "#001a2e",
                 "circle-stroke-opacity": ["interpolate", ["linear"], ["zoom"], 3, 0.5, 10, 0],
                 "circle-pitch-alignment": "map",
-              }}
-            />
-            <Layer
-              id="glaciers-halo"
-              type="fill"
-              paint={{
-                "fill-color": "#001a2e",
-                "fill-opacity": 0.15,
-              }}
-            />
-            <Layer
-              id="glaciers-fill"
-              type="fill"
-              paint={{
-                "fill-color": palette.fill,
-                "fill-opacity": palette.opacity,
-              }}
-            />
-            <Layer
-              id="glaciers-outline"
-              type="line"
-              paint={{
-                "line-color": "#001a2e",
-                "line-width": palette.haloWidth,
-                "line-opacity": 0.6,
               }}
             />
           </Source>
