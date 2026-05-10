@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Source_Serif_4 } from "next/font/google";
+import Link from "next/link";
 import { pool } from "@/db/client";
 
 export const metadata: Metadata = {
@@ -253,12 +254,12 @@ export default async function InYourLifetimePage({ searchParams }: Props) {
     <main className="min-h-screen bg-[var(--color-bg)]">
       <div className="px-4 py-12 md:py-20 max-w-4xl mx-auto">
         {/* Back link */}
-        <a
+        <Link
           href="/"
           className="inline-flex items-center gap-1 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors mb-8"
         >
           ← Himalayan Atlas
-        </a>
+        </Link>
 
         {/* Hero heading */}
         <h1
