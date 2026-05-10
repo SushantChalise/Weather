@@ -1,0 +1,72 @@
+{
+  "chapter_id": "ch2",
+  "shot_id": "imja-lake-bloom",
+  "duration_s": 25,
+  "frames": 750,
+  "fps": 30,
+  "resolution": { "w": 1280, "h": 720 },
+  "camera_path": {
+    "keyframes": [
+      { "t": 0, "lon": 86.93, "lat": 27.89, "alt_m": 5000, "pitch_deg": -45, "yaw_deg": 0 },
+      { "t": 12, "lon": 86.93, "lat": 27.91, "alt_m": 3500, "pitch_deg": -30, "yaw_deg": 5 },
+      { "t": 25, "lon": 86.93, "lat": 27.93, "alt_m": 2500, "pitch_deg": -20, "yaw_deg": 10 }
+    ]
+  },
+  "scene_layers": [
+    {
+      "id": "imja-lake-1962",
+      "type": "polygon-flat",
+      "source": {
+        "dataset": "Somos-Valenzuela 2014 — Imja Tsho 1962",
+        "url": "https://doi.org/10.5194/tc-8-1297-2014",
+        "doi": "10.5194/tc-8-1297-2014",
+        "year_keyframe": 1962,
+        "filter": "Imja Tsho lake polygon, 0.04 km²"
+      },
+      "render_geometry_id": "blender-collection://imja-lake-1962",
+      "color": "#0E7490"
+    },
+    {
+      "id": "imja-lake-2020",
+      "type": "polygon-flat",
+      "source": {
+        "dataset": "ICIMOD Glacial Lake Inventory 2024",
+        "url": "https://rds.icimod.org/Home/DataDetail?metadataId=9362830",
+        "doi": "10.26066/rds.9362830",
+        "year_keyframe": 2020,
+        "filter": "Imja Tsho (ID: IML-HKH-2024-0001), 1.4 km²"
+      },
+      "render_geometry_id": "blender-collection://imja-lake-2020",
+      "color": "#0E7490"
+    },
+    {
+      "id": "imja-outflow",
+      "type": "polygon-flat",
+      "source": {
+        "dataset": "ICIMOD Glacial Lake Inventory 2024 — outflow channel",
+        "url": "https://rds.icimod.org/Home/DataDetail?metadataId=9362830",
+        "doi": "10.26066/rds.9362830",
+        "filter": "Imja Khola outflow downstream of dam"
+      },
+      "render_geometry_id": "blender-collection://imja-outflow",
+      "color": "#38BDF8"
+    }
+  ],
+  "headline_numbers": [
+    {
+      "value": "35×",
+      "label": "growth: 0.04 km² (1962) → 1.4 km² (2020)",
+      "citation": "doi:10.5194/tc-8-1297-2014",
+      "uncertainty": "area measurements ±5%"
+    },
+    {
+      "value": "~60 m",
+      "label": "maximum depth of Imja Tsho",
+      "citation": "doi:10.26066/rds.9362830"
+    }
+  ],
+  "caption_text": "Imja Tsho grew from 0.04 km² in 1962 to 1.4 km² in 2020 — a 35-fold expansion. As the glacier retreats, the lake fills and the outflow downstream accelerates.",
+  "generated_at": "2026-05-11T00:00:00Z",
+  "blender_version": "placeholder",
+  "bpy_script_hash": "0000000000000000000000000000000000000000000000000000000000000002"
+}

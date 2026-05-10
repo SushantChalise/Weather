@@ -1,0 +1,49 @@
+{
+  "chapter_id": "ch4",
+  "shot_id": "hydrological-clock",
+  "duration_s": 20,
+  "frames": 600,
+  "fps": 30,
+  "resolution": { "w": 1280, "h": 720 },
+  "camera_path": {
+    "keyframes": [
+      { "t": 0, "lon": 86.93, "lat": 27.95, "alt_m": 5000, "pitch_deg": -30, "yaw_deg": 0 },
+      { "t": 20, "lon": 86.93, "lat": 27.95, "alt_m": 4000, "pitch_deg": -25, "yaw_deg": 0 }
+    ]
+  },
+  "scene_layers": [
+    {
+      "id": "imja-station",
+      "type": "station-pin",
+      "source": {
+        "dataset": "ICIMOD Imja Tsho monitoring station",
+        "url": "https://rds.icimod.org/",
+        "filter": "Imja Tsho water level gauge, 5010m asl"
+      },
+      "render_geometry_id": "blender-collection://imja-station",
+      "color": "#FCD34D"
+    },
+    {
+      "id": "pyramid-lab",
+      "type": "station-pin",
+      "source": {
+        "dataset": "Pyramid International Laboratory Observatory (~5000m)",
+        "url": "https://evk2.isac.cnr.it/",
+        "filter": "Khumbu Valley meteorological station"
+      },
+      "render_geometry_id": "blender-collection://pyramid-lab",
+      "color": "#FCD34D"
+    }
+  ],
+  "headline_numbers": [
+    {
+      "value": "~4–6 weeks",
+      "label": "earlier peak meltwater arrival projected 1990 → 2070",
+      "citation": "doi:10.1126/science.abo1324"
+    }
+  ],
+  "caption_text": "Glacier melt peaks weeks earlier than it did in 1990. Water arrives when farmers don't need it — and is gone when they do. The hydrological clock is shifting.",
+  "generated_at": "2026-05-11T00:00:00Z",
+  "blender_version": "placeholder",
+  "bpy_script_hash": "0000000000000000000000000000000000000000000000000000000000000004"
+}

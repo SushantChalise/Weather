@@ -9,8 +9,8 @@
     },
     {
       "name": "weather-worktree",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "3002"],
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd /d C:\\Users\\ACER\\Projects\\Weather && npm run dev -- --port 3002"],
       "port": 3002
     }
   ]
