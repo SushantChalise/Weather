@@ -3,6 +3,17 @@
 /**
  * ICIMOD Glacier Mass Balance Ingestion — Preliminary Placeholder
  *
+ * SUPERSEDED for the four supported glaciers (khumbu-glacier, yala,
+ * rikha-samba, gangotri) by `scripts/ingestion/hugonnet-2021/run.ts`,
+ * which ingests real geodetic rates from Hugonnet et al. 2021.
+ * The two scripts write to different source_id values and coexist in
+ * cryo_glacier_mass_balance — the Hugonnet rows are preferred by the UI.
+ *
+ * This script remains useful for any new glacier that is not yet covered
+ * by Hugonnet's regional table (e.g. a glacier in RGI region 19/20/21
+ * with no local study). Run it again after adding a new entry to
+ * GLACIER_RATES below.
+ *
  * Generates annual mass balance time series (2000–2019) for 4 HKH glaciers
  * using mean rates from Hugonnet et al. 2021 with deterministic seeded noise
  * for plausible year-to-year variability.
