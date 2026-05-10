@@ -25,6 +25,7 @@ import {
   text,
   timestamp,
   unique,
+  varchar,
 } from "drizzle-orm/pg-core";
 
 // PostGIS geometry custom type. Stored as `geometry` in Postgres; serialised
@@ -275,6 +276,31 @@ export const photosArchive = pgTable(
   },
   (table) => [index("photos_place_time_idx").on(table.placeId, table.captureTime)],
 );
+
+// ─── Earthquakes (USGS historical, M ≥ 4.5, Nepal region) ──────────────
+export const earthquakes = pgTable(
+  "earthquakes",
+  {
+    id: varchar("id").primaryKey(),
+    time: timestamp("time", { withTimezone: true }).notNull(),
+    magnitude: real("magnitude").notNull(),
+    latitude: real("latitude").notNull(),
+    longitude: real("longitude").notNull(),
+    depthKm: real("depth_km"),
+    placeLabel: text("place_label"),
+    sourceId: integer("source_id")
+      .notNull()
+      .references(() => datasets.id, { onDelete: "restrict" }),
+    ingestedAt: timestamp("ingested_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("earthquakes_time_idx").on(table.time),
+    index("earthquakes_magnitude_idx").on(table.magnitude),
+  ],
+);
+
+export type Earthquake = typeof earthquakes.$inferSelect;
+export type NewEarthquake = typeof earthquakes.$inferInsert;
 
 // ─── FIRMS fire hotspots (NASA MODIS + VIIRS historical) ─────────────────
 export const fires = pgTable(
