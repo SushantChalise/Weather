@@ -31,6 +31,7 @@
     "transform:water-cycle-dem": "tsx --env-file=.env.local scripts/transform/water-cycle/download-dem.ts",
     "transform:water-cycle-farinotti": "tsx scripts/transform/water-cycle/download-farinotti.ts",
     "transform:water-cycle-imja": "tsx scripts/transform/water-cycle/digitize-imja.ts",
+    "transform:water-cycle-kaspari": "tsx scripts/transform/water-cycle/validate-kaspari.ts",
     "transform:water-cycle-rounce": "tsx scripts/transform/water-cycle/build-rounce-projections.ts",
     "validate:water-cycle-provenance": "tsx scripts/transform/water-cycle/validate-provenance.ts"
   },
