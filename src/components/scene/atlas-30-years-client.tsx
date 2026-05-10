@@ -998,9 +998,39 @@ export function Atlas30YearsClient() {
           if (e.originalEvent) setHasMapInteracted(true);
         }}
       >
-        {/* Glacier outlines for selected year */}
+        {/* Glacier outlines for selected year.
+            At HKH-bbox zoom each of the 63k polygons is sub-pixel, so the
+            fill layers alone look empty. The circle layer renders one dot
+            per polygon centroid (MapLibre auto-positions circle layers at
+            polygon centroids), sized by sqrt(area_km2). It dominates at low
+            zoom where polygons are invisible, and fades out at high zoom
+            where the real shapes take over. Year change visibly shrinks
+            the dots because radius is bound to area_km2. */}
         {activeLayers.glaciers && glacierData && (
           <Source id="glaciers" type="geojson" data={glacierData}>
+            <Layer
+              id="glaciers-dots"
+              type="circle"
+              paint={{
+                "circle-radius": [
+                  "interpolate",
+                  ["linear"],
+                  ["zoom"],
+                  3,
+                  ["max", 1, ["*", ["sqrt", ["coalesce", ["get", "area_km2"], 0]], 0.6]],
+                  6,
+                  ["max", 2, ["*", ["sqrt", ["coalesce", ["get", "area_km2"], 0]], 1.4]],
+                  9,
+                  ["max", 4, ["*", ["sqrt", ["coalesce", ["get", "area_km2"], 0]], 3]],
+                ],
+                "circle-color": palette.fill,
+                "circle-opacity": ["interpolate", ["linear"], ["zoom"], 3, 0.85, 9, 0.55, 11, 0],
+                "circle-stroke-width": 0.5,
+                "circle-stroke-color": "#001a2e",
+                "circle-stroke-opacity": ["interpolate", ["linear"], ["zoom"], 3, 0.5, 10, 0],
+                "circle-pitch-alignment": "map",
+              }}
+            />
             <Layer
               id="glaciers-halo"
               type="fill"
