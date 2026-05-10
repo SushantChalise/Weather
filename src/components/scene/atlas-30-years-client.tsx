@@ -5,7 +5,6 @@ import { Layer, Map as MapGL, Source } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { FeatureCollection, GeoJsonProperties, Geometry } from "geojson";
 import type { MapLayerMouseEvent, StyleSpecification } from "maplibre-gl";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { MapRef } from "react-map-gl/maplibre";
@@ -623,35 +622,12 @@ function HkhBboxMask() {
   );
 }
 
-// ─── Empty state when data files don't exist yet ──────────────────────────────
-
-function GlacierPosterOverlay({
-  dataLoaded,
-  hasMapInteracted,
-}: {
-  dataLoaded: boolean;
-  hasMapInteracted: boolean;
-}) {
-  // Hide once data is loaded OR the user has touched the map. The silhouette
-  // is an absolute-positioned HTML overlay; once the map starts moving
-  // underneath it, leaving it visible feels broken (it appears "orphaned"
-  // from the basemap because it doesn't follow the map's transform).
-  if (dataLoaded || hasMapInteracted) return null;
-  return (
-    <div
-      aria-hidden="true"
-      className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center transition-opacity duration-300"
-    >
-      <Image
-        src="/atlas/glaciers-2020-silhouette.svg"
-        alt=""
-        fill
-        className="object-contain opacity-70"
-        priority
-      />
-    </div>
-  );
-}
+// (GlacierPosterOverlay was removed: the hand-authored SVG silhouette didn't
+// match the actual 63k-polygon data and confused users — they thought the
+// silhouette shapes were the glaciers, then complained when those "bubbles"
+// disappeared on zoom or didn't shrink between years. The map renders
+// immediately now; the LoadingStatus pill at the top informs users data is
+// loading.)
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
@@ -669,7 +645,6 @@ export function Atlas30YearsClient() {
   const [glofFilter, setGlofFilterState] = useState<GlofFilter>(() =>
     parseGlofFilter(searchParams.get("glof")),
   );
-  const [hasMapInteracted, setHasMapInteracted] = useState(false);
 
   const [controlsReady, setControlsReady] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -959,7 +934,6 @@ export function Atlas30YearsClient() {
       {/* Poster silhouette — shown only on first paint while data loads
           and the user hasn't touched the map yet. Hidden as soon as either
           fires so the overlay never gets out of sync with the basemap. */}
-      <GlacierPosterOverlay dataLoaded={glacierDataLoaded} hasMapInteracted={hasMapInteracted} />
 
       {/* HKH bbox mask vignette */}
       <HkhBboxMask />
@@ -991,12 +965,6 @@ export function Atlas30YearsClient() {
         style={{ width: "100%", height: "100%" }}
         attributionControl={false}
         onClick={handleMapClick}
-        onDragStart={() => setHasMapInteracted(true)}
-        onZoomStart={(e) => {
-          // initial fitBounds on mount also fires zoomstart; only count
-          // events that originated from a real input device.
-          if (e.originalEvent) setHasMapInteracted(true);
-        }}
       >
         {/* Glacier outlines for selected year.
             At HKH-bbox zoom each of the 63k polygons is sub-pixel, so the
