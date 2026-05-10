@@ -28,7 +28,8 @@
     "icimod:download": "tsx --env-file=.env.local scripts/scrape-icimod-downloads/run.ts",
     "transform:icimod-glacier-decades": "tsx --env-file=.env.local scripts/transform/icimod-glacier-decades/run.ts",
     "transform:icimod-glacial-lakes": "tsx scripts/transform/icimod-glacial-lakes/run.ts",
-    "transform:water-cycle-dem": "tsx --env-file=.env.local scripts/transform/water-cycle/download-dem.ts"
+    "transform:water-cycle-dem": "tsx --env-file=.env.local scripts/transform/water-cycle/download-dem.ts",
+    "validate:water-cycle-provenance": "tsx scripts/transform/water-cycle/validate-provenance.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
