@@ -1,0 +1,9 @@
+/glaciers/hkh/*.geojson.br
+  Content-Type: application/json
+  Content-Encoding: br
+  Cache-Control: public, max-age=31536000, immutable
+
+/glacial-lakes/*.geojson.br
+  Content-Type: application/json
+  Content-Encoding: br
+  Cache-Control: public, max-age=31536000, immutable
