@@ -1,0 +1,273 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              86.91256536661889,
+              27.893734000000002
+            ],
+            [
+              86.91256536661889,
+              27.898266
+            ],
+            [
+              86.91968056162605,
+              27.89909
+            ],
+            [
+              86.92679575663323,
+              27.90012
+            ],
+            [
+              86.94102614664756,
+              27.8999964
+            ],
+            [
+              86.96,
+              27.898266
+            ],
+            [
+              86.96,
+              27.894146
+            ],
+            [
+              86.94102614664756,
+              27.892003600000002
+            ],
+            [
+              86.92679575663323,
+              27.89188
+            ],
+            [
+              86.91968056162605,
+              27.89291
+            ],
+            [
+              86.91256536661889,
+              27.893734000000002
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "year": 1962,
+        "source": "Somos-Valenzuela et al. 2014, retreat back-extrapolation (~25 m/yr pre-1992)",
+        "source_doi": "10.5194/tc-8-1661-2014",
+        "method": "Approach B: hard-coded coordinates georeferenced to known landmarks (Lhotse 27.9622°N 86.9330°E; Imja valley axis). Terminus positions from Somos-Valenzuela 2014 Table 4 retreat distances scaled to area.",
+        "area_km2_published": 3.5,
+        "provenance": {
+          "source": "Somos-Valenzuela et al. 2014, retreat back-extrapolation (~25 m/yr pre-1992)",
+          "note": "Approximate ±15%; terminus extrapolated from 1992 using pre-1992 retreat rate (Quincey et al. 2007). Glacier area estimated from retreat distance × valley width."
+        },
+        "area_km2_computed": 3.495,
+        "area_pct_error": 0.1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              86.92069701805565,
+              27.893734000000002
+            ],
+            [
+              86.92069701805565,
+              27.898266
+            ],
+            [
+              86.9265924653473,
+              27.89909
+            ],
+            [
+              86.93248791263895,
+              27.90012
+            ],
+            [
+              86.94427880722226,
+              27.8999964
+            ],
+            [
+              86.96,
+              27.898266
+            ],
+            [
+              86.96,
+              27.894146
+            ],
+            [
+              86.94427880722226,
+              27.892003600000002
+            ],
+            [
+              86.93248791263895,
+              27.89188
+            ],
+            [
+              86.9265924653473,
+              27.89291
+            ],
+            [
+              86.92069701805565,
+              27.893734000000002
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "year": 1992,
+        "source": "Somos-Valenzuela et al. 2014, Table 4 (1992–2012 retreat baseline)",
+        "source_doi": "10.5194/tc-8-1661-2014",
+        "method": "Approach B: hard-coded coordinates georeferenced to known landmarks (Lhotse 27.9622°N 86.9330°E; Imja valley axis). Terminus positions from Somos-Valenzuela 2014 Table 4 retreat distances scaled to area.",
+        "area_km2_published": 2.9,
+        "provenance": {
+          "source": "Somos-Valenzuela et al. 2014, Table 4 (1992–2012 retreat baseline)",
+          "note": "1992 terminus position derived from 2012 terminus minus 861 m total retreat (Table 4). Area estimated from terminus position × valley width."
+        },
+        "area_km2_computed": 2.896,
+        "area_pct_error": 0.1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              86.93153921997133,
+              27.893734000000002
+            ],
+            [
+              86.93153921997133,
+              27.898266
+            ],
+            [
+              86.93580833697563,
+              27.89909
+            ],
+            [
+              86.94007745397992,
+              27.90012
+            ],
+            [
+              86.94861568798852,
+              27.8999964
+            ],
+            [
+              86.96,
+              27.898266
+            ],
+            [
+              86.96,
+              27.894146
+            ],
+            [
+              86.94861568798852,
+              27.892003600000002
+            ],
+            [
+              86.94007745397992,
+              27.89188
+            ],
+            [
+              86.93580833697563,
+              27.89291
+            ],
+            [
+              86.93153921997133,
+              27.893734000000002
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "year": 2010,
+        "source": "Somos-Valenzuela et al. 2014, Table 4 interpolation",
+        "source_doi": "10.5194/tc-8-1661-2014",
+        "method": "Approach B: hard-coded coordinates georeferenced to known landmarks (Lhotse 27.9622°N 86.9330°E; Imja valley axis). Terminus positions from Somos-Valenzuela 2014 Table 4 retreat distances scaled to area.",
+        "area_km2_published": 2.1,
+        "provenance": {
+          "source": "Somos-Valenzuela et al. 2014, Table 4 interpolation",
+          "note": "Interpolated: 1992–2012 mean retreat rate 43 m/yr × 18 yr = 774 m from 1992 terminus. Area estimated from interpolated terminus × valley width."
+        },
+        "area_km2_computed": 2.097,
+        "area_pct_error": 0.1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              86.93696032092917,
+              27.893734000000002
+            ],
+            [
+              86.93696032092917,
+              27.898266
+            ],
+            [
+              86.9404162727898,
+              27.89909
+            ],
+            [
+              86.94387222465042,
+              27.90012
+            ],
+            [
+              86.95078412837167,
+              27.8999964
+            ],
+            [
+              86.96,
+              27.898266
+            ],
+            [
+              86.96,
+              27.894146
+            ],
+            [
+              86.95078412837167,
+              27.892003600000002
+            ],
+            [
+              86.94387222465042,
+              27.89188
+            ],
+            [
+              86.9404162727898,
+              27.89291
+            ],
+            [
+              86.93696032092917,
+              27.893734000000002
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "year": 2020,
+        "source": "ICIMOD 2024 context + Somos-Valenzuela 2014 extrapolation",
+        "source_doi": "10.5194/tc-8-1661-2014",
+        "method": "Approach B: hard-coded coordinates georeferenced to known landmarks (Lhotse 27.9622°N 86.9330°E; Imja valley axis). Terminus positions from Somos-Valenzuela 2014 Table 4 retreat distances scaled to area.",
+        "area_km2_published": 1.7,
+        "provenance": {
+          "source": "ICIMOD 2024 context + Somos-Valenzuela 2014 extrapolation",
+          "note": "Area approximate from ICIMOD 2020 inventory context. Terminus position extrapolated beyond 2012 at reduced retreat rate."
+        },
+        "area_km2_computed": 1.698,
+        "area_pct_error": 0.1
+      }
+    }
+  ]
+}

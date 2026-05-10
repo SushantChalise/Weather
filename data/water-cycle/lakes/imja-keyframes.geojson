@@ -1,0 +1,320 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              86.9127,
+              27.89799886812792
+            ],
+            [
+              86.9127,
+              27.899401131872082
+            ],
+            [
+              86.91280210145302,
+              27.899701616960115
+            ],
+            [
+              86.91395074279947,
+              27.899601455264104
+            ],
+            [
+              86.91397626816273,
+              27.89930097017607
+            ],
+            [
+              86.91397626816273,
+              27.898099029823932
+            ],
+            [
+              86.91395074279947,
+              27.8977985447359
+            ],
+            [
+              86.91280210145302,
+              27.897698383039888
+            ],
+            [
+              86.9127,
+              27.89799886812792
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "year": 1962,
+        "source": "Somos-Valenzuela et al. 2014, Table 3 (Bajracharya et al. 2007)",
+        "source_doi": "10.5194/tc-8-1661-2014",
+        "method": "Approach B: rectangle calibrated to published area, anchored to fixed moraine west boundary (86.9127°E) and lateral moraine N/S bounds",
+        "area_km2_published": 0.028,
+        "provenance": {
+          "source": "Somos-Valenzuela et al. 2014, Table 3 (Bajracharya et al. 2007)",
+          "note": "Tiny meltwater pond (0.028 km²); described as 'five small meltwater ponds' in 1963 Schneider map. Modeled as single polygon at inferred collection point near 1962 glacier terminus."
+        },
+        "area_km2_computed": 0.026,
+        "area_pct_error": 6.4
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              86.9127,
+              27.897300880344954
+            ],
+            [
+              86.9127,
+              27.90009911965505
+            ],
+            [
+              86.91326647459447,
+              27.900698742364355
+            ],
+            [
+              86.91963931378227,
+              27.90049886812792
+            ],
+            [
+              86.91978093243088,
+              27.899899245418613
+            ],
+            [
+              86.91978093243088,
+              27.89750075458139
+            ],
+            [
+              86.91963931378227,
+              27.896901131872085
+            ],
+            [
+              86.91326647459447,
+              27.896701257635648
+            ],
+            [
+              86.9127,
+              27.897300880344954
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "year": 1975,
+        "source": "Somos-Valenzuela et al. 2014, Table 3 (Bajracharya et al. 2007)",
+        "source_doi": "10.5194/tc-8-1661-2014",
+        "method": "Approach B: rectangle calibrated to published area, anchored to fixed moraine west boundary (86.9127°E) and lateral moraine N/S bounds",
+        "area_km2_published": 0.31,
+        "provenance": {
+          "source": "Somos-Valenzuela et al. 2014, Table 3 (Bajracharya et al. 2007)",
+          "note": "Lake confined to western ~700 m of eventual full basin. Width growing as lateral ice melts."
+        },
+        "area_km2_computed": 0.29,
+        "area_pct_error": 6.4
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              86.9127,
+              27.896948742364355
+            ],
+            [
+              86.9127,
+              27.90045125763565
+            ],
+            [
+              86.91364601618152,
+              27.901201796622352
+            ],
+            [
+              86.92428869822352,
+              27.900951616960118
+            ],
+            [
+              86.9245252022689,
+              27.900201077973414
+            ],
+            [
+              86.9245252022689,
+              27.89719892202659
+            ],
+            [
+              86.92428869822352,
+              27.896448383039885
+            ],
+            [
+              86.91364601618152,
+              27.89619820337765
+            ],
+            [
+              86.9127,
+              27.896948742364355
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "year": 1992,
+        "source": "Somos-Valenzuela et al. 2014, Table 1 + Table 3 (Landsat 4, 4 July 1992)",
+        "source_doi": "10.5194/tc-8-1661-2014",
+        "method": "Approach B: rectangle calibrated to published area, anchored to fixed moraine west boundary (86.9127°E) and lateral moraine N/S bounds",
+        "area_km2_published": 0.648,
+        "provenance": {
+          "source": "Somos-Valenzuela et al. 2014, Table 1 + Table 3 (Landsat 4, 4 July 1992)",
+          "note": "Validated: 0.648 km² (this study) agrees with Yamada & Sharma 1993 (0.60 km², April 1992). Difference attributed to melt-season expansion."
+        },
+        "area_km2_computed": 0.606,
+        "area_pct_error": 6.4
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              86.9127,
+              27.896250754581388
+            ],
+            [
+              86.9127,
+              27.901149245418615
+            ],
+            [
+              86.91393697136746,
+              27.902198922026592
+            ],
+            [
+              86.92785289925146,
+              27.901849029823932
+            ],
+            [
+              86.92816214209333,
+              27.900799353215955
+            ],
+            [
+              86.92816214209333,
+              27.896600646784048
+            ],
+            [
+              86.92785289925146,
+              27.89555097017607
+            ],
+            [
+              86.91393697136746,
+              27.89520107797341
+            ],
+            [
+              86.9127,
+              27.896250754581388
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "year": 2010,
+        "source": "Somos-Valenzuela et al. 2014, Table 3 interpolation",
+        "source_doi": "10.5194/tc-8-1661-2014",
+        "method": "Approach B: rectangle calibrated to published area, anchored to fixed moraine west boundary (86.9127°E) and lateral moraine N/S bounds",
+        "area_km2_published": 1.185,
+        "provenance": {
+          "source": "Somos-Valenzuela et al. 2014, Table 3 interpolation",
+          "note": "Interpolated from two methods: 1992-base (1.195 km²) and 2002-base (1.179 km²) → midpoint 1.185 km². Width approaching ICIMOD 2024 maximum."
+        },
+        "area_km2_computed": 1.109,
+        "area_pct_error": 6.4
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              86.91270261010028,
+              27.89882585662481
+            ],
+            [
+              86.91493849300011,
+              27.897510017000123
+            ],
+            [
+              86.92516203100011,
+              27.895318668000034
+            ],
+            [
+              86.92805012147336,
+              27.89494733296519
+            ],
+            [
+              86.93449599568636,
+              27.894761504242524
+            ],
+            [
+              86.93597911718675,
+              27.897177252490415
+            ],
+            [
+              86.93560492595543,
+              27.90128030250717
+            ],
+            [
+              86.92911492665304,
+              27.900707863456343
+            ],
+            [
+              86.92536606894485,
+              27.900750047534387
+            ],
+            [
+              86.91812475979258,
+              27.901516226759348
+            ],
+            [
+              86.91582327400008,
+              27.90260271200006
+            ],
+            [
+              86.9140350700001,
+              27.900975708000082
+            ],
+            [
+              86.91219820258577,
+              27.900883886447357
+            ],
+            [
+              86.91270261010028,
+              27.89882585662481
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "year": 2020,
+        "source": "ICIMOD 2024 HKH Glacial Lake Inventory (GL086925E27898N), doi:10.26066/rds.1972729",
+        "source_doi": "10.26066/rds.1972729",
+        "method": "ICIMOD 2024 HKH Glacial Lake Inventory actual polygon (GL086925E27898N)",
+        "area_km2_published": 1.346,
+        "provenance": {
+          "source": "ICIMOD 2024 HKH Glacial Lake Inventory (GL086925E27898N), doi:10.26066/rds.1972729",
+          "note": "PREFERRED over Somos-Valenzuela 2014 extrapolation (1.569 km²): difference 16.6% exceeds 5% co-registration threshold. Post-2012 expansion rate slowed; extrapolation over-estimates. ICIMOD 2024 uses field-validated multi-temporal remote sensing (CC-BY 4.0)."
+        },
+        "area_km2_computed": 1.32,
+        "area_pct_error": 1.9
+      }
+    }
+  ]
+}
