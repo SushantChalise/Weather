@@ -1,0 +1,173 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ProvenancePeel — HeadlineCitations logic > headline_numbers snapshot 1`] = `
+[
+  {
+    "citation": "doi:10.26066/icimod.hkh-cryosphere-2026",
+    "label": "water-equivalent ice lost 1990–2020",
+    "uncertainty": "±25 km³ (95% CI)",
+    "value": "516 km³",
+  },
+  {
+    "citation": "doi:10.26066/icimod.hkh-cryosphere-2026",
+    "label": "of all HKH ice lost 1990–2020",
+    "value": "~9%",
+  },
+  {
+    "citation": "doi:10.26066/icimod.hkh-cryosphere-2026",
+    "label": "total ice mass lost across Hindu Kush Himalaya",
+    "value": "~0.5 trillion tonnes",
+  },
+]
+`;
+
+exports[`ProvenancePeel — Layer 1 (SourceOutlines) logic > polygon layer count matches snapshot 1`] = `3`;
+
+exports[`ProvenancePeel — Layer 1 (SourceOutlines) logic > polygon layers data snapshot 1`] = `
+[
+  {
+    "color": "#7DD3FC",
+    "dataset": "ICIMOD HKH Glacier Inventory 1990",
+    "doi": "10.26066/rds.1972729",
+    "id": "glacier-1990",
+    "type": "polygon-extrusion",
+  },
+  {
+    "color": "#7DD3FC",
+    "dataset": "ICIMOD HKH Glacier Inventory 2020",
+    "doi": "10.26066/rds.1972729",
+    "id": "glacier-2020",
+    "type": "polygon-extrusion",
+  },
+  {
+    "color": "#0E7490",
+    "dataset": "ICIMOD Glacial Lake Inventory 2024",
+    "doi": "10.26066/rds.9362830",
+    "id": "lake-current",
+    "type": "polygon-flat",
+  },
+]
+`;
+
+exports[`ProvenancePeel — fixture parsing > fixture matches full snapshot 1`] = `
+{
+  "blender_version": "5.1.1",
+  "bpy_script_hash": "a8f3e2c1d4b5069f7e8a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2be3",
+  "camera_path": {
+    "keyframes": [
+      {
+        "alt_m": 12000,
+        "lat": 27.9,
+        "lon": 86.9,
+        "pitch_deg": -35,
+        "t": 0,
+        "yaw_deg": 0,
+      },
+      {
+        "alt_m": 8000,
+        "lat": 27.95,
+        "lon": 86.92,
+        "pitch_deg": -20,
+        "t": 15,
+        "yaw_deg": 10,
+      },
+      {
+        "alt_m": 4500,
+        "lat": 27.98,
+        "lon": 86.93,
+        "pitch_deg": -10,
+        "t": 30,
+        "yaw_deg": 15,
+      },
+    ],
+  },
+  "caption_text": "<p>Between 1990 and 2020, the Hindu Kush Himalaya lost <strong>9% of all glacier ice</strong> — 516 km³ of water-equivalent. This reservoir is draining.</p>",
+  "chapter_id": "ch0",
+  "duration_s": 30,
+  "fps": 30,
+  "frames": 900,
+  "generated_at": "2026-05-10T00:00:00Z",
+  "headline_numbers": [
+    {
+      "citation": "doi:10.26066/icimod.hkh-cryosphere-2026",
+      "label": "water-equivalent ice lost 1990–2020",
+      "uncertainty": "±25 km³ (95% CI)",
+      "value": "516 km³",
+    },
+    {
+      "citation": "doi:10.26066/icimod.hkh-cryosphere-2026",
+      "label": "of all HKH ice lost 1990–2020",
+      "value": "~9%",
+    },
+    {
+      "citation": "doi:10.26066/icimod.hkh-cryosphere-2026",
+      "label": "total ice mass lost across Hindu Kush Himalaya",
+      "value": "~0.5 trillion tonnes",
+    },
+  ],
+  "resolution": {
+    "h": 720,
+    "w": 1280,
+  },
+  "scene_layers": [
+    {
+      "color": "#7DD3FC",
+      "id": "glacier-1990",
+      "render_geometry_id": "blender-collection://glacier-1990",
+      "source": {
+        "dataset": "ICIMOD HKH Glacier Inventory 1990",
+        "doi": "10.26066/rds.1972729",
+        "filter": "all polygons",
+        "n_features": 65188,
+        "preprocessing": [
+          "mapshaper -simplify 5%",
+        ],
+        "url": "https://rds.icimod.org/Home/DataDetail?metadataId=1972729",
+        "year_keyframe": 1990,
+      },
+      "thickness_model": {
+        "doi": "10.5194/tc-13-665-2019",
+        "method": "Farinotti 2019 consensus estimate",
+        "uncertainty_pct": 25,
+      },
+      "type": "polygon-extrusion",
+    },
+    {
+      "color": "#7DD3FC",
+      "id": "glacier-2020",
+      "render_geometry_id": "blender-collection://glacier-2020",
+      "source": {
+        "dataset": "ICIMOD HKH Glacier Inventory 2020",
+        "doi": "10.26066/rds.1972729",
+        "filter": "all polygons",
+        "n_features": 63761,
+        "preprocessing": [
+          "mapshaper -simplify 5%",
+        ],
+        "url": "https://rds.icimod.org/Home/DataDetail?metadataId=1972729",
+        "year_keyframe": 2020,
+      },
+      "thickness_model": {
+        "doi": "10.5194/tc-13-665-2019",
+        "method": "Farinotti 2019 consensus estimate",
+        "uncertainty_pct": 25,
+      },
+      "type": "polygon-extrusion",
+    },
+    {
+      "color": "#0E7490",
+      "id": "lake-current",
+      "render_geometry_id": "blender-collection://lake-current",
+      "source": {
+        "dataset": "ICIMOD Glacial Lake Inventory 2024",
+        "doi": "10.26066/rds.9362830",
+        "filter": "HKH extent, area > 0.01 km²",
+        "n_features": 28694,
+        "url": "https://rds.icimod.org/Home/DataDetail?metadataId=9362830",
+      },
+      "type": "polygon-flat",
+    },
+  ],
+  "shot_id": "hkh-flyover",
+}
+`;
