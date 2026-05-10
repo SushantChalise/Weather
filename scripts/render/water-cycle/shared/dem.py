@@ -125,6 +125,63 @@ def _make_procedural_dem(
     return elev.astype(np.float32)
 
 
+def _find_dem_file(geotiff_path: Path) -> tuple[Path | None, Path | None]:
+    """Find the best available DEM file.
+
+    Priority order:
+    1. Pre-processed .npy file alongside the GeoTIFF (fast, Blender-safe)
+    2. Pre-processed .npy in the canonical main-repo path
+    3. The GeoTIFF itself (if it's a classic TIFF we can parse)
+
+    Returns (npy_path_or_None, tiff_path_or_None).
+    """
+    # Check for pre-processed .npy alongside the GeoTIFF
+    npy_candidates = [
+        geotiff_path.parent / (geotiff_path.stem + "-512.npy"),
+        geotiff_path.parent / (geotiff_path.stem.replace("-30m", "-512") + ".npy"),
+        geotiff_path.parent / "srtm-hkh-512.npy",
+    ]
+    # Check the canonical main-repo data path (for worktrees that don't copy the 7.9 GB file).
+    # The worktree root is parent^5 from dem.py. The main repo may be a sibling of the
+    # .claude/worktrees directory or several levels up. We probe multiple candidate roots.
+    _script_dir = Path(__file__).parent  # shared/
+    _worktree_root = _script_dir.parent.parent.parent.parent  # scripts parent = project root
+    _extra_roots = [
+        _worktree_root,
+        # Walk up through .claude/worktrees/... to find the main repo root
+        _worktree_root.parent.parent.parent if _worktree_root.parent.name == "worktrees" else None,
+    ]
+    for _root in _extra_roots:
+        if _root is None:
+            continue
+        candidate_data = _root / "data" / "water-cycle" / "dem"
+        if candidate_data == geotiff_path.parent:
+            continue  # already checked above
+        for npy_name in [
+            "srtm-hkh-512.npy",
+            geotiff_path.stem + "-512.npy",
+        ]:
+            npy_candidates.append(candidate_data / npy_name)
+
+    for candidate in npy_candidates:
+        if candidate.exists() and candidate.stat().st_size > 100_000:
+            return candidate, None
+
+    # Fall back to GeoTIFF if it exists and is a classic TIFF
+    if geotiff_path.exists() and geotiff_path.stat().st_size > 1_000_000:
+        return None, geotiff_path
+
+    # Also check extra_roots for the GeoTIFF itself
+    for _root in _extra_roots:
+        if _root is None:
+            continue
+        tif_candidate = _root / "data" / "water-cycle" / "dem" / geotiff_path.name
+        if tif_candidate.exists() and tif_candidate.stat().st_size > 1_000_000:
+            return None, tif_candidate
+
+    return None, None
+
+
 def load_dem_as_mesh(
     geotiff_path: Path,
     name: str,
@@ -152,16 +209,30 @@ def load_dem_as_mesh(
     used_real_dem = False
 
     # ── Load elevation data ────────────────────────────────────────────────
-    if geotiff_path.exists() and geotiff_path.stat().st_size > 1_000_000:
+    npy_path, tiff_path = _find_dem_file(geotiff_path)
+
+    if npy_path is not None:
         try:
-            raw_elev, _, (raw_cols, raw_rows) = _read_geotiff_simple(geotiff_path)
+            raw_elev = np.load(str(npy_path)).astype(np.float32)
+            # Replace any remaining NODATA values
+            raw_elev[raw_elev < -1000] = 0.0
             used_real_dem = True
-            print(f"[dem] Loaded real DEM: {geotiff_path} ({raw_cols}×{raw_rows})")
+            print(f"[dem] Loaded real DEM from pre-processed npy: {npy_path} ({raw_elev.shape[1]}×{raw_elev.shape[0]})")
+        except Exception as exc:
+            print(f"[dem] WARNING: failed to load .npy DEM ({exc}), trying GeoTIFF")
+            npy_path = None
+
+    if npy_path is None and tiff_path is not None:
+        try:
+            raw_elev, _, (raw_cols, raw_rows) = _read_geotiff_simple(tiff_path)
+            used_real_dem = True
+            print(f"[dem] Loaded real DEM: {tiff_path} ({raw_cols}×{raw_rows})")
         except Exception as exc:
             print(f"[dem] WARNING: failed to parse GeoTIFF ({exc}), using procedural fallback")
             raw_elev = _make_procedural_dem(bounds_lonlat, resolution)
-    else:
-        print(f"[dem] WARNING: {geotiff_path} not found or too small — using procedural terrain")
+
+    if npy_path is None and tiff_path is None:
+        print(f"[dem] WARNING: no DEM file found (checked {geotiff_path} and canonical path) — using procedural terrain")
         raw_elev = _make_procedural_dem(bounds_lonlat, resolution)
 
     # ── Down-sample to render resolution ──────────────────────────────────
