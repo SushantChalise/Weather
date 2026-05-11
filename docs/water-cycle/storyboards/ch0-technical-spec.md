@@ -1577,7 +1577,7 @@ The `write_provenance()` function from `shared/provenance.py` is called at the e
       "id": "moraine-dam-imja",
       "type": "polygon-extrusion",
       "source": {
-        "dataset": "Imja moraine dam geometry (Research Brief §2 + Bhushan et al. 2026 InSAR measurements)",
+        "dataset": "Imja moraine dam geometry (Research Brief §2 + Brencher, Henderson & Shean 2026 InSAR measurements)",
         "url": "https://doi.org/10.5194/tc-20-67-2026",
         "doi": "10.5194/tc-20-67-2026",
         "filter": "Moraine dam at 86°54'20\"E, 27°53'30\"N; height 40–50 m above valley floor; includes subsidence hollow (~0.5 m deep)"

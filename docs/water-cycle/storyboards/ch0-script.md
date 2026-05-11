@@ -275,7 +275,7 @@ ACCESSIBILITY:
   aria-label: "Close view of the moraine dam surface — loose angular boulders, grey silt and gravel, no engineered structure of any kind. A slight bowl-shaped depression in the dam crest marks where buried ice has melted below. A faded prayer flag, one end loose, trails across the rocks. Imja Tsho fills the upper portion of the frame, milky turquoise, still. The chapter fades to black."
 
 REDUCED-MOTION FALLBACK:
-  "The moraine dam at Imja Tsho's western end. Loose rock. No bedrock foundation. Buried dead ice melting within it, causing subsidence of 8.5 to 9.4 centimetres per year (Bhushan et al., 2026). In 2016, a controlled outlet reduced the lake level by 3.4 metres. The Early Warning System installed that year is designed to protect 71,752 people in the Everest valley. The dam holds 61.7 ± 3.7 million cubic metres of water. It looks like any other pile of rocks."
+  "The moraine dam at Imja Tsho's western end. Loose rock. No bedrock foundation. Buried dead ice melting within it, causing seasonal downward displacement of 8.5 to 9.4 centimetres per year (Brencher, Henderson & Shean, 2026). In 2016, a controlled outlet reduced the lake level by 3.4 metres. The Early Warning System installed that year is designed to protect 71,752 people in the Everest valley. The dam holds 61.7 ± 3.7 million cubic metres of water. It looks like any other pile of rocks."
 
 ---
 
@@ -330,7 +330,7 @@ In 1962, this was a cluster of small meltwater pools on the glacier surface: app
 
 At the lake's western end, a moraine dam — loose, unconsolidated glacial debris, no bedrock, no concrete — retains approximately 61.7 million cubic metres of water. Buried within its structure, dead ice melts, causing the dam to subside. The dam makes no sound. An early warning system, installed in 2016, is designed to protect 71,752 people in the Everest valley below.
 
-Sources: Somos-Valenzuela et al. (2014) DOI: 10.5194/tc-8-1661-2014; ICIMOD HI-WISE (2023); Bhushan et al. (2026) DOI: 10.5194/tc-20-67-2026.
+Sources: Somos-Valenzuela et al. (2014) DOI: 10.5194/tc-8-1661-2014; ICIMOD HI-WISE (2023); Brencher, Henderson & Shean (2026) DOI: 10.5194/tc-20-67-2026.
 
 ---
 

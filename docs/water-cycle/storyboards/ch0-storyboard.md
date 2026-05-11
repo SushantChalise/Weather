@@ -469,14 +469,14 @@ The full main Himalayan range at pre-dawn, from satellite altitude. The peaks gl
 - Background: Imja Tsho — milky turquoise, filling the upper third of frame above the dam crest. Lake is still. Calving front a distant grey-brown strip. Deep Himalayan blue sky.
 
 **SUBSIDENCE HOLLOW — BLOCKING FIX #14 (SubsidenceHollow type fix):**
-`SubsidenceHollow` in the scene graph must be a **Mesh** object, not an Empty. Specify it as a shallow dish-shaped mesh: approximately 3 m diameter, 0.5 m deep, boolean subtracted from MoraineDam_Detail mesh. Update scene graph entry: `SubsidenceHollow | Mesh | Shallow dish geometry (~3m diameter, 0.5m deep), boolean subtracted from MoraineDam_Detail.` The hollow uses MAT_MoraineDam material with Roughness 0.98. It is visible in the render as a subtle bowl-shaped depression in the dam crest — consistent with the InSAR-documented dead-ice melt subsidence (Bhushan et al. 2026). It is NOT labelled. The viewer notices without being directed.
+`SubsidenceHollow` in the scene graph must be a **Mesh** object, not an Empty. Specify it as a shallow dish-shaped mesh: approximately 3 m diameter, 0.5 m deep, boolean subtracted from MoraineDam_Detail mesh. Update scene graph entry: `SubsidenceHollow | Mesh | Shallow dish geometry (~3m diameter, 0.5m deep), boolean subtracted from MoraineDam_Detail.` The hollow uses MAT_MoraineDam material with Roughness 0.98. It is visible in the render as a subtle bowl-shaped depression in the dam crest — consistent with the InSAR-documented dead-ice melt subsidence (Brencher, Henderson & Shean 2026). It is NOT labelled. The viewer notices without being directed.
 
 **TEST RENDER FLAG (BLOCKING FIX #6 carried forward):** The moraine dam geometry verification test render at f557 (adjusted frame, originally f572) in Shot 07 must pass before Shot 13 production render proceeds. Shot 13 and Shot 12 share the same moraine dam geometry — if the geometry is incorrectly modelled, the final hold is also compromised.
 
 **Text elements:** SILENCE — no text of any kind. The chapter does not end with a word.
 
 **Reduced-motion fallback text (BLOCKING FIX #2 applied):**
-"The moraine dam at Imja Tsho's western end. Loose rock. No bedrock foundation. Buried dead ice melting within it, causing **seasonal downward displacement of 8.5 to 9.4 centimetres per year (Bhushan et al., The Cryosphere, 2026)** — and lateral movement of approximately 90 cm over 2017–2024. In 2016, a controlled outlet reduced the lake level by 3.4 metres. The Early Warning System installed that year is designed to protect 71,752 people in the Everest valley. The dam holds 61.7 ± 3.7 million cubic metres of water. It looks like any other pile of rocks."
+"The moraine dam at Imja Tsho's western end. Loose rock. No bedrock foundation. Buried dead ice melting within it, causing **seasonal downward displacement of 8.5 to 9.4 centimetres per year (Brencher, Henderson & Shean, The Cryosphere, 2026)** — and lateral movement of approximately 90 cm over 2017–2024. In 2016, a controlled outlet reduced the lake level by 3.4 metres. The Early Warning System installed that year is designed to protect 71,752 people in the Everest valley. The dam holds 61.7 ± 3.7 million cubic metres of water. It looks like any other pile of rocks."
 
 **Transitions:**
 - In: Dissolve from Shot 12 (4-frame dissolve).
@@ -628,7 +628,7 @@ Determinism: `seed_mod.lock_seeds(Path(__file__))` derives Cycles seed from SHA2
 | Moraine dam height | ~40–50 m above valley floor | Shot 12 | Research Brief Section 2 | — |
 | Moraine dam volume held | 61.7 ± 3.7 million m³ | Shot 13 | Somos-Valenzuela et al. (2014), 2012 survey | 10.5194/tc-8-1661-2014 |
 | Max lake depth | 116.3 ± 5.2 m | Shot 13 | Same | Same |
-| Dead ice subsidence (seasonal downward displacement) | 8.5–9.4 cm/yr (Bhushan et al. 2026) | Shot 13 | Bhushan et al. (2026), The Cryosphere | 10.5194/tc-20-67-2026 |
+| Dead ice subsidence (seasonal downward displacement) | 8.5–9.4 cm/yr (Brencher, Henderson & Shean 2026) | Shot 13 | Brencher, Henderson & Shean (2026), The Cryosphere | 10.5194/tc-20-67-2026 |
 | Lateral movement | ~90 cm over 2017–2024 | Shot 13 | Same | Same |
 | 2016 lake-level reduction | 3.4 m | Shot 13 | UNDP/GoN project documentation | — |
 | Early Warning System coverage | 71,752 people | Shot 13 | UNDP/GoN 2016 | — |
@@ -683,7 +683,7 @@ fluid_mod.domain_settings.cache_type = "REPLAY"  # use pre-baked cache, do not r
 - [ ] All 5 panel votes resolved (all CONDITIONAL PASS → all 14 blocking issues fixed)
 - [ ] All 14 blocking issues applied and verified:
   - [ ] BLOCKING FIX #1: Shot 09 reduced-motion fallback uses "from roughly 40 metres per year in the second half of the 20th century to over 70 metres per year in the early 2000s (1961–2006)" with period qualifiers
-  - [ ] BLOCKING FIX #2: Shot 13 reduced-motion fallback uses "seasonal downward displacement of 8.5–9.4 centimetres per year (Bhushan et al. 2026)"
+  - [ ] BLOCKING FIX #2: Shot 13 reduced-motion fallback uses "seasonal downward displacement of 8.5–9.4 centimetres per year (Brencher, Henderson & Shean 2026)"
   - [ ] BLOCKING FIX #3: Shot 01 entry contains explicit Director note: "If runtime is recovered from edits, Shot 01 is the first to benefit"
   - [ ] BLOCKING FIX #4: Shot 11 sound design specification is "no sound design cue of any kind" — the "soft splash" phrase is deleted from all production documents
   - [ ] BLOCKING FIX #5: Shot 05 (Annapurna Sanctuary, 1 second) removed. 30 frames redistributed: +15 to Shot 01 (7.0s→7.5s), +15 to Shot 13 (1.5s→2.0s). Storyboard has 13 shots total. Subsequent shots renumbered.

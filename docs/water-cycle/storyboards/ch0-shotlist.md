@@ -423,9 +423,12 @@ Midground: The Khumbu Icefall — seracs of white-blue ice the size of apartment
            "classic Himalayan glacier look" has a location, this is it. The icefall
            is the small fraction of the Khumbu that looks like the glacier of
            imagination. Let the viewer have this moment of recognition.
-Background: The Lhotse face — a tilted plane of blue-grey ice and rock bands rising
-            to the top of frame. The Yellow Band (Ordovician limestone) at ~8,600 m
-            on Everest's southwest face, barely visible at upper right, lit warm.
+Background: The Lhotse face and Nuptse ridge — a tilted plane of blue-grey ice and
+            rock bands rising to the top of frame. (NOTE: Everest summit is NOT visible
+            from this EBC south-southeast vantage — it sits behind the West Shoulder
+            ridge. Everest is visible from Kala Patthar to the NNE, not from here.
+            Earlier v1 shot description erroneously placed the Yellow Band in this
+            frame; removed per v2 research-brief orientation audit.)
 Color palette:
   Serac lit faces:         #D8E4EA  (white-blue, cold direct light — NOT warm white)
   Crevasse interiors:      #2A4A60  (deep blue-indigo, very deep shadow)
@@ -433,7 +436,7 @@ Color palette:
   Rock bands (Lhotse):     #4A4040  (dark grey-brown)
   Base Camp moraine:       #6A6058  (grey silt — same grey-brown palette as Shot 03,
                                       reinforcing the grey reality)
-  Yellow Band (far upper): #B09060  (warm limestone, barely visible)
+  Nuptse ridge (right):    #5A5050  (dark grey rock, partially snow-dusted)
 What this shot reveals: The familiar "classic glacier" image — earned recognition —
                         before the pivot to the grey debris reality of the Khumbu's
                         lower glacier and to Imja.
@@ -819,9 +822,10 @@ Cinematographer note: This is the hardest shot in the chapter to execute correct
                         is ~1.5 m, not from the top of the cliff.
                       - Wave amplitude: cap at 15 cm. If the simulation produces
                         larger waves, reduce block volume.
-                      - Sound design (if present): the event should produce a soft
-                        splash followed by the gentle lapping of the outgoing wave.
-                        No bass hit, no reverb. Less than a cup of tea spilling.
+                      - Sound design: NONE. The canonical instruction per master
+                        storyboard is "no sound design cue of any kind." The chapter
+                        is silent throughout. (v1 shot list considered a soft-splash
+                        cue; v2 rules it out — silence is the editorial choice.)
                       - Camera: does not move. This is the most important constraint.
                         A static camera watching a small calving event with no
                         score and no camera response says: this happens all the time.

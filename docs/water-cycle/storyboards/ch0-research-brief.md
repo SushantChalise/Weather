@@ -2,6 +2,48 @@
 *Role: Himalayan Researcher*
 *Author: Glaciologist-in-Residence, Water Cycle Atlas Production*
 *Date: 2026-05-11*
+*Revision: v2*
+
+---
+
+## Revision v2 — fixes applied
+
+1. Corrected vegetation altitude bands (juniper/rhododendron mis-placed near Gorak Shep removed; clean altitude-band table inserted).
+2. Audited every directional phrase against real bearings (Everest is NNE of EBC, not "south"); altitudes now tagged `[ASL]` / `[AGL]` with camera + look direction.
+3. Replaced overly broad "20–40% dry-season melt" claim with basin-specific framing (Lutz et al. 2014); reframed Bhutan glacier behaviour separately from Karakoram Anomaly (Hewitt 2005; Farinotti et al. 2020).
+4. Verified moraine-dam degradation citation: it is **Brencher, Henderson, Shean (2026)** in *The Cryosphere* — not "Bhushan et al." Citation corrected throughout.
+5. Added a **Confidence labels** convention, **Data-locked vs. Art-directable** sub-table, and a **Data Dependencies** appendix. Internal de-duplication of debris-glacier paragraph performed; canonical version lives in §5.
+
+---
+
+## Confidence labels convention
+
+Every substantive claim or descriptive passage in this brief is tagged with one of:
+
+- `[Verified]` — peer-reviewed published; full citation given in §"Sources and Key References"
+- `[Field-observed]` — first-person field-trip observation, common across multiple field accounts but not always formally published
+- `[Approximate]` — order-of-magnitude correct; exact value depends on year, method, or season
+- `[Cinematic interpretation]` — sensory, atmospheric, or compositional description intended for the Cinematographer and Blender Expert; not a scientific claim
+
+Downstream agents (Writer, Cinematographer, Blender Expert) MUST preserve these labels when quoting or paraphrasing this brief.
+
+---
+
+## Altitude-band reference table (Khumbu, locked)
+
+`[Verified, cross-referenced with ICIMOD field accounts and standard EBC trek references]`
+
+| Band | Elevation `[ASL]` | Vegetation / land cover |
+|---|---|---|
+| Lukla–Phakding | ~2,800–2,900 m | Pine, hemlock, terraced cultivation |
+| Phakding–Namche | ~2,900–3,440 m | Blue pine, rhododendron forest, agriculture in river bends |
+| Namche–Tengboche | ~3,440–3,860 m | Fir, juniper, rhododendron — **last contiguous forest band** |
+| Tengboche–Dingboche | ~3,860–4,410 m | Dwarf rhododendron, juniper shrubs, alpine meadows, yak pasture |
+| Dingboche–Pheriche–Lobuche | ~4,410–4,940 m | Tussock grass, lichens, glacial moraines, stone walls |
+| Lobuche–Gorak Shep–EBC | ~4,940–5,400 m | Alpine desert, bare moraine, ice, rock — **no vegetation** |
+| Above 5,400 m | — | Snow, ice, rock only |
+
+This table is the single source of truth for vegetation rendering in Ch 0. Any other vegetation description in this brief is subordinate to it.
 
 ---
 
@@ -21,21 +63,27 @@
 - Upper limits: summit snowfields and hanging glaciers above 8,000 m on 14 eight-thousanders
 - The Karakoram (subrange, northwest HKH) holds surge-type glaciers extending down to ~2,800 m — the anomalous Karakoram Anomaly zone where some glaciers are actually advancing
 
-**Terrain character from 5,000 m altitude:**
-The view from a hovering vantage at 5 km shows a saw-edge ridgeline alternating between grey-black rock buttresses and white ice couloirs. In the western arc (Hindu Kush, Karakoram) the ice is brilliant white with minimal debris because precipitation is dominated by westerly disturbances bringing clean winter snowfall. In the central arc (Nepali Himalaya) the glaciers are heavily loaded with supraglacial debris — the ice surfaces look more like gravel fields punctuated by ice cliffs and supraglacial ponds that wink blue from altitude. In the eastern arc (Assam Himalaya, Namcha Barwa) heavy monsoon precipitation creates deeply incised glacier tongues plunging into subtropical valleys.
+**Terrain character — 5,000 m `[ASL]` aircraft/drone vantage, look SE along the arc:** `[Cinematic interpretation: vantage assumed for storyboarding]`
+The view from a hovering vantage at 5 km `[ASL]` shows a saw-edge ridgeline alternating between grey-black rock buttresses and white ice couloirs. In the western arc (Hindu Kush, Karakoram) the ice is brilliant white with minimal debris because precipitation is dominated by westerly disturbances bringing clean winter snowfall. `[Verified]` In the central arc (Nepali Himalaya) the glaciers are heavily loaded with supraglacial debris — the ice surfaces look more like gravel fields punctuated by ice cliffs and supraglacial ponds that wink blue from altitude. `[Verified; see canonical description in §5]` In the eastern arc (Assam Himalaya, Namcha Barwa) heavy monsoon precipitation creates deeply incised glacier tongues plunging into subtropical valleys. `[Verified]`
 
-**Terrain character from 200 km altitude (satellite perspective):**
-The HKH reads as a bright white spine cutting diagonally across the brown plateau of Tibet to the north and the green-brown plains of South Asia to the south. The contrast is stark: white above, green below. Individual glaciers are invisible at this scale. The range has the visual signature of a crumpled paper edge — not a smooth ridge but a complex multi-strand series of ranges (Great Himalaya, Lesser Himalaya, Siwaliks) each visible as parallel lighter bands stepping down southward.
+**Terrain character — ~200 km altitude satellite perspective, look N (nadir to oblique north):** `[Cinematic interpretation]`
+The HKH reads as a bright white spine cutting diagonally across the brown plateau of Tibet to the north and the green-brown plains of South Asia to the south. The contrast is stark: white above, green below. Individual glaciers are invisible at this scale. The range has the visual signature of a crumpled paper edge — not a smooth ridge but a complex multi-strand series of ranges (Great Himalaya, Lesser Himalaya, Siwaliks) each visible as parallel lighter bands stepping down southward. `[Verified — standard satellite interpretation]`
 
-**Dominant glacier types:**
+**Dominant glacier types:** `[Verified]`
 - Karakoram: valley glaciers, many surge-type, some exceeding 70 km length (Siachen, Biafo, Baltoro)
 - Nepal Himalaya: debris-covered valley glaciers, cirque glaciers on south-facing walls, hanging glaciers on north faces of major peaks
-- Eastern Himalaya: valley glaciers with high accumulation, some still advancing in the Bhutan anomaly zone
+- Eastern Himalaya / Bhutan: valley glaciers with high monsoon-fed accumulation; behaviour is **heterogeneous and less consensus-confirmed** than the Karakoram. Recent inventories show net retreat with regional variability. See §"Karakoram vs. Bhutan framing" below — do **not** describe Bhutanese glaciers as parallel to the Karakoram Anomaly.
 
-**Color character of ice:**
+**Color character of ice:** `[Field-observed and Verified]`
 At HKH scale, the ice appears uniformly white from altitude. Ground truth: the Karakoram glaciers are cleaner (more blue-white at ice cliff exposures) because of higher precipitation and less valley-floor debris. Nepal glaciers show the characteristic debris mantle — grey-brown-white patchwork. Ice cliff exposures where debris falls away are vivid blue-white with a slight greenish tinge from compressed ice crystal structure.
 
-**Seasonal considerations:**
+### Karakoram vs. Bhutan framing `[Verified]`
+
+The **Karakoram Anomaly** — some glaciers stable, advancing, or surging through the late 20th and early 21st century in contrast to the rest of HMA — is well-established (Hewitt 2005; Farinotti et al. 2020). The mechanisms (westerly-fed winter accumulation, elevation effect, surge dynamics) are increasingly understood but not fully resolved.
+
+**Eastern Himalayan / Bhutanese glacier behaviour is NOT a parallel anomaly.** Recent inventories show net retreat with regional variability; some high-accumulation east-facing glaciers may be locally stable, but there is no consensus on a coherent "Bhutan anomaly." Earlier versions of this brief presented the two zones as parallel — that framing is incorrect and has been removed.
+
+**Seasonal considerations:** `[Field-observed]`
 - Best visual window for western arc (Karakoram): April–May, post-winter accumulation before monsoon haze
 - Best visual window for Nepal arc: October–November, post-monsoon clarity with ablated ice faces exposing fresh blue ice. Also April–May before the jet stream lifts and monsoon approaches — the morning windows of crystalline visibility
 - Avoid: June–September (monsoon), December–February (jet stream plumes obscure peaks from below, excessive snow covers all terrain character)
@@ -54,24 +102,26 @@ At HKH scale, the ice appears uniformly white from altitude. Ground truth: the K
 - Imja Glacier terminus / Imja Tsho surface: ~5,010 m
 - Upper névé fields: 7,500–8,848 m (Everest summit)
 
-**Terrain character from 5,000 m altitude:**
-From a helicopter or fixed-wing at this altitude looking south toward Everest, the perspective is roughly level with the Khumbu Icefall. The icefall looks like a frozen river of crushed sugar cubes — enormous seracs the size of apartment buildings, tilted and jumbled, backlit in morning light with deep blue crevasse shadows. The Lhotse face behind fills the southern horizon as a tilted plane of blue ice broken by rock bands. Below, the Khumbu valley is dark — dense juniper and rhododendron forest below Gorak Shep, the trail a thin thread of human-worn grey against the valley floor.
+**Terrain character — 5,500 m `[ASL]` drone vantage above Pheriche, look NNE toward Everest/Lhotse/Nuptse:** `[Cinematic interpretation: vantage assumed for storyboarding]`
 
-From the same altitude looking north toward the Ngozumpa, the character changes: the glacier is almost entirely debris-covered, a long grey river of rocks descending from Cho Oyu's flanks. The Gokyo Lakes (Dudh Pokhari series) appear as turquoise sequins strung along the glacier's western margin — clean water impounded behind the glacier's lateral moraine.
+Everest, Lhotse, and Nuptse rise to the **north and northeast** of Khumbu Base Camp — not the south. From a drone or fixed-wing vantage at ~5,500 m `[ASL]` above Pheriche looking NNE, the perspective is roughly level with the upper Khumbu Icefall. The icefall looks like a frozen river of crushed sugar cubes — enormous seracs the size of apartment buildings, tilted and jumbled, backlit in morning light with deep blue crevasse shadows. The Lhotse face fills the upper horizon as a tilted plane of blue ice broken by rock bands. Below, the Khumbu valley floor between Pheriche and Lobuche is bare alpine desert — moraine, tussock grass, and stone walls. **There is no juniper/rhododendron forest here**: the last forest band lies far below, between Namche and Tengboche (~3,440–3,860 m `[ASL]`). See the locked Altitude-band table above.
+
+From a similar vantage above Gokyo (~5,000 m `[ASL]`) looking N along the Ngozumpa, the character changes: the glacier is almost entirely debris-covered, a long grey river of rocks descending from Cho Oyu's flanks. The Gokyo Lakes (Dudh Pokhari series) appear as turquoise sequins strung along the glacier's western margin — clean water impounded behind the glacier's lateral moraine. `[Verified]`
+
+**Note on bearings for storyboarding:** From Kala Patthar (5,545 m `[ASL]`), Everest summit bears roughly **030° (NNE)**; Nuptse bears roughly ENE; Pumori bears nearly due W. Every camera setup in the Cinematographer brief must reference these bearings.
 
 **Dominant glacier types:**
 - Khumbu Glacier: debris-covered valley glacier, ~17–22 km length, ~70 km² area (measurements vary by year and definition of debris cover extent). Flows from Western Cwm below Everest-Lhotse-Nuptse through the Khumbu Icefall
 - Ngozumpa Glacier: debris-covered valley glacier, Nepal's longest at ~36 km, flows from Cho Oyu (8,188 m) southward
 - Imja Glacier: smaller debris-covered valley glacier, ~4–5 km in active clean-ice tongue area, proglacial lake at terminus
 
-**Color character of ice:**
-- Khumbu Icefall: the most visually dramatic clean-ice zone in Nepal — seracs of pure white-blue ice, crevasses showing electric blue interior walls, lit from the east in early morning. This is the "classic" Himalayan glacier look that cinematographers conflate with all glaciers — it represents a small fraction of the total ice mass
-- Khumbu lower glacier (below the icefall): completely debris-covered, visually indistinguishable from a moraine field. Rocks, grey silt, supraglacial ponds of milky grey-green water
-- Ngozumpa: same — grey-brown debris, ice visible only at lateral margins and occasional ice cliff exposures (brilliant blue-white against the grey)
+**Color character of ice:** `[Field-observed and Verified]`
+- Khumbu Icefall: the most visually dramatic clean-ice zone in Nepal — seracs of pure white-blue ice, crevasses showing electric blue interior walls, lit from the east in early morning. This is the "classic" Himalayan glacier look that cinematographers conflate with all glaciers — it represents a small fraction of the total ice mass.
+- Khumbu lower glacier (below the icefall) and Ngozumpa: debris-covered. See canonical description in §5 ("Debris-covered glaciers look grey-brown, not white"). Do not re-describe here.
 
-**Seasonal considerations:**
+**Seasonal considerations:** `[Field-observed]`
 Pre-monsoon (April–May): maximum visual clarity, expedition season. The upper ice zones carry fresh winter snow; lower glacier and terminal zone have ablated to expose maximum ice cliff faces. Imja Tsho is fully thawed, deep turquoise.
-Post-monsoon (October–November): similar clarity, slightly less snow on upper faces exposing more rock and ice texture, spectacular autumn colours in juniper-rhododendron forests below 4,000 m.
+Post-monsoon (October–November): similar clarity, slightly less snow on upper faces exposing more rock and ice texture, spectacular autumn colours in juniper-rhododendron forests **below the Tengboche band (~3,860 m `[ASL]`)** — not at Gorak Shep or anywhere else above ~4,000 m. See locked Altitude-band table.
 
 ---
 
@@ -87,7 +137,7 @@ Post-monsoon (October–November): similar clarity, slightly less snow on upper 
 - Langtang Glacier terminus: ~4,300 m
 - Ganesh Himal ice fields: 5,000–7,422 m (Ganesh I summit)
 
-**Terrain character from 5,000 m altitude:**
+**Terrain character — 5,000 m `[ASL]` aircraft vantage above Kyanjin Gompa, look E up-valley:** `[Cinematic interpretation: vantage assumed for storyboarding]`
 Langtang is a narrow east-west valley cut deeply into the range. The valley feels enclosed compared to Khumbu — steep walls rising 2,000 m on each side, with glaciers hanging like white tongues off every north-facing flank. The famous 2015 earthquake avalanche scar (which obliterated Langtang village) is still visible as a pale scar on the south face of Langtang Lirung (7,234 m). Yala Glacier is unusual for Nepal: it is debris-free, a small plateau glacier sitting on a shelf like a white tablecloth. Its clarity and accessibility have made it a benchmark monitoring glacier — it can be walked to in a day from Kyanjin Gompa, which makes it important for field campaigns.
 
 **Dominant glacier types:**
@@ -117,7 +167,7 @@ Post-monsoon (October–November) is exceptional here — the trail to Kyanjin G
 - Dhaulagiri glacierized zone: ~4,800–8,167 m (Dhaulagiri I summit)
 - South Annapurna Glacier (Sanctuary) and Miristi Khola glacial systems
 
-**Terrain character from 5,000 m altitude:**
+**Terrain character — 5,500 m `[ASL]` aircraft vantage south of Annapurna I, look N into the Sanctuary:** `[Cinematic interpretation: vantage assumed for storyboarding]`
 This is arguably the most dramatic vertical relief in the range. Annapurna's south face drops 3,000 m in roughly 3 km of horizontal distance — an ice wall of frightening steepness that generates near-continuous spindrift avalanches visible as white plumes even from distance. The Annapurna Sanctuary is a true high-altitude amphitheater: the inner basin at ~4,100 m is encircled by a complete ring of peaks above 6,000 m, with the only exit through a narrow gorge between Hiunchuli and Machhapuchhre. From altitude, the Sanctuary reads as a white bowl set inside a ring of dark rock.
 
 Dhaulagiri's north face presents differently — a receding glacier system on the Chhonbardan Glacier (Northeast Dhaulagiri Glacier), descending toward French Col, with the famous five-day Annapurna Circuit bypassing its feet.
@@ -148,7 +198,7 @@ Pre-monsoon (April–May) for the south face: morning light strikes the south wa
 - Key glaciers: Zemu (northeast, drains to Teesta, ~26 km, Sikkim side), Yalung (southwest, drains to Arun/Kosi, ~18 km)
 - Makalu-Barun glaciers: 4,800–8,485 m (Makalu summit)
 
-**Terrain character from 5,000 m altitude:**
+**Terrain character — 5,500 m `[ASL]` aircraft vantage west of Kangchenjunga, look E:** `[Cinematic interpretation: vantage assumed for storyboarding]`
 The most remote and least visited of Nepal's glacial zones for trekkers. Kangchenjunga's mass is enormous — it presents three distinct ridgeline profiles depending on approach, and from the northwest (Nepal approach) it reads as a broad pyramid of ice and rock with hanging glaciers on every face. The Yalung face is a 2,500 m wall of mixed ice and rock. The Makalu-Barun valley is extraordinary for its vegetation transition — the base of Makalu sits above one of the richest biodiversity zones in the Himalaya, with forests at 3,000 m containing rhododendrons that grow to the size of oaks. The visual contrast between dense subtropical forest below and clean glacier above is sharper here than anywhere else in Nepal.
 
 **Dominant glacier types:**
@@ -185,27 +235,29 @@ The glacier terminus has been retreating rapidly. Based on published retreat dat
 
 ### What the lake actually looks like
 
-The color of Imja Tsho is not dark alpine blue. It is milky turquoise — the specific shade depends on turbidity, viewing angle, and season.
+The color of Imja Tsho is not dark alpine blue. It is milky turquoise — the specific shade depends on turbidity, viewing angle, and season. `[Field-observed]`
 
-**The physics:** Imja's glacial meltwater carries suspended rock flour (glacial flour) — fine-grained particles of crushed bedrock with typical grain size 2–65 microns generated by glacial abrasion of the valley floor and walls. At this grain size, particles remain in colloidal suspension for weeks rather than settling immediately. When sunlight enters the lake, the suspended flour particles scatter short-wavelength blue and green light preferentially (Tyndall scattering). The water itself absorbs longer wavelengths (red, orange). The combined effect is selective scattering toward blue-green. Higher turbidity (more suspended flour, common in melt season) produces more opaque milky turquoise; lower turbidity in early spring before melt begins produces a cleaner, deeper turquoise-blue.
+**The physics:** `[Verified]` Imja's glacial meltwater carries suspended rock flour (glacial flour) — fine-grained particles of crushed bedrock with typical grain size 2–65 microns generated by glacial abrasion of the valley floor and walls. At this grain size, particles remain in colloidal suspension for weeks rather than settling immediately. When sunlight enters the lake, the suspended flour particles scatter short-wavelength blue and green light preferentially (Mie scattering for these grain sizes, with a Tyndall-effect character). The water itself absorbs longer wavelengths (red, orange). The combined effect is selective scattering toward blue-green. Higher turbidity (more suspended flour, common in melt season) produces more opaque milky turquoise; lower turbidity in early spring before melt begins produces a cleaner, deeper turquoise-blue.
 
-**Surface behavior:** Imja Tsho sits in a bowl with very little fetch (wind run) given the enclosing moraines, but afternoon valley winds from the south regularly generate surface chop with wavelets 10–20 cm high. The lake has no inlet streams from vegetation-covered ground — inflow is glacial meltwater and direct snowmelt from the surrounding moraines. There is no aquatic vegetation. The shores are bare rock, sand, and unstable moraine debris. At the western outlet, water flows through a narrow gap in the moraine dam as Imja Khola, the outflow stream. This outlet is clearly visible from above as the only constrained exit from the lake basin.
+**Surface behavior:** `[Field-observed]` Imja Tsho sits in a bowl with very little fetch (wind run) given the enclosing moraines, but afternoon valley winds from the south regularly generate surface chop with wavelets 10–20 cm high. The lake has no inlet streams from vegetation-covered ground — inflow is glacial meltwater and direct snowmelt from the surrounding moraines. There is no aquatic vegetation. The shores are bare rock, sand, and unstable moraine debris. At the western outlet, water flows through a narrow gap in the moraine dam as Imja Khola, the outflow stream. This outlet is clearly visible from above as the only constrained exit from the lake basin.
 
-**What is NOT present:** No trees, no grass reaching the shoreline, no lily pads, no visible aquatic life from above. The bareness is absolute above 5,000 m.
+**What is NOT present:** `[Verified — locked Altitude-band table]` No trees, no grass reaching the shoreline, no lily pads, no visible aquatic life from above. The bareness is absolute above 5,000 m `[ASL]`.
 
 ### The moraine dam
 
 The moraine dam at Imja Tsho's western outlet is one of the most studied glacier hazard features in Nepal. It is entirely natural — a pile of unsorted glacial debris (boulders, cobbles, sand, silt, gravel) deposited by the glacier during its maximum extent. Key characteristics:
 
-- Height: approximately 40–50 m above the Imja Khola valley floor below
-- Composition: loose, unconsolidated glacial till. No bedrock foundation. Contains buried remnant ice ("dead ice") throughout its structure — identified by InSAR satellite measurements showing seasonal downward displacement of 8.5–9.4 cm/yr and lateral movement of approximately 90 cm over 2017–2024 (Bhushan et al., *The Cryosphere*, 2026)
-- The buried ice is critical to understanding the hazard: as it melts, the dam subsides and weakens from the inside. The dam is not stable — it is actively degrading
-- Visual appearance: from above, it looks like a natural ridge of rocky debris — no different from other lateral or terminal moraines. There is nothing to distinguish it visually as a dam holding back 61.7 million m³ of water. This is the terrifying banality of GLOF hazard.
-- In 2016, the Government of Nepal and UNDP undertook artificial lake-level reduction, lowering the lake by 3.4 m by excavating a controlled outlet channel through the moraine dam. The channel is visible in satellite imagery as a narrow incision through the moraine crest.
+- Height: approximately 40–50 m above the Imja Khola valley floor below `[Approximate; field-mapped]`
+- Composition: loose, unconsolidated glacial till. No bedrock foundation. Contains buried remnant ice ("dead ice") throughout its structure — identified by fused InSAR + SAR feature-tracking time series, which document cumulative dam surface motion of approximately 90 cm over 2017–2024 (Brencher, Henderson & Shean 2026, *The Cryosphere*, DOI: 10.5194/tc-20-67-2026). `[Verified]`
+- The buried ice is critical to understanding the hazard: as it melts, the dam subsides and weakens from the inside. The dam is not stable — it is actively degrading. `[Verified]`
+- Visual appearance: from above, it looks like a natural ridge of rocky debris — no different from other lateral or terminal moraines. There is nothing to distinguish it visually as a dam holding back 61.7 million m³ of water. This is the terrifying banality of GLOF hazard. `[Cinematic interpretation grounded in Verified geomorphology]`
+- In 2016, the Government of Nepal and UNDP undertook artificial lake-level reduction, lowering the lake by 3.4 m by excavating a controlled outlet channel through the moraine dam. The channel is visible in satellite imagery as a narrow incision through the moraine crest. `[Verified — UNDP/GoN project documentation; visible in Brencher et al. 2026 displacement maps]`
 
 ### Downstream valley character: Imja Khola
 
-The Imja Khola exits the moraine dam and flows westward, joining the Lobuche Khola near Dingboche before entering the main Dudh Koshi system. The valley character:
+> **Scope note:** Ch 0 ("The Reservoir") establishes ice and the Imja anchor. Downstream villages, GLOF risk modelling, and the hazard payload belong to **Chapter 4 ("The Hazard")**. The valley-character notes below are **reference material for the Cinematographer and Writer**, not a list of Ch 0 visual elements. Ch 0 does not travel below the moraine dam.
+
+The Imja Khola exits the moraine dam and flows westward, joining the Lobuche Khola near Dingboche before entering the main Dudh Koshi system. The valley character: `[Field-observed and Verified — reference for Ch 4]`
 
 - **Immediately below the dam (~5,000 m):** Narrow V-shaped gorge carved into glacial deposits and bedrock. Valley width 50–100 m. Channel steep, braided, heavily laden with suspended sediment (milky grey-white). Virtually no vegetation.
 - **Dingboche/Pheriche area (~4,360 m):** The valley opens into a broader U-shaped glacially carved trough. Valley floor width 200–400 m. Sparse yak grazing pastures (dwarf shrubs, sedges), stone walls marking field boundaries. Villages of dry-stone construction clustered on slightly elevated terraces above flood level. The Imja Khola here runs through a wide gravel-bar braided channel.
@@ -215,9 +267,9 @@ The Imja Khola exits the moraine dam and flows westward, joining the Lobuche Kho
 - **Phakding (~2,610 m):** Dudh Koshi has dropped significantly. Valley floor supports small-scale agriculture. The river here is fast and milky grey-white from suspended glacial sediment even in normal flow. The valley is narrow, the river has cut a 5–10 m deep channel into glaciofluvial deposits.
 - **Lukla (~2,860 m):** Perched on a ridge spur above the Dudh Koshi. The famous tilted runway sits on a narrow shelf cut from the hillside — the runway is 527 m long with a 12% gradient and drops off a cliff at its lower end. Forest cover here is dense. The GLOF flood wave modelling suggests significant inundation of the Dudh Koshi valley floor below Namche — Phakding and Lukla would be severely impacted, but Lukla itself sits well above the flood channel.
 
-### Downstream villages: visual character and GLOF risk
+### Downstream villages: visual character and GLOF risk `[Reference for Ch 4 — NOT a Ch 0 visual element]`
 
-| Village | Altitude | Character | GLOF position in wave path |
+| Village | Altitude `[ASL]` | Character | GLOF position in wave path |
 |---------|----------|-----------|---------------------------|
 | Dingboche | ~4,360 m | Scattered stone houses in open yak pasture, prayer flags on ridges, framed by Ama Dablam's northeast ridge | First major settlement in flood path; modelling shows significant inundation with current lake volume |
 | Pheriche | ~4,358 m | Similar to Dingboche, sits in Lobuche valley junction; trekking lodges, small hospital (Himalayan Rescue Association) | Equally exposed; the HRA hospital is a critical infrastructure concern |
@@ -261,13 +313,13 @@ The monsoon front arrives from the Bay of Bengal, typically reaching the Nepal H
 
 **From above the clouds (Planet Earth shot):** The aerial view of monsoon cloud over the Himalaya — peaks piercing through white cloud — is one of the most cinematically powerful shots in the genre. The clouds are not flat; they have three-dimensional structure, built into towers and plateaus. The peaks catch direct sunlight; the cloud surface catches diffuse light. The contrast makes peaks look impossibly black against white cloud.
 
-### Morning conditions in the Khumbu
+### Morning conditions in the Khumbu `[Field-observed; composite of multiple accounts]`
 
-A composite picture of early morning at 5,200 m (Gorak Shep), 6:00 AM, October:
+A composite picture of early morning at 5,200 m `[ASL]` (Gorak Shep, valley vantage, look NNE toward Everest/Lhotse and ENE toward Nuptse), 6:00 AM, October:
 
 The valley is still in shadow — direct sunlight will not reach the valley floor for another 90 minutes. The temperature is -15°C. The air is absolutely still. There is no birdsong this high — the silence is not merely quiet, it is actively empty. From the lodges below, thin columns of smoke rise vertically (yak dung and wood fuel) in the windless air. These columns are visible from 5 km as delicate grey threads against the darker valley floor.
 
-Prayer flags at the Gorak Shep stupa are perfectly limp — no wind. Their colours (white, red, yellow, green, blue) are muted in the pre-dawn light. As the sun strikes the south face of Nuptse first (the first sunlit face in the Khumbu from this angle), the flags begin to flutter in the thermal generated by the warming rock face.
+Prayer flags at the Gorak Shep stupa are perfectly limp — no wind. Their colours (white, red, yellow, green, blue) are muted in the pre-dawn light. As the sun strikes the **west-facing flank of Nuptse first** (the highest, west-facing surface in this part of the Khumbu — the actual first-lit face depends on local topography and date), the flags begin to flutter in the thermal generated by the warming rock face.
 
 The Khumbu Glacier below Gorak Shep is a grey sea of moraine in the pre-dawn. The meltwater ponds on the glacier surface are still frozen over — thin ice formed overnight. By 9 AM, the ice crust on these ponds will begin to melt and the milky green-grey water will become visible again. By midday, you can hear the trickle of meltwater everywhere — it begins below the surface, running through ice channels under the debris mantle, before emerging at the glacier margin as turbid grey streams.
 
@@ -277,7 +329,7 @@ Mist: below ~3,500 m (below the permanent snow line and above the dense forest z
 
 ## 4. Scientific Accuracy Checklist
 
-### Imja Tsho area through time
+### Imja Tsho area through time `[Verified]`
 
 | Year | Area (km²) | Source | Notes |
 |------|-----------|--------|-------|
@@ -322,7 +374,7 @@ Somos-Valenzuela MA, McKinney DC, Rounce DR, Byers AC (2014). Changes in Imja Ts
 | Total glacier count | ~54,000 | Bajracharya SR & Shrestha B (2011), ICIMOD. *The Status of Glaciers in the Hindu Kush–Himalayan Region* | Based on ~2005 Landsat ETM+ imagery + SRTM |
 | Total glacier area | ~60,000 km² | Same source | Uncertainty acknowledged; methodology standardised across HKH |
 | Ice volume estimated | ~6,000 km³ | Same source | Highly uncertain — volume-area scaling |
-| Karakoram anomaly | Some glaciers advancing | Multiple sources; Hewitt (2005), Gardelle et al. (2012) | Must not be omitted — the HKH is not uniformly retreating |
+| Karakoram Anomaly | Some glaciers stable, advancing, or surging | Hewitt (2005) *Mountain Research and Development*; Farinotti et al. (2020) *Nature Geoscience* | Must not be omitted — the HKH is not uniformly retreating. Do NOT extend this anomaly framing to Bhutan/Eastern Himalaya. |
 | Mass loss acceleration | +65% increase in loss rate, 2000–2009 vs 2010–2019 | ICIMOD HI-WISE Report (2023) | |
 | Projected loss by 2100 | Up to 80% of current volume at current emissions | ICIMOD HI-WISE Report (2023) | Range: 10% loss (1.5°C scenario) to 80% loss (4°C scenario) |
 
@@ -342,13 +394,15 @@ This is the most commonly overstated number in popular coverage of Himalayan gla
 | "People threatened by HKH glacier loss" | Often quoted as 2 billion | ICIMOD HI-WISE (2023) press release language — this refers to the entire population served by 12 rivers whose headwaters pass through HKH; not all are primarily glacier-dependent |
 | "People primarily dependent on glacier meltwater" | ~200–300 million in low-flow dry season | More conservative scientific estimate; Immerzeel et al. (2020), *Nature* |
 
-**What is scientifically defensible:**
-- "The HKH feeds 12 of Asia's major rivers, providing water to roughly 240 million mountain people and over 1.6 billion people in downstream river basins" — this is directly from HI-WISE 2023
-- "In the driest seasons, glacier meltwater contributes 20–40% of river flow in Himalayan rivers, making it disproportionately important to hundreds of millions of people when monsoon rains have ended"
-- Do NOT say "2 billion people depend on glacier melt" without qualification — this conflates seasonal glacier contribution with total water dependency, and most downstream populations (especially in Bangladesh, the Ganges delta) are primarily monsoon-dependent, not glacier-dependent
+**What is scientifically defensible:** `[Verified, basin-specific]`
+- "The HKH feeds 12 of Asia's major rivers, providing water to roughly 240 million mountain people and over 1.6 billion people in downstream river basins" — this is directly from HI-WISE 2023.
+- **Glacier/snow-melt contribution is basin-specific, not a single HKH-wide percentage.** Defensible framing: "In specific high-mountain catchments and during pre-monsoon low-flow months, glacier-and-snow meltwater can dominate streamflow (e.g., upper Indus tributaries during April–June; Lutz et al. 2014). At basin scale and on an annual basis, monsoon rainfall is the dominant input for most rivers downstream of HKH."
+- Do NOT cite a single "20–40% dry-season" number as a pan-HKH fact — earlier versions of this brief did so and that framing has been retracted in v2.
+- Do NOT say "2 billion people depend on glacier melt" without qualification — this conflates seasonal glacier contribution with total water dependency, and most downstream populations (especially in Bangladesh, the Ganges delta) are primarily monsoon-dependent, not glacier-dependent.
 
-**Key source:**
-Immerzeel WW, Lutz AF, Andrade M et al. (2020). Importance and vulnerability of the world's water towers. *Nature*, 577, 364–369. DOI: [10.1038/s41586-019-1822-y](https://doi.org/10.1038/s41586-019-1822-y)
+**Key sources:**
+- Immerzeel WW, Lutz AF, Andrade M et al. (2020). Importance and vulnerability of the world's water towers. *Nature*, 577, 364–369. DOI: [10.1038/s41586-019-1822-y](https://doi.org/10.1038/s41586-019-1822-y)
+- Lutz AF, Immerzeel WW, Shrestha AB, Bierkens MFP (2014). Consistent increase in High Asia's runoff due to increasing glacier melt and precipitation. *Nature Climate Change*, 4, 587–592. DOI: [10.1038/nclimate2237](https://doi.org/10.1038/nclimate2237)
 
 ---
 
@@ -363,9 +417,24 @@ Immerzeel WW, Lutz AF, Andrade M et al. (2020). Importance and vulnerability of 
 
 This is the list of specific errors that AI systems, stock photographers, and popular media routinely introduce into depictions of this region. Every agent working on Chapter 0 should read this section before generating any visual or textual content.
 
+### Data-locked vs. Art-directable
+
+| Element | Data-locked (must match source) | Art-directable (within scientifically valid bounds) |
+|---|---|---|
+| Glacier outline 1962 / 1975 / 1992 / 2010 / 2020 | Yes — Somos-Valenzuela et al. 2014 + ICIMOD HKH Glacier Inventory | No |
+| Imja Tsho lake polygon | Yes — same source | Surface ripple / wind detail OK |
+| Moraine dam location and approximate height | Yes — field-mapped; Brencher et al. 2026 displacement extent | Exact texture / scree distribution OK |
+| Vegetation altitude bands | Yes — see locked Altitude-band table | Density variation within a band OK |
+| Village locations | Yes — OSM nodes | Building count / smoke stylization OK |
+| Sky / atmosphere / alpenglow | No | Yes (cinematic) |
+| Cloud cover and mist | No | Yes (cinematic) |
+| Ice surface texture (serac height, crevasse spacing) | Within scientifically valid bounds | Yes |
+
+### Canonical descriptions (single source of truth)
+
 **Ice and glacier appearance:**
 
-1. **Debris-covered glaciers look grey-brown, not white.** The Khumbu, Ngozumpa, Langtang, and Imja glaciers are predominantly debris-covered in their lower reaches. Their ablation zones — the areas the camera would most likely show — look like rocky moraine, not white ice sheets. Only the *icefall* section of the Khumbu (above the Base Camp puja flat) and the high accumulation zones above ~6,000 m show clean white/blue-white ice. If you render the Khumbu Glacier as a white ice river, you are wrong.
+1. **Debris-covered glaciers look grey-brown, not white.** `[Verified — canonical description; other sections in this brief defer to this paragraph]` The Khumbu, Ngozumpa, Langtang, and Imja glaciers are predominantly debris-covered in their lower reaches. Their ablation zones — the areas the camera would most likely show — look like rocky moraine, not white ice sheets. Surfaces are grey-brown debris with supraglacial ponds of milky grey-green water; ice is visible only at lateral margins, ice-cliff exposures (brilliant blue-white against the grey), and along the longitudinal flow-line debris-band structure. Only the *icefall* section of the Khumbu (above the Base Camp puja flat) and the high accumulation zones above ~6,000 m `[ASL]` show clean white/blue-white ice. If you render the Khumbu Glacier as a white ice river, you are wrong.
 
 2. **Ice cliff colour.** Where debris falls away or calving exposes fresh ice faces, the colour is blue-white with a distinctive internal blue glow. This is caused by ice crystal compression absorbing red wavelengths. The blue is real but should not be rendered as electric/neon — it is a subtle, deep, cold blue, similar to the interior of a crevasse seen on a cloudy day.
 
@@ -385,7 +454,7 @@ This is the list of specific errors that AI systems, stock photographers, and po
 
 **Vegetation:**
 
-8. **No trees above ~3,800 m in the Khumbu.** The treeline in this region is approximately 3,800–4,000 m. Above Namche Bazaar (~3,440 m) and ascending toward Tengboche (~3,867 m), there is juniper and fir forest. Above Tengboche there is scrub — dwarf juniper, Rhododendron shrubs (low, gnarled, not the tall flowering trees of lower elevations), sedges, and lichens. Above ~4,500 m it is alpine desert: rocks, sparse grasses, and lichens. Above ~5,000 m: essentially bare rock, snow, ice.
+8. **No trees above ~3,800 m `[ASL]` in the Khumbu.** `[Verified — see locked Altitude-band table at top of brief]` The treeline in this region is approximately 3,800–4,000 m `[ASL]`. Above Namche Bazaar (~3,440 m `[ASL]`) and ascending toward Tengboche (~3,867 m `[ASL]`), there is juniper and fir forest. Above Tengboche there is scrub — dwarf juniper, Rhododendron shrubs (low, gnarled, not the tall flowering trees of lower elevations), sedges, and lichens. Above ~4,500 m `[ASL]` it is alpine desert: rocks, sparse grasses, and lichens. Above ~5,000 m `[ASL]`: essentially bare rock, snow, ice.
 
 9. **Prayer flags are everywhere above ~3,000 m, but not indiscriminate.** They are placed at passes, stupas, monastery walls, and high points — not draped over glaciers or random mountain faces. The strings run between poles or anchor points, hanging in loose festoons. They are cotton fabric, faded (the fading is intentional — the colours are worn away by weather, releasing the prayers). They are not crisp, freshly-dyed banners.
 
@@ -403,7 +472,9 @@ This is the list of specific errors that AI systems, stock photographers, and po
 
 ## 6. Iconic Visual Moments — The "Money Shots"
 
-### Shot 1: The HKH dawn reveal
+> All descriptions in §6 are `[Cinematic interpretation]` unless otherwise tagged. Geomorphic and meteorological elements that they rest on are Verified or Field-observed elsewhere in this brief.
+
+### Shot 1: The HKH dawn reveal `[Cinematic interpretation]`
 
 **What is in frame:**
 - Foreground: the dark silhouette of a high ridge (3,000–4,000 m), no detail, just a black edge
@@ -421,7 +492,7 @@ This is the list of specific errors that AI systems, stock photographers, and po
 
 ---
 
-### Shot 2: The Khumbu Icefall at dawn
+### Shot 2: The Khumbu Icefall at dawn `[Cinematic interpretation]`
 
 **What is in frame:**
 - Foreground: the flat grey of the Western Cwm lateral moraine / Base Camp puja flat (colourful Buddhist offerings, prayer flags, tents)
@@ -438,7 +509,7 @@ This is the list of specific errors that AI systems, stock photographers, and po
 
 ---
 
-### Shot 3: Imja Tsho from the morraine crest
+### Shot 3: Imja Tsho from the moraine crest `[Cinematic interpretation; geomorphology Verified]`
 
 **What is in frame:**
 - Foreground: rough moraine surface — loose angular rocks, no vegetation, some patches of wind-blown snow, the sharp crest of the moraine ridge
@@ -455,14 +526,11 @@ This is the list of specific errors that AI systems, stock photographers, and po
 
 ---
 
-### Shot 4: The debris-covered glacier from directly above — the grey river
+### Shot 4: The debris-covered glacier from directly above — the grey river `[Cinematic interpretation; debris-glacier appearance Verified — see §5]`
 
 **What is in frame:**
 - Overhead (near-nadir) aerial perspective on the lower Khumbu or Ngozumpa glacier
-- The glacier reads as a grey-brown river with clear flow lines visible in the debris surface
-- Supraglacial ponds appear as vivid turquoise/grey-green spots scattered across the debris field — they look shockingly out of place in the grey, like scattered mirror fragments
-- The lateral moraines define the edges sharply — the glacier is clearly distinct from the valley walls
-- At the glacier margins, ice cliff exposures glow blue-white — brief flashes of colour in the grey
+- Glacier appearance per canonical description in §5: grey-brown debris, flow-line structure, supraglacial ponds and ice-cliff exposures as the only colour relief.
 
 **Light direction and quality:** Direct overhead sun preferred; this reveals the surface texture and pond colours most clearly. Alternatively, low-angle side light from east or west to reveal the three-dimensional topography of the debris surface — supraglacial ponds and ice cliffs cast strong shadows.
 
@@ -474,7 +542,7 @@ This is the list of specific errors that AI systems, stock photographers, and po
 
 ---
 
-### Shot 5: Yala Glacier — the clean reference
+### Shot 5: Yala Glacier — the clean reference `[Cinematic interpretation; geomorphology Verified]`
 
 **What is in frame:**
 - Medium aerial shot of Yala Glacier (~1.3 km²) in its plateau setting
@@ -493,7 +561,7 @@ This is the list of specific errors that AI systems, stock photographers, and po
 
 ---
 
-### Shot 6: Tengboche Monastery with Ama Dablam — the human context
+### Shot 6: Tengboche Monastery with Ama Dablam — the human context `[Cinematic interpretation; geographic facts Verified]`
 
 **What is in frame:**
 - Foreground: the stone steps and courtyard of Tengboche Monastery, prayer wheels along the wall, juniper incense smoke drifting
@@ -511,7 +579,7 @@ This is the list of specific errors that AI systems, stock photographers, and po
 
 ---
 
-### Shot 7: The calving face — ice meeting water
+### Shot 7: The calving face — ice meeting water `[Cinematic interpretation; mechanism Verified]`
 
 **What is in frame:**
 - Close-to-medium shot looking along the calving front of Imja Glacier where it meets Imja Tsho
@@ -530,7 +598,7 @@ This is the list of specific errors that AI systems, stock photographers, and po
 
 ---
 
-## 7. What the Himalayas Sound Like
+## 7. What the Himalayas Sound Like `[Field-observed and Cinematic interpretation]`
 
 *Written for pacing reference: even in a silent or near-silent cinematic, understanding the actual soundscape tells the director the emotional register, the temporal scale, the sense of space.*
 
@@ -547,11 +615,11 @@ A living glacier produces sound. The Khumbu is not silent. During the day, as so
 - A low, constant trickle — ubiquitous, directionless, coming from the subsurface drainage network. Not a stream, not a river. A pervasive murmur.
 - Occasional loud cracks — serac ice fracturing. These happen without warning, sound like a rifle shot followed by a short rumble. At the icefall, this is a constant background feature of mid-morning.
 - The deep, low groan of the glacier moving — rare, and felt as much as heard. The glacier is moving at 1–2 metres per day in the icefall zone. You do not hear this movement directly, but periodically the stress release produces a deep, bass rumble that seems to come from below your feet. There is no human analogue for this sound.
-- Meltwater streams at the glacier margin — by mid-morning, these are audible from 200 m away. They carry a different quality from normal streams: thicker, more turbid, the white noise of suspended flour giving the water a slightly different acoustic signature.
+- Meltwater streams at the glacier margin — by mid-morning, these are audible from 200 m away. They carry a different quality from normal streams: thicker, more turbid, with a slightly damped, lower-pitched white-noise character compared with clear streams of equivalent gradient. `[Cinematic interpretation — the "acoustic signature of suspended flour" is not a formally established acoustic measurement; it is a directorial impression to guide foley.]`
 
 **The GLOF potential — what silence means:**
 
-The moraine dam at Imja Tsho is silent. This is terrifying to contemplate in retrospect. A dam holding 61.7 million cubic metres of water, actively subsiding and degrading, makes no sound audible to human perception. The slow settlement (90 cm over 7 years per InSAR measurement), the melting of buried ice, the pore pressure changes — none of this is audible. The hazard is invisible and silent until it is not.
+The moraine dam at Imja Tsho is silent. `[Cinematic interpretation grounded in Verified facts]` This is terrifying to contemplate in retrospect. A dam holding 61.7 million cubic metres of water, actively subsiding and degrading, makes no sound audible to human perception. The slow movement (cumulative ~90 cm over 2017–2024 per Brencher et al. 2026 fused InSAR + feature-tracking), the melting of buried ice, the pore-pressure changes — none of this is audible. The hazard is invisible and silent until it is not.
 
 **Wind above 6,000 m:**
 
@@ -587,7 +655,7 @@ Chapter 0 should be paced like the glacier itself — slow, inevitable, indiffer
 
 5. Immerzeel WW, Lutz AF, Andrade M et al. (2020). Importance and vulnerability of the world's water towers. *Nature*, 577, 364–369. DOI: [10.1038/s41586-019-1822-y](https://doi.org/10.1038/s41586-019-1822-y)
 
-6. Bhushan S, et al. (2026). Quantifying degradation of the Imja Lake moraine dam with fused InSAR and SAR feature tracking time series. *The Cryosphere*, 20, 67–[paginated]. DOI: [10.5194/tc-20-67-2026](https://doi.org/10.5194/tc-20-67-2026)
+6. Brencher G, Henderson ST, Shean DE (2026). Quantifying degradation of the Imja Lake moraine dam with fused InSAR and SAR feature tracking time series. *The Cryosphere*, 20, 67–86. DOI: [10.5194/tc-20-67-2026](https://doi.org/10.5194/tc-20-67-2026). [Earlier drafts of this brief cited this paper as "Bhushan et al." — that attribution was incorrect and has been corrected in v2.]
 
 7. Thakuri S, Salerno F, Smiraglia C, Bolch T, D'Agata C, Viviano G, Tartari G (2014). Tracing glacier changes since the 1960s on the south slope of Mt. Everest (central Southern Himalaya) using optical satellite imagery. *The Cryosphere*, 8(4), 1297–1315. DOI: [10.5194/tc-8-1297-2014](https://doi.org/10.5194/tc-8-1297-2014)
 
@@ -596,3 +664,39 @@ Chapter 0 should be paced like the glacier itself — slow, inevitable, indiffer
 9. Fujita K, Kadota T, Rana B, Kayastha RB, Ageta Y (2001). Shrinkage of Glacier AX010 in shorong region, Nepal Himalayas in the 1990s. *Bulletin of Glaciological Research*, 18, 51–54. [Key source for Khumbu/Imja early retreat rates]
 
 10. Bolch T, Buchroithner MF, Peters J, Baessler M, Bajracharya S (2008). Identification of glacier motion and potentially dangerous glacial lakes in the Mt. Everest region/Nepal using spaceborne imagery. *Natural Hazards and Earth System Sciences*, 8(6), 1329–1340. DOI: [10.5194/nhess-8-1329-2008](https://doi.org/10.5194/nhess-8-1329-2008)
+
+11. Lutz AF, Immerzeel WW, Shrestha AB, Bierkens MFP (2014). Consistent increase in High Asia's runoff due to increasing glacier melt and precipitation. *Nature Climate Change*, 4, 587–592. DOI: [10.1038/nclimate2237](https://doi.org/10.1038/nclimate2237)
+
+12. Hewitt K (2005). The Karakoram Anomaly? Glacier Expansion and the 'Elevation Effect,' Karakoram Himalaya. *Mountain Research and Development*, 25(4), 332–340. DOI: [10.1659/0276-4741(2005)025[0332:TKAGEA]2.0.CO;2](https://doi.org/10.1659/0276-4741(2005)025[0332:TKAGEA]2.0.CO;2)
+
+13. Farinotti D, Immerzeel WW, de Kok RJ, Quincey DJ, Dehecq A (2020). Manifestations and mechanisms of the Karakoram glacier Anomaly. *Nature Geoscience*, 13, 8–16. DOI: [10.1038/s41561-019-0513-5](https://doi.org/10.1038/s41561-019-0513-5)
+
+---
+
+## Appendix — Data Dependencies (production)
+
+For each dataset needed to render Chapter 0 visually correctly: dataset name, provider/URL, format, where used (which shot or visual element), licensing notes, and repo status. **Repo status flags** indicate whether the dataset is already ingested into the `weather` repo or must be ingested before Ch 0 production.
+
+| Dataset | Provider / URL | Format | Where used | Licensing | Repo status |
+|---|---|---|---|---|---|
+| **Copernicus GLO-30 DEM** (preferred, 30 m) | ESA / Copernicus (https://spacedata.copernicus.eu) | GeoTIFF | All terrain meshes — HKH arc establishing shots, all 5 zones | Open, free with registration | **Ingest required** |
+| **NASADEM** (fallback, 30 m) | NASA / USGS LP DAAC | GeoTIFF / HDF | Fallback if GLO-30 has voids over Khumbu | Open (NASA) | **Ingest required** |
+| **High-res local DEM (Khumbu)** | HMA-DEM (Shean et al., 8 m); or ICIMOD-supplied | GeoTIFF | Imja basin Shot 3 + Shot 7 (calving face) | HMA-DEM open | **Ingest required for Khumbu only** |
+| **Randolph Glacier Inventory v7.0 (RGI)** | GLIMS / NSIDC | GeoJSON / Shapefile | Glacier outlines in HKH-wide establishing shot | CC BY 4.0 | **Ingest required** |
+| **GLIMS database** | NSIDC | Shapefile | Historical glacier polygons cross-check | Open | **Ingest required** |
+| **ICIMOD HKH Glacier Inventory 1990/2000/2010/2020** | ICIMOD RDS | GeoJSON | `public/glaciers/hkh/{year}-points.geojson` — already in repo per project memory; verify presence | ICIMOD (open for non-commercial research) | **Partial — verify all four epochs** |
+| **ICIMOD HKH Glacial Lake Inventory** | ICIMOD RDS | GeoJSON | Imja Tsho polygon and surrounding lakes | ICIMOD open | **Ingest required** |
+| **Imja Glacier/Lake historical outlines** | Somos-Valenzuela et al. 2014 figures (digitized) | Manual GeoJSON | The lake-reveal turn (Master Storyboard Shots 8–13) | Cite paper (CC BY) | **Ingest required — digitize from paper figures** |
+| **Brencher et al. 2026 displacement maps** | Copernicus / TC supplement | GeoTIFF | Moraine-dam degradation overlay for final image (Shot 13) | CC BY (Copernicus) | **Ingest required** |
+| **HydroSHEDS HydroRIVERS / MERIT Hydro** | WWF / Yamazaki et al. | Shapefile / GeoTIFF | River network downstream of Imja (reference for Ch 4 handoff) | Open | **Ingest required** |
+| **OSM (Khumbu villages + monasteries)** | OpenStreetMap | OSM XML / GeoJSON | Village locations — Tengboche, Pheriche, Dingboche (Ch 0 reference; Ch 4 primary) | ODbL | **Ingest required** |
+| **Nepal admin boundaries** | HOTOSM / OCHA | Shapefile | Country/district outline in satellite establishing shot | CC BY | **Ingest required** |
+| **ESA WorldCover 2021 (10 m)** | ESA | GeoTIFF | Vegetation altitude bands — render correct land cover per locked table | CC BY 4.0 | **Ingest required** |
+| **Copernicus Global Land Cover (100 m)** | Copernicus | GeoTIFF | Fallback / cross-check for WorldCover | Open | **Ingest required** |
+| **MODIS MOD10A2 8-day snow cover** | NSIDC | HDF-EOS | Seasonal snow-line reference (atmospheric continuity) | NASA open (Earthdata) | **Available via NSIDC CLI per user memory** |
+| **Sentinel-2 L2A** (10 m) | ESA / Copernicus | GeoTIFF (JP2) | Texture reference for ice, moraine, lake colour | Open | **Ingest required** |
+| **Landsat 9 L2** (30 m) | USGS | GeoTIFF | Texture cross-check, multi-decadal continuity | Open | **Ingest required** |
+| **Hugonnet et al. 2021 mass balance** | Theia / Zenodo | GeoTIFF / NetCDF | Mass-loss visualization (background fact, not direct shot) | CC BY | **Already ingested per project memory** |
+| **Himawari-9 B13 cloud overlay** | JMA via project mirror (Vercel Blob `b4g2j8qv8kuneoz6`) | PNG tiles | Atmospheric continuity reference only | JMA terms | **Already ingested per project memory** |
+
+> Datasets flagged **"Ingest required"** must be acquired before Ch 0 production begins. The Cinematographer and Blender Expert pipeline artifacts should reference this appendix when specifying source data for each shot.
