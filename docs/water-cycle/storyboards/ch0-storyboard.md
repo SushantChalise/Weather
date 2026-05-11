@@ -627,8 +627,8 @@ Determinism: `seed_mod.lock_seeds(Path(__file__))` derives Cycles seed from SHA2
 | Moraine dam height | ~40–50 m above valley floor | Shot 12 | Research Brief Section 2 | — |
 | Moraine dam volume held | 61.7 ± 3.7 million m³ | Shot 13 | Somos-Valenzuela et al. (2014), 2012 survey | 10.5194/tc-8-1661-2014 |
 | Max lake depth | 116.3 ± 5.2 m | Shot 13 | Same | Same |
-| Dead ice subsidence (seasonal downward displacement) | 8.5–9.4 cm/yr (Brencher, Henderson & Shean 2026) | Shot 13 | Brencher, Henderson & Shean (2026), The Cryosphere | 10.5194/tc-20-67-2026 |
-| Lateral movement | ~90 cm over 2017–2024 | Shot 13 | Same | Same |
+| Moraine dam degradation | ~90 cm cumulative subsidence over 2017–2024 across a ~0.3 km² area of the moraine dam | Shot 13 | Brencher, Henderson & Shean (2026), The Cryosphere | 10.5194/tc-20-67-2026 |
+| Buried-ice evidence | Seasonal InSAR coherence changes indicate buried ice within the moraine dam | Shot 13 | Same | Same |
 | 2016 lake-level reduction | 3.4 m | Shot 13 | UNDP/GoN project documentation | — |
 | Early Warning System coverage | 71,752 people | Shot 13 | UNDP/GoN 2016 | — |
 | Calving block volume | ≤ 2.5 m³ (spec: 2.4 m³) | Shot 11 | Research Brief Section 6 Shot 7 | — |
@@ -650,7 +650,7 @@ Determinism: `seed_mod.lock_seeds(Path(__file__))` derives Cycles seed from SHA2
 
 The calving simulation cache is pre-baked OpenVDB format. It must exist before render begins — if absent, the render script exits with an error.
 
-**Cache location:** `data/water-cycle/calving/cache_fluid_####.vdb` (OpenVDB format, 45 frames f766–f810 using 0-indexed frame numbers f765–f809).
+**Cache location:** `data/water-cycle/calving/cache_fluid_####.vdb` (OpenVDB format, 45 frames covering f766–f810 in 1-based Blender frame numbering — the same numbering used everywhere else in this document). Files are named with zero-padded 1-based indices: `cache_fluid_0766.vdb` … `cache_fluid_0810.vdb`. Do **not** use 0-indexed frame references in Ch 0 production docs.
 
 **bpy API to reference existing cache:**
 ```python
@@ -673,7 +673,16 @@ fluid_mod.domain_settings.cache_type = "REPLAY"  # use pre-baked cache, do not r
 
 **Cache generation:** Run the Mantaflow bake in `Ch0_Calving_Sim.blend` (separate scene). Domain: 30 m × 30 m × 5 m, 80 subdivisions. Wave amplitude must not exceed 15 cm. If it does, reduce block volume in Calving_Block and re-bake. Cache files must be committed to the repo at `data/water-cycle/calving/` before any render node can proceed.
 
-**Expected file count:** ~45 VDB files (one per frame, f765–f809). Expected total cache size: ~200–400 MiB. Do not gitignore this directory.
+**Expected file count:** ~45 VDB files (one per frame, `cache_fluid_0766.vdb` … `cache_fluid_0810.vdb`). Expected total cache size: ~200–400 MiB.
+
+**Storage policy (CRITICAL — do not commit raw VDB to ordinary Git):** A 200–400 MiB binary blob in normal Git history is a repo-health failure. Choose one of:
+
+1. **Git LFS** — track `data/water-cycle/calving/*.vdb` via `.gitattributes` (LFS). Preferred if the team is already using LFS.
+2. **Release artifacts** — bake locally, upload the cache tarball as a GitHub release asset; render script fetches via `gh release download` on first run.
+3. **Object storage** — Vercel Blob, S3, or R2; `scripts/data/fetch_ch0_calving_cache.sh` downloads on demand.
+4. **Local-only deterministic bake** — `scripts/data/bake_ch0_calving.py` is run once per developer; cache lives in a gitignored directory; CI bakes its own copy if needed.
+
+If the cache is missing at render time, the render script exits with the clear error shown above. Do **not** add a fallback that re-simulates inline — Mantaflow is not Cycles-seed-deterministic, and re-simulation breaks byte-identical re-render.
 
 ---
 
@@ -714,7 +723,7 @@ The `SCHEMATIC` tier must be reflected in `provenance.json`: every SCHEMATIC `sc
 ## Acceptance checklist (CANDIDATE LOCK → LOCK gate)
 
 Lock-blocking:
-- [ ] Consistency check passes: `grep -RE 'Annapurna_|Shot 14|Bhushan' docs/water-cycle/storyboards/ --exclude-dir=archive` returns nothing
+- [ ] Consistency checks pass: see `ch0-frame-map.yaml › acceptance_tests.consistency_checks` (6 checks scoped to canonical implementation files: storyboard, technical-spec, frame-map — research brief and working artifacts are intentionally excluded so geographic Annapurna references and "shot removed" explanatory prose don't fail the gate)
 - [ ] Frame-map YAML validates against all 9 docs (shot count, frame ranges)
 - [ ] All 13 shots have data_classification tier assigned in YAML
 - [ ] Brencher subsidence language: cumulative ~90cm/2017–2024 framing applied across script + storyboard + tech-spec

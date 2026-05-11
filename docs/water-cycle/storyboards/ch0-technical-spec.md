@@ -1182,9 +1182,18 @@ fluid_mod.domain_settings.cache_directory = str(cache_path)
 fluid_mod.domain_settings.cache_type = "REPLAY"
 ```
 
-**Cache generation:** Run the Mantaflow bake in `Ch0_Calving_Sim.blend` (separate scene). Domain: 30 m × 30 m × 5 m, 80 subdivisions. Wave amplitude must not exceed 15 cm. Cache files must be committed to the repo at `data/water-cycle/calving/` before any render node can proceed.
+**Cache generation:** Run the Mantaflow bake in `Ch0_Calving_Sim.blend` (separate scene). Domain: 30 m × 30 m × 5 m, 80 subdivisions. Wave amplitude must not exceed 15 cm.
 
-**Expected file count:** ~45 VDB files. Expected total cache size: ~200–400 MiB. Do not gitignore this directory.
+**Expected file count:** ~45 VDB files (`cache_fluid_0766.vdb` … `cache_fluid_0810.vdb`). Expected total cache size: ~200–400 MiB.
+
+**Storage policy (CRITICAL — do not commit raw VDB to ordinary Git):** A 200–400 MiB binary blob in normal Git history is a repo-health failure. The render script does not commit this cache; it expects it to be present at render time via one of these four mechanisms (pick one before the first production render):
+
+1. **Git LFS** — track `data/water-cycle/calving/*.vdb` via `.gitattributes`. Preferred if the team is already using LFS.
+2. **Release artifacts** — bake locally; upload `ch0-calving-cache.tar.zst` as a GitHub release asset; `scripts/data/fetch_ch0_calving_cache.sh` runs `gh release download` on first invocation.
+3. **Object storage** — Vercel Blob, S3, or R2; fetch script downloads to `data/water-cycle/calving/`.
+4. **Local-only deterministic bake** — `scripts/data/bake_ch0_calving.py` runs once per developer; cache directory is gitignored; CI bakes its own copy.
+
+If the cache is missing at render time, the render script exits with `FileNotFoundError` (see Cache reference block above). Do NOT add a fallback that re-simulates inline — Mantaflow is not Cycles-seed-deterministic, and re-simulation breaks byte-identical re-render.
 
 ---
 
