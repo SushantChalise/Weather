@@ -156,7 +156,8 @@ export function DemGrid({ provenance: _provenance }: Props) {
 
       <style>{`
         @keyframes wc-dem-fade {
-          to { opacity: 0.7; }
+          /* Layer 2 is intentionally subtle (0.3) — it should not dominate Layer 1 outlines */
+          to { opacity: 0.3; }
         }
       `}</style>
     </svg>

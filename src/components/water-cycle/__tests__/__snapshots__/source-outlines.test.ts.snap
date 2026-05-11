@@ -1,0 +1,48 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`SourceOutlines — silhouettes snapshot > all silhouette entries match snapshot (regression guard) 1`] = `
+[
+  {
+    "id": "glacier-1990",
+    "labelX": 16,
+    "labelY": 12,
+    "pathStart": "M4,0 L14,2 L22,0 L30",
+    "strokeLen": 340,
+  },
+  {
+    "id": "glacier-2020",
+    "labelX": 16,
+    "labelY": 18,
+    "pathStart": "M6,2 L15,4 L23,2 L31",
+    "strokeLen": 330,
+  },
+  {
+    "id": "lake-current",
+    "labelX": 70,
+    "labelY": 78,
+    "pathStart": "M66,79 L69,79 L69,82",
+    "strokeLen": 36,
+  },
+  {
+    "id": "lake-risky",
+    "labelX": 70,
+    "labelY": 86,
+    "pathStart": "M67,79.5 L68.5,79.5 ",
+    "strokeLen": 18,
+  },
+  {
+    "id": "imja-ring",
+    "labelX": 74,
+    "labelY": 77,
+    "pathStart": "M60,74 L66,73 L71,75",
+    "strokeLen": 50,
+  },
+  {
+    "id": "terrain-hkh",
+    "labelX": 3,
+    "labelY": 5,
+    "pathStart": "M2,0 L98,0 L98,100 L",
+    "strokeLen": 400,
+  },
+]
+`;
