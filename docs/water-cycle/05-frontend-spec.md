@@ -1,5 +1,13 @@
 # 05 — Frontend Spec
 
+## ⚠ Mandatory Chrome testing protocol
+
+**Every frontend task must follow the Chrome testing protocol from `WATER_CYCLE_SPEC.md` §15 before opening its PR**, and Mother must re-run the same protocol against the PR branch in MOTHER_REVIEW before merging. A frontend PR without Chrome verification on both sides is NOT mergeable.
+
+Why: T2.2 (Provenance Peel) shipped on 2026-05-11 with all unit tests green and was merged, but the live page rendered Layer 1 as giant overlapping text labels — a problem only visible by loading the page in Chrome and clicking the "Show data" button. Snapshot + lint + tsc + build tests do not catch layout, color grammar, overlap, responsive, dark-mode, or interaction bugs.
+
+The protocol minimum: `preview_start` → navigate → screenshot at desktop → exercise every new/touched interaction → `preview_inspect` for color/size/position vs §7 grammar → `preview_console_logs --level error` (assert zero) → `preview_resize` to mobile/tablet/desktop → `preview_resize` with `colorScheme: 'dark'`. See `WATER_CYCLE_SPEC.md` §15 for the full step list.
+
 ## Overview
 
 The page is one Next.js route that:

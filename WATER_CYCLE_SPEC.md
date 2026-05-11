@@ -175,6 +175,7 @@ Detailed spec: [docs/water-cycle/06-provenance-peel.md](docs/water-cycle/06-prov
 8. **Bundle budget**: ≤ 250 KB compressed JS new for the route. Each chapter's video chunk ≤ 24 MiB to fit Workers + safety margin.
 9. **WCAG 2.1 AA**: keyboard navigation, 4.5:1 contrast, screen-reader-friendly transcripts.
 10. **No fake precision**: don't claim "12,400 people downstream" if our method is OSM nodes + WorldPop within 200m. State the method or use a coarser claim ("~10,000 people in basin, exact GLOF flood-zone modeling pending").
+11. **Every frontend element gets loaded in Chrome and interactively tested before merge.** Snapshot + unit + build alone do NOT prove that a component renders correctly to a human eye. Mandatory minimum protocol below in §15. Render PRs need MOTHER_REVIEW: ✓ pass on the cinematic; frontend PRs need MOTHER_REVIEW: ✓ pass on the live page exercised in Chrome. See §15 for the exact steps; codified in the Mother runbook + worker prompt template.
 
 ---
 
@@ -338,6 +339,7 @@ Each phase's tasks are detailed in [docs/water-cycle/07-task-graph.md](docs/wate
 | 2026-05-10 | Cut scroll-velocity audio | Browsers block, gimmicky | Codex v5 review |
 | 2026-05-10 | Cap each video < 25 MiB (Workers asset cap) | Cloudflare hard limit | Codex v5 review |
 | 2026-05-10 | Hydrological Clock stays 2D HTML/SVG, NOT 3D monolith | Timing precision needs axes/labels | Codex v5 review |
+| 2026-05-11 | Every frontend element must be loaded in Chrome and interactively tested before merge (see §15) | T2.2 ProvenancePeel shipped with all unit tests green but Layer 1 rendered as giant overlapping text labels — only visible by loading the live page. Snapshot + lint + tsc + build do not prove visual correctness. | User directive after live inspection of /atlas/water-cycle |
 
 When Mother (or any future plan revision) overrides one of these: append a new row, don't edit existing rows.
 
@@ -389,3 +391,38 @@ If we ship correctly:
 That's what makes it canonical. Not the Blender renders. The Blender renders + the Provenance Peel + the locked numbers.
 
 Make the cinema falsifiable.
+
+---
+
+## 15. Frontend testing protocol (mandatory, every frontend PR)
+
+Codified after T2.2 (Provenance Peel) shipped with all unit tests green and was merged, but the live page rendered Layer 1 as giant overlapping text labels — a problem only visible by loading and clicking. Snapshot + unit + build tests do not prove visual correctness.
+
+**Applies to every task that builds, modifies, or polishes a frontend element**: components under `src/components/water-cycle/**`, routes under `src/app/atlas/water-cycle/**`, per-chapter overlays, the Provenance Peel and its sub-components, the cinematic video player, the mobile card-stack, the chapter index, citation chips, the closing thesis, the citations bibliography page, the reduced-motion fallback, and the OG image preview.
+
+**Worker step (before opening PR)**:
+
+1. Start the dev server via `mcp__Claude_Preview__preview_start` (config in `.claude/launch.json`). Do not use `npm run dev` via Bash — the preview tool gives you screenshot, eval, click, fill, inspect, console-logs, network, snapshot, resize.
+2. Navigate to the route the change affects.
+3. Take a screenshot at the default desktop viewport (1440×900).
+4. Exercise EVERY interaction the change introduces or touches: click every new button, scroll through the affected sections, test keyboard navigation (Tab, Esc, Enter), open every modal / peel / accordion / popover.
+5. `preview_inspect` the new/changed elements — verify computed `color`, `background-color`, `font-size`, `padding`, `position`, `width/height` match the spec (color grammar tokens from §7, eases, ≥4.5:1 contrast).
+6. `preview_console_logs --level error` — assert zero errors. Investigate any unexpected warnings.
+7. `preview_resize` to mobile (375×812), tablet (768×1024), desktop (1440×900); screenshot at each. Verify the mobile card-stack triggers at < 768px.
+8. `preview_resize` with `colorScheme: 'dark'`; verify dark mode renders correctly (text contrast, color grammar preserved, no blown-out backgrounds).
+9. If the change touches reduced-motion behavior: `preview_eval` with `matchMedia('(prefers-reduced-motion: reduce)').matches` forced true via DevTools emulation or test that the fallback path renders.
+10. Include before/after screenshots in the PR body when changing existing visuals.
+
+**Mother step (MOTHER_REVIEW on a frontend PR)**:
+
+Even if the worker self-reported all-green, Mother re-runs the protocol on the PR branch:
+
+1. `git checkout` the PR branch in an existing worktree (or create one), or check out into a fresh disposable worktree.
+2. Restart the dev server (or use an existing one pointing at this worktree).
+3. Repeat the worker's protocol steps 3–9 against the actual rendered page.
+4. Verify the locked color grammar (§7) by `preview_inspect` on representative elements: ice tokens in `#7DD3FC` family, lakes in `#0E7490`, terrain in `#475569`, etc.
+5. Add `MOTHER_REVIEW: ✓ pass` (or `✗` with the specific visual issue) as a PR comment.
+
+**A frontend PR without Mother's Chrome verification is NOT mergeable**. Same gate as render PRs needing MOTHER_REVIEW on the cinematic.
+
+**Why this rule exists**: tools like lint, tsc, and Vitest snapshot ensure the component compiles, types correctly, and produces a stable serialization — none of those catch a layout bug, an oversized text overlay, a color grammar violation, or a broken responsive breakpoint. Only loading the page does.

@@ -189,13 +189,35 @@ What blocks render-task merge (additional, beyond the above):
 13. ❌ Provenance Peel doesn't open on the new chapter
 14. ❌ Re-render doesn't produce identical output (deterministic seed broken)
 
+What blocks frontend-task merge (additional, beyond the global blockers):
+
+15. ❌ Worker did not load the page in Chrome via `mcp__Claude_Preview__preview_*` and did not include screenshots / inspect output in the PR (per WATER_CYCLE_SPEC.md §15).
+16. ❌ Mother did not run the Chrome testing protocol against the PR branch in MOTHER_REVIEW.
+17. ❌ Mobile breakpoint (375×812) is broken — card-stack doesn't trigger, content overflows, controls overlap.
+18. ❌ Dark mode (`prefers-color-scheme: dark`) renders with broken contrast, blown-out backgrounds, or grammar-violating colors.
+19. ❌ Console contains errors when navigating the affected route or exercising the changed interactions.
+20. ❌ `preview_inspect` on representative elements shows computed colors / fonts / sizes that diverge from spec (§7 color grammar tokens, locked eases).
+
 ## Manual review (Mother only, before merge)
 
-For render tasks specifically, Mother performs a final manual review:
+For **render tasks**, Mother performs a final manual review:
 
 1. Watch the new cinematic end-to-end at full quality
 2. Open Provenance Peel mid-chapter, verify layers align with paused frame
 3. Check the chapter integrates visually with adjacent chapters (color, motion grammar)
 4. Verify shareable still (poster.jpg) is the correct moment
 
-This is documented in `AGENT_STATE.md` as `MOTHER_REVIEW: <PR#> ✓ pass | ✗ <reason>`.
+For **frontend tasks** (Phase 2 components, Phase 2.3 route scaffold, Phase 3 per-chapter `*.tsx` wiring, Phase 4 polish, any T*.c follow-up touching `src/`), Mother MUST run the full Chrome testing protocol from WATER_CYCLE_SPEC.md §15 against the PR branch:
+
+1. Check out the PR branch in an existing worktree (or fresh disposable worktree).
+2. Start a dev server via `mcp__Claude_Preview__preview_start`.
+3. Navigate to the affected route, screenshot at default viewport.
+4. Exercise every new/touched interaction (click, scroll, keyboard).
+5. `preview_inspect` representative elements for color grammar / sizing.
+6. `preview_console_logs --level error` — assert zero.
+7. `preview_resize` mobile / tablet / desktop, screenshot each.
+8. `preview_resize` with `colorScheme: 'dark'` — verify dark mode.
+
+Documented in `AGENT_STATE.md` as `MOTHER_REVIEW: <PR#> ✓ pass | ✗ <reason>`. **A frontend PR without Mother's Chrome verification is NOT mergeable** — same gate as render PRs.
+
+This rule was added 2026-05-11 after T2.2 (Provenance Peel) shipped all-green and was merged, but the live page rendered Layer 1 as oversized overlapping text labels — a problem only visible by loading and clicking. See `WATER_CYCLE_SPEC.md` §15 for the full rationale.
