@@ -1,7 +1,7 @@
 # Chapter 0 — Master Storyboard
-**Status**: CANDIDATE LOCK — pending consistency pass
-**Panel votes**: 5/5 CONDITIONAL PASS, 14/14 blocking fixes applied. Consistency pass: PENDING — see ch0-frame-map.yaml
-**Locked at**: 2026-05-11T00:00:00Z
+**Status**: CANDIDATE LOCK — consistency checks passed; awaiting explicit LOCK decision
+**Panel votes**: 5/5 CONDITIONAL PASS, 14/14 blocking fixes applied. **Consistency pass**: PASSED — see `ch0-frame-map.yaml › acceptance_tests.consistency_checks`
+**Last verified**: 2026-05-11
 
 ---
 
@@ -722,15 +722,17 @@ The `SCHEMATIC` tier must be reflected in `provenance.json`: every SCHEMATIC `sc
 
 ## Acceptance checklist (CANDIDATE LOCK → LOCK gate)
 
-Lock-blocking:
-- [ ] Consistency checks pass: see `ch0-frame-map.yaml › acceptance_tests.consistency_checks` (6 checks scoped to canonical implementation files: storyboard, technical-spec, frame-map — research brief and working artifacts are intentionally excluded so geographic Annapurna references and "shot removed" explanatory prose don't fail the gate)
-- [ ] Frame-map YAML validates against all 9 docs (shot count, frame ranges)
-- [ ] All 13 shots have data_classification tier assigned in YAML
-- [ ] Brencher subsidence language: cumulative ~90cm/2017–2024 framing applied across script + storyboard + tech-spec
-- [ ] Status: CANDIDATE LOCK
-- [ ] No reference to pixel-equality color test remains in tech-spec
+Lock-blocking (all PASSED — re-run the YAML acceptance tests to re-verify):
+- [x] Consistency checks pass: see `ch0-frame-map.yaml › acceptance_tests.consistency_checks` (6 checks scoped to canonical implementation files: storyboard, technical-spec, frame-map — research brief and working artifacts are intentionally excluded as non-authoritative so geographic Annapurna references and "shot removed" explanatory prose don't fail the gate)
+- [x] Frame-map YAML validates canonical implementation files; research brief and working artifacts are non-authoritative (13 shots, 900 frames, 30.00 s confirmed structurally)
+- [x] All 13 shots have data_classification tier assigned in YAML (DATA-LOCKED / SCHEMATIC / ARTISTIC three-tier)
+- [x] Brencher subsidence language: cumulative ~90 cm / 2017–2024 / ~0.3 km² framing applied across script (reduced-motion + static fallback), storyboard (evidence table), and tech-spec (provenance JSON)
+- [x] Status: CANDIDATE LOCK
+- [x] No reference to legacy pixel-equality color test remains in tech-spec (only explicit deprecation prose)
 
-Post-render:
+LOCK is the user's decision (creative sign-off); the mechanical gate is passed.
+
+Post-render (verified after `ch0_reservoir.py` v2 produces outputs):
 - [ ] All 5 output files < 24 MiB
 - [ ] EXR-source masked-region median ΔE ≤ 5 against #78C8C0 for Imja Tsho
 - [ ] Poster frame = 841 (Shot 13 final hold start)
