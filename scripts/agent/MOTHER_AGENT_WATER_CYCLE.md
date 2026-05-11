@@ -90,12 +90,38 @@ You are a Sonnet 4.6 worker on the Himalayan Atlas water-cycle build.
 
 Mother agent context: see WATER_CYCLE_SPEC.md and docs/water-cycle/00-mandate.md.
 Read these BEFORE starting work:
-- WATER_CYCLE_SPEC.md (locked decisions)
+- WATER_CYCLE_SPEC.md (locked decisions, including §15 Frontend testing protocol if your task touches frontend)
 - docs/water-cycle/01-architecture.md (data flow contracts)
 - docs/water-cycle/10-anti-patterns.md (what NOT to do)
 
 Self-verify before opening PR:
   npm run lint && npx tsc --noEmit && npm test
+
+IF YOUR TASK TOUCHES FRONTEND (components under src/components/water-cycle/**,
+routes under src/app/atlas/water-cycle/**, per-chapter overlays, Provenance
+Peel, cinematic video, mobile card-stack, chapter index, citation chips,
+closing thesis, citations bibliography, reduced-motion fallback, OG image):
+
+  You MUST follow the protocol in WATER_CYCLE_SPEC.md §15 before opening PR:
+  1. Start the dev server via mcp__Claude_Preview__preview_start (config in
+     .claude/launch.json — "weather-worktree" config maps to port 3002 for
+     parallel testing alongside Mother's port 3001 server).
+  2. Navigate to the affected route.
+  3. Screenshot at default desktop viewport.
+  4. Exercise EVERY new/touched interaction (click, scroll, keyboard,
+     modals, peels).
+  5. preview_inspect new/changed elements — verify computed color matches
+     §7 color grammar tokens, font/padding/position match spec.
+  6. preview_console_logs --level error — assert zero errors.
+  7. preview_resize to mobile (375x812), tablet (768x1024), desktop
+     (1440x900); screenshot each.
+  8. preview_resize colorScheme: 'dark'; verify dark mode renders.
+  9. If reduced-motion is affected, verify the fallback path.
+  10. Include before/after screenshots in PR body when changing visuals.
+
+  A frontend PR opened without this protocol will be rejected by Mother
+  and sent back. Snapshot + unit + build tests alone are NOT sufficient
+  — they don't catch layout, color, overlap, or responsive bugs.
 
 Stay in scope. If blocked, report via:
   QUESTION: <only for blockers requiring human input>
@@ -114,10 +140,13 @@ PR title: <see task spec>
 
 - ❌ Don't expand worker scope mid-task. If a task needs to grow, mark it BLOCKED, write a follow-up task in 07-task-graph.md, then spawn a new worker.
 - ❌ Don't merge a render task without MOTHER_REVIEW: ✓ pass.
+- ❌ **Don't merge a frontend task without MOTHER_REVIEW: ✓ pass** — Mother runs the full Chrome testing protocol from WATER_CYCLE_SPEC.md §15 against the PR branch (load page, exercise interactions, inspect computed styles, console, responsive breakpoints, dark mode). T2.2 ProvenancePeel shipped with all unit tests green and was visibly broken on the live page (Layer 1 = oversized overlapping text labels). Snapshot + unit + lint + build do NOT prove visual correctness.
 - ❌ Don't run `gh api DELETE` without `&&` chaining to the PUT merge — orphans the branch on merge failure.
+- ❌ **Don't pipe `gh api PUT merge` through `| head` (or any filter)** in a `&&` chain — the pipe masks the PUT exit code, so a failed merge still triggers DELETE and orphans the branch (auto-closes the PR). Hit on PR #97 on 2026-05-11.
 - ❌ Don't change locked decisions in `WATER_CYCLE_SPEC.md` §11 without appending a new row to the decision log.
 - ❌ Don't introduce new datasets / animations / chapters that aren't in 07-task-graph.md without a council loop. v7 is locked.
 - ❌ Don't skip the manual review on render tasks even if CI passes. Numbers can be right and the cinematic still wrong.
+- ❌ Don't skip the manual Chrome review on frontend tasks even if CI passes. Layouts can be right in code and wrong in the browser.
 - ❌ Don't run more than 2 Sonnet workers in parallel (sanity).
 - ❌ Don't poll. Use ScheduleWakeup(180-1800) appropriate to the wait expected.
 

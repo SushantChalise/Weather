@@ -16,6 +16,18 @@ This is the **executable plan**. Each task below is a complete brief that Mother
 
 When Mother spawns a worker, update status to 🏃 + worker ID + branch name in `AGENT_STATE.md`. When PR merges, update to ✅.
 
+## Mandatory protocol for FRONTEND tasks
+
+Every task in this graph that touches frontend (Phase 2 components, Phase 2.3 route scaffold, Phase 3 per-chapter `*.tsx` wiring, Phase 4 polish, any T*.c follow-up that adjusts `src/` UI) must follow **WATER_CYCLE_SPEC.md §15 — Frontend testing protocol** before opening its PR. Snapshot + unit + build are insufficient. The worker MUST:
+
+1. Start `mcp__Claude_Preview__preview_start` (config in `.claude/launch.json`).
+2. Navigate the affected route, exercise every new/touched interaction, inspect computed styles for §7 color grammar compliance, check console for errors, test mobile (375×812) + tablet (768×1024) + desktop (1440×900), test dark mode.
+3. Include before/after screenshots in the PR body when changing existing visuals.
+
+Mother re-runs the same protocol as MOTHER_REVIEW before merging. A frontend PR opened without this protocol is rejected and sent back.
+
+This applies retroactively to all in-flight frontend work as of 2026-05-11.
+
 ## Phase 1 — Foundations (parallel, no inter-deps)
 
 ### T1.1 — Stage HKH SRTM 30m DEM 🆕
