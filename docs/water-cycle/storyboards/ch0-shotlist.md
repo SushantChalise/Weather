@@ -1,32 +1,37 @@
 # Chapter 0 — Shot List
+
+> **STATUS**: Working artifact — see `ch0-storyboard.md` for canonical version, `ch0-frame-map.yaml` for machine-readable source of truth.
+
 *Role: Cinematographer*
 *Date: 2026-05-11*
 *Total runtime: 30.0 seconds / 900 frames @ 30 fps*
-*Beat 1 (The World): Shots 01–06, f001–f450, 0:00–0:15*
-*Beat 2 (The Turn): Shots 07–12, f451–f825, 0:15–0:27.5*
-*Beat 3 (The Witness): Shots 13–14, f826–f900, 0:27.5–0:30*
+*Beat 1: Shots 01–05, f001–f435, 0:00–0:14.5*
+*Beat 2: Shots 06–11, f436–f810, 0:14.5–0:27.0*
+*Beat 3: Shots 12–13, f811–f900, 0:27.0–0:30.0*
 
 ---
 
-> **Note on runtime compression.** The Director Brief was drafted against a 2:45 format. This shot list serves the 30-second cinematic brief. All emotional beats, required shots, and "must-not-do" constraints are honoured; durations are compressed proportionally. The glory moment runs 7 seconds (the maximum the prompt allows at 6–8s) rather than 25. Regional visits (Shots 04–06) run 1 second each — the minimum to establish a visual fingerprint. The moraine dam receives 2.5 seconds total across its two shots; any additional hold time should be added here first if the edit buys back time from Beat 2.
+> **Note on Shot 05 removal.** The original shot list had 14 shots numbered 01–14. The Annapurna Sanctuary shot (original Shot 05) has been removed per BLOCKING FIX #5 from panel review. All subsequent shots are renumbered; 30 frames are redistributed: +15 to Shot 01 (7.0s → 7.5s) and +15 to the new Shot 13 / Moraine Dam Final Hold (1.5s → 2.0s).
+
+> **Note on runtime compression.** The Director Brief was drafted against a 2:45 format. This shot list serves the 30-second cinematic brief. All emotional beats, required shots, and "must-not-do" constraints are honoured; durations are compressed proportionally. The glory moment runs 7.5 seconds rather than 25. Regional visits (Shots 04–05) run 1 second each — the minimum to establish a visual fingerprint. The moraine dam receives 3.0 seconds total across its two shots; any additional hold time should be added to Shot 13 first if the edit buys back time from Beat 2.
 
 ---
 
-## Beat 1 — The World (0:00 – 0:15 / f001–f450)
+## Beat 1 — The World (0:00 – 0:14.5 / f001–f435)
 
 ---
 
 ### SHOT 01 — HKH Dawn: The Glory Moment
 
 ```
-Duration: 7.0s (frames 001–210 @ 30fps)
+Duration: 7.5s (frames 001–225 @ 30fps)
 Type: Establishing wide / Composite aerial
 Camera position: ~84°E, 30°N — approximate centre of mass of the HKH arc,
                  altitude ~200 km (orthographic satellite perspective, not perspective
                  projection). Camera oriented south-southeast, range reads left-to-right
                  across frame. Enough arc width to show ~2,000 km of range — from the
                  Karakoram (northwest) to the central Nepal Himalaya — as a single system.
-Camera movement: Static. Absolutely no movement for the full 7 seconds.
+Camera movement: Static. Absolutely no movement for the full 7.5 seconds.
 Focal length: Orthographic — flat projection. No horizon distortion. The range
               reads as it would from a high-altitude reconnaissance pass.
 Altitude: ~200 km above mean sea level (satellite analogue, not drone)
@@ -64,16 +69,19 @@ Transition in: Fade from black (2-frame fade, barely perceptible — not a slow 
 Transition out: Hold — Shot 02 begins as the first barely-perceptible lateral drift
                 replaces the static, so the cut feels like the mountain deciding to
                 move rather than the camera deciding to pan.
-Data overlay: None. No title, no text, no graphic of any kind for the full 7 seconds.
+Data overlay: None. No title, no text, no graphic of any kind for the full 7.5 seconds.
               The chapter title "Chapter 0 / The Water That Was Ice" may appear at
-              f190–f210 (last 0.67s of this shot) as a quiet 12pt typographic fade-in
+              f210–f225 (last 0.5s of this shot) as a quiet 12pt typographic fade-in
               in #E8E4DC (warm off-white) bottom-left corner, opacity 0→40% only —
               not full white, a suggestion. This is the one concession to navigation
-              need; if the UX can defer the title to f211, defer it.
+              need; if the UX can defer the title to f226, defer it.
 Director note reference: Section 4 (The Glory Moment); Section 7 pacing — "camera
-                         does not move for the first twenty seconds [scaled to 7s here]."
+                         does not move for the first twenty seconds [scaled to 7.5s here]."
                          Section 5 items 1 and 8 (no lake before range; no title on
                          glory shot — if title is deferred, this constraint is met).
+                         BLOCKING FIX #3: Shot 01 is the first beneficiary of any
+                         runtime expansion. The 7.5s floor is reached by redistributing
+                         15 frames from the removed Annapurna shot.
 Cinematographer note: At Blender this is a sun lamp set at solar elevation ~-3°
                       (astronomical twilight, sun just below geometric horizon at
                       the latitude of the peaks). Sun azimuth ~080° (east-northeast,
@@ -97,7 +105,7 @@ Cinematographer note: At Blender this is a sun lamp set at solar elevation ~-3°
 ### SHOT 02 — Karakoram Vigour: The Western Arc
 
 ```
-Duration: 2.5s (frames 211–285 @ 30fps)
+Duration: 2.5s (frames 226–300 @ 30fps)
 Type: Aerial tracking
 Camera position: Above the central Karakoram, approximately 76°E, 36°N,
                  altitude ~80 km. Camera oriented south-southwest, looking across
@@ -131,7 +139,7 @@ Color palette:
                                      of Shot 01)
 What this shot reveals: The Karakoram's characteristic clean white ice — establishing
                         the western baseline before the character change into Nepal.
-Transition in: Cut from Shot 01 (the first movement after 7 seconds of stillness
+Transition in: Cut from Shot 01 (the first movement after 7.5 seconds of stillness
                — the cut IS the movement beginning; the drift starts on the first
                frame of Shot 02)
 Transition out: Cut to Shot 03
@@ -145,7 +153,7 @@ Cinematographer note: The Karakoram Anomaly (some glaciers advancing) is a visua
                       look the same, the contrast is lost. Blender flag: glacier
                       geometry here should be rendered as predominantly white-blue
                       surface material (low debris_mask value); save the grey debris
-                      shader for Shots 03, 07, 08.
+                      shader for Shots 03, 06, 07.
 ```
 
 ---
@@ -153,7 +161,7 @@ Cinematographer note: The Karakoram Anomaly (some glaciers advancing) is a visua
 ### SHOT 03 — The Grey River: Arc-to-Nepal Transition
 
 ```
-Duration: 2.5s (frames 286–360 @ 30fps)
+Duration: 2.5s (frames 301–375 @ 30fps)
 Type: Aerial tracking (continuing eastward drift, altitude dropping)
 Camera position: Above central Nepal Himalaya, approximately 84°E, 28.5°N,
                  altitude ~30 km. Transition from the high satellite perspective
@@ -218,7 +226,7 @@ Cinematographer note: This shot does the work the Director describes as "the fir
 ### SHOT 04 — Langtang / Yala Glacier: The Clean Reference
 
 ```
-Duration: 1.0s (frames 361–390 @ 30fps)
+Duration: 1.0s (frames 376–405 @ 30fps)
 Type: Static wide / medium aerial
 Camera position: 28°14'N, 85°37'E — directly above Yala Glacier, Langtang valley.
                  Altitude ~2 km AGL, looking slightly southwest toward the glacier
@@ -254,7 +262,7 @@ What this shot reveals: Langtang's Yala Glacier as the clean debris-free counter
 Transition in: Cut from Shot 03
 Transition out: Cut to Shot 05
 Data overlay: None. [Optional micro-label: "LANGTANG" in 9pt #E8E4DC, top-left,
-              appears at f375 only if the UX requires region identification.
+              appears at f390 only if the UX requires region identification.
               Not a narration element — purely cartographic wayfinding.]
 Director note reference: Beat 1 regional visits — "these can be brief (3–5 seconds
                          each) but must be visually distinct from each other."
@@ -272,77 +280,20 @@ Cinematographer note: At 1 second (30 frames), this shot must make its visual
 
 ---
 
-### SHOT 05 — Annapurna Sanctuary: The Vertical Wall
+### SHOT 05 — Kangchenjunga / Makalu: The Eastern Extreme
 
 ```
-Duration: 1.0s (frames 391–420 @ 30fps)
-Type: Establishing wide / telephoto compress
-Camera position: ~28°32'N, 83°58'E — above the Annapurna Sanctuary basin floor,
-                 looking north-northwest. Altitude ~1 km above the Sanctuary floor
-                 (~5,100 m AGL), so camera is at ~5,100 m absolute and looking up
-                 at Annapurna's south face. This is NOT a shot from the ground —
-                 it is an aerial position inside the Sanctuary bowl, low enough to
-                 show the walls rising vertiginously.
-Camera movement: Static
-Focal length: 400mm equivalent (telephoto compression stacks the concentric ring
-              of peaks — Hiunchuli, Annapurna South, Annapurna I, Gangapurna —
-              into a single layered wall, eliminating depth perception)
-Altitude: ~1,000 m AGL above Sanctuary basin floor (~5,100 m absolute)
-Light: Pre-dawn / first light. The Sanctuary floor is still in complete shadow —
-       the ring of peaks above ~6,000 m is catching first direct light, burning
-       orange-white. The south face of Annapurna I (8,091 m) at the top of frame
-       is the brightest element. Near-continuous spindrift plumes visible off the
-       upper ridgelines as thin white streamers.
-Foreground: The flat white basin floor of the Sanctuary — snow-covered, featureless
-            in pre-dawn shadow. The absence of detail emphasizes the enclosure.
-Midground: The concentric ring of peaks rising 3,000–4,000 m above the basin floor.
-           The telephoto compression makes them read as a single vertical wall.
-Background: The summit of Annapurna I and its south face — a tilted white plane at
-            a terrifying angle, lit from below in the first rays. Spindrift from
-            the ridge reads as white calligraphy on deep blue sky.
-Color palette:
-  Annapurna summit face (lit):    #D4B080  (orange-warm gold, first light)
-  Mid-height peaks (semi-lit):    #8090A0  (grey-blue, still in shadow transition)
-  Sanctuary basin floor:          #1C2030  (deep blue-grey, pre-dawn shadow)
-  Sky above summits:              #0C1828  (near-black Himalayan pre-dawn blue)
-  Spindrift plumes:               #E0E8F0  (near-white, back-lit by sky)
-What this shot reveals: Annapurna's vertiginous scale — the sense of enclosure in
-                        the Sanctuary, the walls rising impossibly high, the basin
-                        floor as the bottom of something rather than the top.
-Transition in: Cut from Shot 04
-Transition out: Cut to Shot 06
-Data overlay: [Optional: "ANNAPURNA" micro-label, identical spec to Shot 04, at f405]
-Director note reference: Beat 1 regional visits. Research Brief, Zone 4 — "arguably
-                         the most dramatic vertical relief in the range... 3,000 m
-                         in roughly 3 km of horizontal distance."
-Cinematographer note: The telephoto compression is doing all the work here. Without
-                      it, the Sanctuary reads as a wide alpine bowl and the scale is
-                      lost. At 400mm, the rings of peaks stack into a wall. If the
-                      Blender camera frustum produces unacceptable z-fighting at this
-                      focal length (common with DEM terrain at high zoom), switch to
-                      a true orthographic projection for this shot only and note it
-                      in the render log.
-                      IMPORTANT: Do NOT show the south face at close range without
-                      showing its angle — the Research Brief describes it as "a white-
-                      grey wall at distance" with the distinction between ice and snow
-                      lost at the extreme angle. Render at distance where this ambiguity
-                      is truthful, not at close range where the detail of seracs would
-                      imply a different kind of shot.
-```
-
----
-
-### SHOT 06 — Kangchenjunga / Makalu: The Eastern Extreme
-
-```
-Duration: 1.0s (frames 421–450 @ 30fps)
+Duration: 1.0s (frames 406–435 @ 30fps)
 Type: Static wide / medium aerial
 Camera position: ~27°50'N, 88°00'E — northwest approach to Kangchenjunga,
                  altitude ~8 km AGL looking east-southeast. Kangchenjunga's
                  northwest face fills the right half of frame; Makalu and its
                  Barun valley occupy the left-middle.
 Camera movement: Static
-Focal length: 200mm equivalent
+Focal length: Orthographic — canonical per BLOCKING FIX #7. Ortho scale equivalent
+              to 200mm perspective compression. (Conditional perspective fallback
+              from the prior Annapurna z-fighting note is removed; orthographic is
+              the production spec.)
 Altitude: ~8,000 m AGL
 Light: Post-dawn, sun at ~25° elevation from the east. The upper faces of
        Kangchenjunga are in full direct morning light — more neutral (5,200K) than
@@ -367,13 +318,14 @@ Color palette:
 What this shot reveals: The eastern extreme of Nepal's glacial zone — the forest-to-
                         glacier transition sharper here than anywhere else in the HKH,
                         and the range system read as complete: we have traversed it.
-Transition in: Cut from Shot 05
-Transition out: Cut to Shot 07
-Data overlay: [Optional: "KANGCHENJUNGA / MAKALU" micro-label at f435]
+Transition in: Cut from Shot 04
+Transition out: Cut to Shot 06. NOTE: this cut is the chapter's Beat 1→2 transition
+                — a hard geographic jump from eastern Nepal to the Khumbu.
+Data overlay: [Optional: "KANGCHENJUNGA / MAKALU" micro-label at f420]
 Director note reference: Beat 1 regional visits — "must be visually distinct from
                          each other, not interchangeable." The forest foreground and
                          autumn colour make this unambiguous.
-Cinematographer note: The critical differentiator from Shots 04 and 05 is the
+Cinematographer note: The critical differentiator from Shot 04 is the
                       VEGETATION. No other shot in this chapter shows a forested
                       foreground — use it. The Research Brief is specific: "the
                       visual contrast between dense subtropical forest below and
@@ -389,14 +341,14 @@ Cinematographer note: The critical differentiator from Shots 04 and 05 is the
 
 ---
 
-## Beat 2 — The Turn (0:15 – 0:27.5 / f451–f825)
+## Beat 2 — The Turn (0:14.5 – 0:27.0 / f436–f810)
 
 ---
 
-### SHOT 07 — Khumbu Icefall: The Known Image
+### SHOT 06 — Khumbu Icefall: The Known Image
 
 ```
-Duration: 2.0s (frames 451–510 @ 30fps)
+Duration: 2.0s (frames 436–495 @ 30fps)
 Type: Static wide / telephoto compress
 Camera position: ~27°58'N, 86°51'E — above the Western Cwm lateral moraine /
                  Base Camp puja flat, altitude ~500 m AGL (~5,865 m absolute),
@@ -440,8 +392,8 @@ Color palette:
 What this shot reveals: The familiar "classic glacier" image — earned recognition —
                         before the pivot to the grey debris reality of the Khumbu's
                         lower glacier and to Imja.
-Transition in: Cut from Shot 06
-Transition out: Cut to Shot 08
+Transition in: Cut from Shot 05
+Transition out: Cut to Shot 07
 Data overlay: None
 Director note reference: Beat 2 — "The Khumbu Icefall appears... the image the
                          viewer knows from a hundred Everest photographs. We let
@@ -461,10 +413,10 @@ Cinematographer note: The Research Brief, Shot 2 description, mentions a human f
 
 ---
 
-### SHOT 08 — Imja Descent: The Approach
+### SHOT 07 — Imja Descent: The Approach
 
 ```
-Duration: 2.5s (frames 511–585 @ 30fps)
+Duration: 2.5s (frames 496–570 @ 30fps)
 Type: Aerial tracking / slow descent
 Camera position: Beginning at ~27°56'N, 86°52'E, altitude ~3,000 m AGL (~8,000 m
                  absolute), looking east-northeast. The Imja valley is below; the
@@ -505,8 +457,8 @@ Color palette:
 What this shot reveals: The journey into the lake basin — the viewer is drawn in,
                         altitude and distance resolving from abstract to specific.
                         The grey debris prepares for the colour shock of the lake.
-Transition in: Cut from Shot 07
-Transition out: Cut to Shot 09 (the cut is the moment the moraine crest clears
+Transition in: Cut from Shot 06
+Transition out: Cut to Shot 08 (the cut is the moment the moraine crest clears
                and the lake becomes fully visible — the cut is the reveal)
 Data overlay: None
 Director note reference: Beat 2 — "we move east past Everest, past Lhotse, following
@@ -514,24 +466,26 @@ Director note reference: Beat 2 — "we move east past Everest, past Lhotse, fol
                          twelve to fifteen seconds from first sight of the lake to
                          its full reveal" (scaled to 2.5s in this compressed version).
 Cinematographer note: The decision NOT to show the lake in this shot is critical.
-                      The reveal is Shot 09. This shot is the approach — the grey,
+                      The reveal is Shot 08. This shot is the approach — the grey,
                       the rock, the valley constriction — so that the colour hit
-                      of Shot 09 has nowhere to prepare. If the lake is glimpsed
-                      at the bottom of frame in the final frames of Shot 08,
+                      of Shot 08 has nowhere to prepare. If the lake is glimpsed
+                      at the bottom of frame in the final frames of Shot 07,
                       cut earlier or adjust the descent trajectory to keep it
                       hidden behind the moraine crest. The moraine dam geometry
                       must be tall enough to screen the lake until the camera
                       clears it — approximately 40–50 m above valley floor
                       (Research Brief, Section 2: "approximately 40–50 m above
                       the Imja Khola valley floor below").
+                      BLOCKING FIX #6: TEST RENDER REQUIRED at f557 to verify
+                      moraine dam geometry screens lake from end-altitude camera.
 ```
 
 ---
 
-### SHOT 09 — Imja Tsho: The Reveal
+### SHOT 08 — Imja Tsho: The Reveal
 
 ```
-Duration: 2.0s (frames 586–645 @ 30fps)
+Duration: 2.0s (frames 571–630 @ 30fps)
 Type: Static wide
 Camera position: ~27°53'55"N, 86°55'20"E — above the lake center, altitude ~300 m
                  AGL (~5,310 m absolute). Camera looking west-northwest across the
@@ -582,11 +536,14 @@ Color palette:
 What this shot reveals: The colour anomaly — the milky turquoise of Imja Tsho that
                         no stock glacier image has prepared the viewer for. This
                         colour is the chapter's non-negotiable visual anchor.
-Transition in: Cut from Shot 08 (this cut IS the reveal — the camera has just
+Transition in: Cut from Shot 07 (this cut IS the reveal — the camera has just
                cleared the moraine crest and the lake floods the frame)
-Transition out: Dissolve to Shot 10 (3-frame dissolve — barely a dissolve, more
+Transition out: Dissolve to Shot 09 (3-frame dissolve — barely a dissolve, more
                a soft cut, preserving the lake color as the overlay arrives)
-Data overlay: None in this shot. The 3-second hold is image only.
+Data overlay: BLOCKING FIX #8 — "Imja Tsho" label at f600–f614 (bottom-right, 14pt
+              sm, weight 300, #E8E4DC; fade in 10 frames, cut with shot at f630).
+              This shifts the label earlier in the shot to allow a 2-second text-
+              free gap before Shot 09's 1962 overlay begins fading in at f631.
 Director note reference: Beat 2 — "And then the lake. Imja Tsho. The turn is the
                          colour." Section 7 — "A beat of stillness on the lake
                          surface... A three-second hold on the milky turquoise
@@ -614,21 +571,21 @@ Cinematographer note: Everything else in this chapter is in service of this shot
 
 ---
 
-### SHOT 10 — 1962 Overlay: The Dissolve
+### SHOT 09 — 1962 Overlay: The Dissolve
 
 ```
-Duration: 2.5s (frames 646–720 @ 30fps)
-Type: Composite / data — same camera position as Shot 09
-Camera position: Identical to Shot 09: ~27°53'55"N, 86°55'20"E, ~300 m AGL.
+Duration: 2.5s (frames 631–705 @ 30fps)
+Type: Composite / data — same camera position as Shot 08
+Camera position: Identical to Shot 08: ~27°53'55"N, 86°55'20"E, ~300 m AGL.
 Camera movement: Static
-Focal length: 50mm equivalent (identical to Shot 09)
+Focal length: 50mm equivalent (identical to Shot 08)
 Altitude: ~300 m AGL
-Light: Identical to Shot 09
-Foreground/Midground/Background: Identical to Shot 09 — the full lake in milky
+Light: Identical to Shot 08
+Foreground/Midground/Background: Identical to Shot 08 — the full lake in milky
                                   turquoise. This is a continuous visual with the
                                   previous shot; the lake has not changed. What
                                   changes is the overlay.
-Color palette: Identical to Shot 09. The data overlay colors:
+Color palette: Identical to Shot 08. The data overlay colors:
   1962 pond outlines:   #F5E090  (warm amber, the color of old Landsat/Corona
                                     imagery — deliberate historical tone, NOT
                                     clinical white)
@@ -641,24 +598,21 @@ What this shot reveals: Sixty years of lake growth made visual — the 1962 stat
                         single lake, the absence and presence speaking without
                         narration.
 Data overlay:
-  TIMING:
-  - f646–f660 (0.5s): overlay fades in from 0% to 60% opacity. The year "1962"
-    appears in bottom-center in the atlas type system, fading in simultaneously.
-  - f661–f690 (1.0s): overlay holds at 60% opacity. The 1962 pond outlines sit
-    ghosted over the modern lake — translucent amber lines showing where the
-    meltwater pools were. Below the "1962" label: "cluster of meltwater pools,
-    ~0.03 km²" in 9pt weight 300 (a whisper, not a declaration).
-  - f691–f705 (0.5s): the "1962" label and pond outlines dissolve out; "2020"
-    appears (same position, same type, same amber color) with "~1.56 km²" below.
-    The lake itself is unchanged — the 2020 state needs no outline, it IS the frame.
-  - f706–f720 (0.5s): "2020 / ~1.56 km²" fades out. Frame returns to clean lake.
+  TIMING (BLOCKING FIX #9: description first, then number):
+  - f631–f645 (0.5s): 1962 pond overlay graphic fades in 0%→60% opacity. The
+    "1962" label appears in bottom-center fading in simultaneously; below it
+    Line 1 "a cluster of meltwater pools" (xs), Line 2 "~0.03 km²" (sm).
+  - f645–f675 (1.0s): overlay holds at 60% opacity.
+  - f675–f689 (0.5s): "1962" label and pond outlines fade out (14-frame fade).
+  - f676–f705: "2020" label and "~1.56 km²" sub-label fade in (10-frame),
+    hold, fade out by f705.
   SPECIFICATION: The 1962 pond outlines are drawn from the Research Brief's
   description — "a cluster of small meltwater pools on the glacier surface."
   They are scattered across approximately the eastern two-thirds of the current
   lake area, concentrated toward the calving face. They are irregular polygons,
   not circles. They are small — the largest would be ~200m across in 1962.
-Transition in: Dissolve from Shot 09 (3-frame dissolve — see Shot 09 notes)
-Transition out: Cut to Shot 11
+Transition in: Dissolve from Shot 08 (3-frame dissolve — see Shot 08 notes)
+Transition out: Cut to Shot 10
 Director note reference: Beat 2 — "A translucent overlay appears showing Imja
                          Tsho's boundary in 1962. It is a cluster of small
                          meltwater pools." Section 7 — "data should enter on a
@@ -680,10 +634,10 @@ Cinematographer note: The Director Brief is explicit — "Their arithmetic will 
 
 ---
 
-### SHOT 11 — Calving Front: The Lateral Track
+### SHOT 10 — Calving Front: The Lateral Track
 
 ```
-Duration: 2.0s (frames 721–780 @ 30fps)
+Duration: 2.0s (frames 706–765 @ 30fps)
 Type: Static wide / close-medium
 Camera position: ~27°54'N, 86°56'E — at the eastern end of Imja Tsho, the calving
                  front. Camera is at lake level, ~20 m above the water surface
@@ -719,7 +673,7 @@ Background: The upper glacier surface above the cliff — debris-covered, grey-
             visible above.
 Color palette:
   Lake surface (close):           #88D0C8  (milky turquoise, foreground — slightly
-                                             lighter than Shot 09 because we are
+                                             lighter than Shot 08 because we are
                                              closer and looking at shallower water)
   Ice cliff (blue-white):         #A8C8D8  (cold blue-white, internal ice colour
                                              — subtle, NOT electric)
@@ -731,8 +685,8 @@ What this shot reveals: The mechanism — where glacier becomes water, the cliff
                         showing the ice's internal structure, the debris bands
                         telling the story of what surface material gets incorporated
                         into the ice body over time.
-Transition in: Cut from Shot 10
-Transition out: Cut to Shot 12
+Transition in: Cut from Shot 09
+Transition out: Cut to Shot 11
 Data overlay: None. This is pure image.
 Director note reference: Beat 2 — "We close on the calving front." Section 7 —
                          "a very slow lateral track along the ice cliff face."
@@ -747,7 +701,7 @@ Cinematographer note: The camera height (20 m above lake surface) is the key
                       uncomfortable — you are close to a lot of cold water and
                       unstable ice.
                       Technical flag: do not animate ice cliff cracking or movement
-                      in this shot. The cliff is static. The calving event is Shot 12.
+                      in this shot. The cliff is static. The calving event is Shot 11.
                       Any premature calving animation in this shot telegraphs the
                       event and undermines the "small and ordinary" quality the
                       Director requires.
@@ -755,14 +709,14 @@ Cinematographer note: The camera height (20 m above lake surface) is the key
 
 ---
 
-### SHOT 12 — The Calving Event: Pedestrian and Quiet
+### SHOT 11 — The Calving Event: Pedestrian and Quiet
 
 ```
-Duration: 1.5s (frames 781–825 @ 30fps)
+Duration: 1.5s (frames 766–810 @ 30fps)
 Type: Close-up / insert
-Camera position: Same lateral position as Shot 11 — ~27°54'N, 86°56'E, 20 m above
+Camera position: Same lateral position as Shot 10 — ~27°54'N, 86°56'E, 20 m above
                  the lake surface. Camera has drifted ~100 m west along the calving
-                 front during Shot 11 and is now positioned perpendicular to the
+                 front during Shot 10 and is now positioned perpendicular to the
                  ice face, looking directly at a 3–4 m section of the cliff face
                  at the waterline.
 Camera movement: Static — Cut in static, the event happens in frame, no camera
@@ -772,13 +726,13 @@ Focal length: 135mm equivalent (slightly telephoto — isolates this section of 
               cliff face and compresses the foreground water surface into a tight
               layer below the ice)
 Altitude: ~20 m AGL
-Light: Identical to Shot 11 — diffuse sky fill, ~7,000K, no direct sun on the
+Light: Identical to Shot 10 — diffuse sky fill, ~7,000K, no direct sun on the
        north-facing cliff.
 Foreground: The lake surface, milky turquoise, occupying the bottom quarter of
             frame.
-Midground: A 3–4 m section of ice cliff face. At f801 (~0.67s into this shot),
-           a block of ice — approximately 2 m × 1.5 m × 0.8 m (within the 2–5
-           cubic metre Research Brief specification) — shears at a horizontal
+Midground: A 3–4 m section of ice cliff face. At f785 (~0.5s into this shot),
+           a block of ice — approximately 2 m × 1.5 m × 0.8 m (within the 2–2.5
+           cubic metre spec) — shears at a horizontal
            debris band line and pivots outward into the lake. It does not explode.
            It does not crash. It pivots slowly at first (rotational momentum from
            the shear), then accelerates as gravity takes it over the waterline and
@@ -790,7 +744,7 @@ Midground: A 3–4 m section of ice cliff face. At f801 (~0.67s into this shot),
            shape, then the turbidity obscures it within ~1 second.
 Background: The upper glacier debris surface, unchanged.
 Color palette:
-  Lake surface (disturbed):  #78C8C0  (identical to Shot 09 — the wave does not
+  Lake surface (disturbed):  #78C8C0  (identical to Shot 08 — the wave does not
                                          change the color, only the surface texture)
   Calved ice block:          #C0D4DC  (lighter blue-white than the cliff face —
                                          fresh break exposes interior ice)
@@ -801,10 +755,11 @@ Color palette:
 What this shot reveals: The mechanism of lake growth — small, quiet, unhurried.
                         Two cubic metres of ice becomes lake water. This happens
                         every day. The pedestrian scale is the point.
-Transition in: Cut from Shot 11
-Transition out: Cut to Shot 13
+Transition in: Cut from Shot 10
+Transition out: Cut to Shot 12
 Data overlay: None. No sound design cue. No emphasis. The event speaks for itself
-              at its natural scale, or it says the wrong thing.
+              at its natural scale, or it says the wrong thing. BLOCKING FIX #4:
+              no "soft splash" sound design — silence is canonical.
 Director note reference: Beat 2 — "A block of ice — the Research Brief says
                          '2–5 cubic metre blocks' — shears off the face and falls
                          into the milky water." Section 5 item 4: "If we give this
@@ -824,25 +779,27 @@ Cinematographer note: This is the hardest shot in the chapter to execute correct
                         larger waves, reduce block volume.
                       - Sound design: NONE. The canonical instruction per master
                         storyboard is "no sound design cue of any kind." The chapter
-                        is silent throughout. (v1 shot list considered a soft-splash
-                        cue; v2 rules it out — silence is the editorial choice.)
+                        is silent throughout.
                       - Camera: does not move. This is the most important constraint.
                         A static camera watching a small calving event with no
                         score and no camera response says: this happens all the time.
                         A camera that pushes in says: this is a moment. It is not.
                         It is Tuesday.
+                      BLOCKING FIX #11: pre-calving mesh swap at f785 —
+                      Imja_IceCliff_Full hidden, Imja_IceCliff_PostCalving shown.
+                      Calving_Block is a separate object, hidden until f785.
 ```
 
 ---
 
-## Beat 3 — The Witness (0:27.5 – 0:30 / f826–f900)
+## Beat 3 — The Witness (0:27.0 – 0:30.0 / f811–f900)
 
 ---
 
-### SHOT 13 — Moraine Dam: Orientation
+### SHOT 12 — Moraine Dam: Orientation
 
 ```
-Duration: 1.0s (frames 826–855 @ 30fps)
+Duration: 1.0s (frames 811–840 @ 30fps)
 Type: Aerial wide
 Camera position: ~27°53'30"N, 86°54'20"E — above and slightly west of the moraine
                  dam, altitude ~500 m AGL (~5,510 m absolute), looking east-northeast.
@@ -881,8 +838,8 @@ Color palette:
 What this shot reveals: The spatial relationship — the lake above, the valley
                         below, and the moraine dam as the only thing between them.
                         The viewer now has the geography of the hazard.
-Transition in: Cut from Shot 12
-Transition out: Dissolve to Shot 14 (4-frame dissolve — a slow breath)
+Transition in: Cut from Shot 11
+Transition out: Dissolve to Shot 13 (4-frame dissolve — a slow breath)
 Data overlay: None. We have already told the viewer what the moraine dam is.
               No text appears in this shot.
 Director note reference: Beat 3 — "The moraine dam holds 61.7 million cubic metres
@@ -900,11 +857,11 @@ Cinematographer note: The composition rule for this shot is that the moraine dam
 
 ---
 
-### SHOT 14 — The Moraine Dam: Final Hold
+### SHOT 13 — The Moraine Dam: Final Hold
 
 ```
-Duration: 1.5s (frames 856–900 @ 30fps)
-Type: Static wide (tighter than Shot 13)
+Duration: 2.0s (frames 841–900 @ 30fps)
+Type: Static wide (tighter than Shot 12)
 Camera position: ~27°53'35"N, 86°54'30"E — closer to the dam, altitude ~200 m
                  AGL (~5,210 m absolute), looking east-northeast. The lake still
                  visible in the upper portion of frame; the dam crest occupies the
@@ -913,7 +870,9 @@ Camera position: ~27°53'35"N, 86°54'30"E — closer to the dam, altitude ~200 
 Camera movement: Static. Absolutely no movement. No drift, no pull-back.
                  "Completely still for the last five to eight seconds of the chapter.
                  No drift, no pull-back. Just the dam." (Director Brief, Section 7 —
-                 compressed to 1.5s here; any runtime recovery should go here first.)
+                 compressed to 2.0s here; any runtime recovery should go here first.)
+                 BLOCKING FIX #5: duration extended from 1.5s to 2.0s by
+                 redistribution of 15 frames from the removed Annapurna shot.
 Focal length: 85mm equivalent (normal-to-medium — the dam surface is close enough
               that individual boulder shapes are legible)
 Altitude: ~200 m AGL
@@ -938,7 +897,7 @@ Background: Imja Tsho — milky turquoise, filling the upper third of frame abov
             grey-brown strip at the far end. The sky above the lake is the
             deep Himalayan blue of mid-morning.
 Color palette:
-  Moraine dam surface:      #7E7668  (identical to Shot 13)
+  Moraine dam surface:      #7E7668  (identical to Shot 12)
   Subsidence hollow:        #6A6058  (slightly darker — less direct light)
   Snow patch:               #E0E8F0  (cool white in shadow)
   Prayer flag (faded):      #A87848  (faded orange-red — barely legible as color)
@@ -948,7 +907,7 @@ What this shot reveals: Nothing new. It holds what has already been understood.
                         The viewer sits with the silence of a hazard they cannot
                         hear — a pile of loose rock holding back 61.7 million cubic
                         metres of water, actively degrading, making no sound.
-Transition in: Dissolve from Shot 13 (4-frame dissolve)
+Transition in: Dissolve from Shot 12 (4-frame dissolve)
 Transition out: Fade to black (10-frame fade — slow, deliberate. Not a cut.
                 The chapter does not end — it subsides.)
 Data overlay: None. No text of any kind in the final frame.
@@ -957,7 +916,7 @@ Data overlay: None. No text of any kind in the final frame.
               over the final image.
 Director note reference: Beat 3 — "No text appears in this final frame... The last
                          image must be image, not text." Section 7 — "The final shot
-                         of the moraine dam, last five seconds [compressed to 1.5s
+                         of the moraine dam, last five seconds [compressed to 2.0s
                          here; extend if edit allows]. No score, no ambient sound,
                          no motion." Section 5 item 10: "End on an information slide
                          [NOT]."
@@ -973,25 +932,25 @@ Cinematographer note: The faded prayer flag is a deliberate addition not in eith
                       "terrifying banality" — it is part of it. A flag placed on a
                       dam that could drown a valley. If the Director judges this
                       addition sentimental, remove it. The composition works without it.
-                      
-                      SUBSIDENCE HOLLOW: The Research Brief (Section 2) documents
-                      InSAR-measured downward displacement of 8.5–9.4 cm/yr from
-                      dead ice melting within the dam structure. The subsidence hollow
-                      should be visible in the dam geometry — a slight irregular bowl
-                      ~5–8 m diameter, ~0.5 m deep. This is scientifically defensible
-                      (dead ice melt produces surface subsidence visible in field
-                      photographs) and adds nothing dramatic — just a subtle wrongness
-                      in the dam surface that a careful viewer will notice. It is not
-                      labelled. It does not need to be.
-                      
+
+                      SUBSIDENCE HOLLOW (BLOCKING FIX #14): SubsidenceHollow is a
+                      Mesh object (shallow dish ~3 m diameter, 0.5 m deep, boolean
+                      subtracted from MoraineDam_Detail), NOT an Empty. Satellite
+                      InSAR and SAR feature tracking show that a 0.3 km² area of the
+                      moraine dam cumulatively subsided about 90 centimetres over
+                      2017–2024, with seasonal coherence changes indicating buried
+                      ice within the dam (Brencher, Henderson & Shean, 2026). The
+                      subsidence hollow surface bowl is a visual inference of the
+                      InSAR signal — it is not labelled in the render.
+
                       SOUND DESIGN for the final shot (if the chapter has ambient
                       audio): the Research Brief Section 7 documents the moraine dam
                       as "silent — a dam holding 61.7 million cubic metres of water
                       makes no sound audible to human perception." The sound design
                       for this shot should therefore be: silence. If the chapter has
                       been carrying ambient Himalayan sound (wind, meltwater), it
-                      should be cut at the start of Shot 13 or faded out over Shot 13
-                      so that Shot 14 is genuinely silent. The viewer experiences
+                      should be cut at the start of Shot 12 or faded out over Shot 12
+                      so that Shot 13 is genuinely silent. The viewer experiences
                       what the Research Brief describes — the silence of the hazard.
 ```
 
@@ -1001,22 +960,21 @@ Cinematographer note: The faded prayer flag is a deliberate addition not in eith
 
 | # | Name | Frames | Duration | Beat | Camera move | Key constraint |
 |---|------|--------|----------|------|-------------|----------------|
-| 01 | HKH Dawn: The Glory Moment | f001–f210 | 7.0s | 1 | Static | No text for 7s; title only at f190 if required |
-| 02 | Karakoram Vigour | f211–f285 | 2.5s | 1 | Lateral drift east | Glacier WHITE here — Karakoram Anomaly |
-| 03 | The Grey River | f286–f360 | 2.5s | 1 | Push toward + drift | Glacier GREY-BROWN here — fabrication check |
-| 04 | Langtang / Yala | f361–f390 | 1.0s | 1 | Static | Debris-free; proglacial rock visible |
-| 05 | Annapurna Sanctuary | f391–f420 | 1.0s | 1 | Static | Telephoto compression; south-face verticality |
-| 06 | Kangchenjunga / Makalu | f421–f450 | 1.0s | 1 | Static | Forest foreground; treeline ≤ 3,800m |
-| 07 | Khumbu Icefall | f451–f510 | 2.0s | 2 | Static | Viewer recognition moment; scale ambiguity |
-| 08 | Imja Descent | f511–f585 | 2.5s | 2 | Push toward (descend) | Lake hidden until Shot 09 cut |
-| 09 | Imja Tsho Reveal | f586–f645 | 2.0s | 2 | Static | Color spec: #78C8C0. Non-negotiable. |
-| 10 | 1962 Overlay | f646–f720 | 2.5s | 2 | Static | Two numbers only; no ratio; amber type |
-| 11 | Calving Front Lateral | f721–f780 | 2.0s | 2 | Lateral drift west | Camera at water level; no calving in this shot |
-| 12 | The Calving Event | f781–f825 | 1.5s | 2 | Static | ≤ 2.5 m³ block; ≤ 15 cm wave; no camera response |
-| 13 | Moraine Dam Orientation | f826–f855 | 1.0s | 3 | Static | Dam as unimpressive; lake as visual magnet |
-| 14 | Moraine Dam Final Hold | f856–f900 | 1.5s | 3 | Static — absolute | No text; no motion; silence; fade to black |
+| 01 | HKH Dawn: The Glory Moment | f001–f225 | 7.5s | 1 | Static | No text for 7s; title only at f210 if required |
+| 02 | Karakoram Vigour | f226–f300 | 2.5s | 1 | Lateral drift east | Glacier WHITE here — Karakoram Anomaly |
+| 03 | The Grey River | f301–f375 | 2.5s | 1 | Push toward + drift | Glacier GREY-BROWN here — fabrication check |
+| 04 | Langtang / Yala | f376–f405 | 1.0s | 1 | Static | Debris-free; proglacial rock visible |
+| 05 | Kangchenjunga / Makalu | f406–f435 | 1.0s | 1 | Static (orthographic) | Forest foreground; treeline ≤ 3,800m |
+| 06 | Khumbu Icefall | f436–f495 | 2.0s | 2 | Static | Viewer recognition moment; scale ambiguity |
+| 07 | Imja Descent | f496–f570 | 2.5s | 2 | Push toward (descend) | Lake hidden until Shot 08 cut |
+| 08 | Imja Tsho Reveal | f571–f630 | 2.0s | 2 | Static | Color spec: #78C8C0. Non-negotiable. |
+| 09 | 1962 Overlay | f631–f705 | 2.5s | 2 | Static | Two numbers only; no ratio; amber type |
+| 10 | Calving Front Lateral | f706–f765 | 2.0s | 2 | Lateral drift west | Camera at water level; no calving in this shot |
+| 11 | The Calving Event | f766–f810 | 1.5s | 2 | Static | ≤ 2.5 m³ block; ≤ 15 cm wave; no camera response |
+| 12 | Moraine Dam Orientation | f811–f840 | 1.0s | 3 | Static | Dam as unimpressive; lake as visual magnet |
+| 13 | Moraine Dam Final Hold | f841–f900 | 2.0s | 3 | Static — absolute | No text; no motion; silence; fade to black |
 
-**Total: 900 frames / 30.0 seconds**
+**Total: 900 frames / 30.0 seconds / 13 shots**
 
 ---
 
@@ -1024,33 +982,33 @@ Cinematographer note: The faded prayer flag is a deliberate addition not in eith
 
 Before rendering any shot in this list, verify:
 
-- [ ] Shot 03, 07, 08, 11, 12: Debris-covered glacier surfaces use grey-brown material (#7A6E60 range), NOT white
-- [ ] Shot 09, 10, 11, 12, 13, 14: Imja Tsho color is #78C8C0 milky turquoise, NOT dark blue, NOT clear
-- [ ] Shot 04, 06: No tree geometry above 3,800 m in any shot
-- [ ] Shot 13, 14: Moraine dam is loose rock — no concrete, no engineered spillway, no retaining wall geometry
-- [ ] Shot 12: Calving block volume ≤ 2.5 m³; wave amplitude ≤ 15 cm
+- [ ] Shot 03, 06, 07, 10, 11: Debris-covered glacier surfaces use grey-brown material (#7A6E60 range), NOT white
+- [ ] Shot 08, 09, 10, 11, 12, 13: Imja Tsho color is #78C8C0 milky turquoise, NOT dark blue, NOT clear
+- [ ] Shot 04, 05: No tree geometry above 3,800 m in any shot
+- [ ] Shot 12, 13: Moraine dam is loose rock — no concrete, no engineered spillway, no retaining wall geometry
+- [ ] Shot 11: Calving block volume ≤ 2.5 m³; wave amplitude ≤ 15 cm
 - [ ] Shot 01, 02, 03: Sky uses Nishita model or equivalent — gradient zenith-to-horizon, not flat blue
-- [ ] Shot 14: Prayer flags (if included) are faded, irregular, cotton-weight — not crisp or freshly-dyed
-- [ ] Shot 07: Base Camp structures (if visible) are dry-stone, not wooden chalets
+- [ ] Shot 13: Prayer flags (if included) are faded, irregular, cotton-weight — not crisp or freshly-dyed
+- [ ] Shot 06: Base Camp structures (if visible) are dry-stone, not wooden chalets
 - [ ] All shots: No buildings or architecture above 3,800 m unless specifically flagged
 
 ---
 
 ## Notes for the Blender TD
 
-1. **Two glacier material presets needed:** `glacier_clean` (Shots 02, 04 — blue-white, low scatter, no debris_mask) and `glacier_debris` (Shots 03, 07, 08, 11, 12 — grey-brown, rough, scattered supraglacial pond cutouts). These are the chapter's visual binary.
+1. **Two glacier material presets needed:** `glacier_clean` (Shots 02, 04, 06 — blue-white, low scatter, no debris_mask) and `glacier_debris` (Shots 03, 06, 07, 10, 11 — grey-brown, rough, scattered supraglacial pond cutouts). These are the chapter's visual binary.
 
-2. **Lake water shader** (Shots 09–14): volumetric scatter with short-wavelength bias + absorption removing red/orange. Depth blend between #78C8C0 (surface/shallow) and #4AACAA (>20m depth). Max opacity 0.85 — never fully transparent.
+2. **Lake water shader** (Shots 08–13): volumetric scatter with short-wavelength bias + absorption removing red/orange. Depth blend between #78C8C0 (surface/shallow) and #4AACAA (>20m depth). Max opacity 0.85 — never fully transparent.
 
-3. **Sky shader:** Nishita sky model throughout. Solar elevation: Shot 01 at -3° (astronomical twilight); Shot 02 at 2° (first light); Shot 03 at 8°; Shots 04–06 at 12–18° (morning); Shots 07–12 at 20–45° (morning to midday); Shots 13–14 at 55° (midday). Altitude input for the sky model: match camera altitude per shot — the sky reads differently at 200 km vs. 2 km AGL.
+3. **Sky shader:** Nishita sky model throughout. Solar elevation: Shot 01 at -3° (astronomical twilight); Shot 02 at 2° (first light); Shot 03 at 8°; Shots 04–05 at 12–18° (morning); Shots 06–11 at 20–45° (morning to midday); Shots 12–13 at 55° (midday). Altitude input for the sky model: match camera altitude per shot — the sky reads differently at 200 km vs. 2 km AGL.
 
-4. **The calving simulation** (Shot 12): run in a separate Blender scene; composite over the lake render. Use FLIP Fluids or Mantaflow for the water response; constrain wave amplitude. Render at 4× upscale, composite at final res. The goal is a plausible small calving event, not a simulation showcase.
+4. **The calving simulation** (Shot 11): run in a separate Blender scene; composite over the lake render. Use FLIP Fluids or Mantaflow for the water response; constrain wave amplitude. Render at 4× upscale, composite at final res. The goal is a plausible small calving event, not a simulation showcase.
 
-5. **DEM source:** SRTM 90m for HKH-wide shots (Shots 01–03); CopDEM 30m for Nepal regional shots (Shots 04–06); ALOS AW3D30 or equivalent for Khumbu/Imja shots (Shots 07–14). The Imja basin geometry (moraine dam height, lake extent, calving front) should be cross-referenced against the Research Brief coordinates and the 2020 lake polygon approximation.
+5. **DEM source:** SRTM 90m for HKH-wide shots (Shots 01–03); CopDEM 30m for Nepal regional shots (Shots 04–05); ALOS AW3D30 or equivalent for Khumbu/Imja shots (Shots 06–13). The Imja basin geometry (moraine dam height, lake extent, calving front) should be cross-referenced against the Research Brief coordinates and the 2020 lake polygon approximation.
 
-6. **Camera rigs:** Shots 01–06 use the orthographic/satellite rig. Shots 07–14 use the documentary aerial rig (perspective, focal-length-accurate). Do not mix rigs within a shot.
+6. **Camera rigs:** Shots 01–05 use the orthographic/satellite rig (Shots 01 and 05 explicitly orthographic). Shots 06–13 use the documentary aerial rig (perspective, focal-length-accurate). Do not mix rigs within a shot.
 
 ---
 
 *End of Chapter 0 Shot List*
-*Cinematographer sign-off: All shots are filmable in Blender. All coordinates derive from the Research Brief. All constraints derive from the Director Brief. Where the two conflict (e.g., moraine hold time of 5s vs. available runtime of 1.5s), the constraint is noted and the available runtime is given; the moraine sequence should be the first beneficiary of any edit-time recovery.*
+*Cinematographer sign-off: All shots are filmable in Blender. All coordinates derive from the Research Brief. All constraints derive from the Director Brief. Where the two conflict (e.g., moraine hold time of 5s vs. available runtime of 2.0s), the constraint is noted and the available runtime is given; the moraine sequence should be the first beneficiary of any edit-time recovery.*

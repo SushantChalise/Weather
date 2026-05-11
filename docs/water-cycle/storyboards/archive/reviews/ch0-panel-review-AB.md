@@ -1,4 +1,7 @@
 # Chapter 0 — Panel Review AB
+
+> **ARCHIVED — historical artifact**. This document captures the panel review (or v1→v2 ripple check) from the Ch 0 pipeline run. It is not canonical. Canonical sources: `ch0-storyboard.md` (human-readable) and `ch0-frame-map.yaml` (machine-readable).
+
 *Reviewers: Himalayan Researcher (Role A) / Director (Role B)*
 *Date: 2026-05-11*
 *Documents reviewed: ch0-research-brief.md, ch0-director-brief.md, ch0-shotlist.md, ch0-script.md, ch0-technical-spec.md*

@@ -11,7 +11,7 @@
 1. Corrected vegetation altitude bands (juniper/rhododendron mis-placed near Gorak Shep removed; clean altitude-band table inserted).
 2. Audited every directional phrase against real bearings (Everest is NNE of EBC, not "south"); altitudes now tagged `[ASL]` / `[AGL]` with camera + look direction.
 3. Replaced overly broad "20–40% dry-season melt" claim with basin-specific framing (Lutz et al. 2014); reframed Bhutan glacier behaviour separately from Karakoram Anomaly (Hewitt 2005; Farinotti et al. 2020).
-4. Verified moraine-dam degradation citation: it is **Brencher, Henderson, Shean (2026)** in *The Cryosphere* — not "Bhushan et al." Citation corrected throughout.
+4. Verified moraine-dam degradation citation: **Brencher, Henderson, Shean (2026)** in *The Cryosphere*. Citation locked.
 5. Added a **Confidence labels** convention, **Data-locked vs. Art-directable** sub-table, and a **Data Dependencies** appendix. Internal de-duplication of debris-glacier paragraph performed; canonical version lives in §5.
 
 ---
@@ -655,7 +655,7 @@ Chapter 0 should be paced like the glacier itself — slow, inevitable, indiffer
 
 5. Immerzeel WW, Lutz AF, Andrade M et al. (2020). Importance and vulnerability of the world's water towers. *Nature*, 577, 364–369. DOI: [10.1038/s41586-019-1822-y](https://doi.org/10.1038/s41586-019-1822-y)
 
-6. Brencher G, Henderson ST, Shean DE (2026). Quantifying degradation of the Imja Lake moraine dam with fused InSAR and SAR feature tracking time series. *The Cryosphere*, 20, 67–86. DOI: [10.5194/tc-20-67-2026](https://doi.org/10.5194/tc-20-67-2026). [Earlier drafts of this brief cited this paper as "Bhushan et al." — that attribution was incorrect and has been corrected in v2.]
+6. Brencher G, Henderson ST, Shean DE (2026). Quantifying degradation of the Imja Lake moraine dam with fused InSAR and SAR feature tracking time series. *The Cryosphere*, 20, 67–86. DOI: [10.5194/tc-20-67-2026](https://doi.org/10.5194/tc-20-67-2026).
 
 7. Thakuri S, Salerno F, Smiraglia C, Bolch T, D'Agata C, Viviano G, Tartari G (2014). Tracing glacier changes since the 1960s on the south slope of Mt. Everest (central Southern Himalaya) using optical satellite imagery. *The Cryosphere*, 8(4), 1297–1315. DOI: [10.5194/tc-8-1297-2014](https://doi.org/10.5194/tc-8-1297-2014)
 

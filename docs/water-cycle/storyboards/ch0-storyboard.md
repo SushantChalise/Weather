@@ -1,7 +1,6 @@
 # Chapter 0 — Master Storyboard
-**Status**: LOCKED
-**Panel votes**: Researcher CONDITIONAL PASS ✓ | Director CONDITIONAL PASS ✓ | Cinematographer CONDITIONAL PASS ✓ | Writer CONDITIONAL PASS ✓ | Blender Expert CONDITIONAL PASS ✓
-**All blocking issues resolved**: 14/14
+**Status**: CANDIDATE LOCK — pending consistency pass
+**Panel votes**: 5/5 CONDITIONAL PASS, 14/14 blocking fixes applied. Consistency pass: PENDING — see ch0-frame-map.yaml
 **Locked at**: 2026-05-11T00:00:00Z
 
 ---
@@ -36,7 +35,7 @@ The full main Himalayan range at pre-dawn, from satellite altitude. The peaks gl
 
 **Total shots: 13 (Shot 05 — Annapurna Sanctuary — removed per BLOCKING FIX #5)**
 **Total frames: 900 / 30.0 seconds @ 30 fps**
-**Frame redistribution from Shot 05 removal: +15 frames to Shot 01 (7.0s → 7.5s = f001–f225), +15 frames to Shot 14 (moraine dam final hold 1.5s → 2.0s = f856–f915... restated: all subsequent shot frame numbers are adjusted below)**
+**Frame redistribution from Annapurna shot removal: +15 frames to Shot 01 (7.0s → 7.5s = f001–f225), +15 frames to the new Shot 13 (moraine dam final hold 1.5s → 2.0s = f841–f900). All subsequent shot frame numbers are adjusted below.**
 
 **Revised frame map after Shot 05 removal and redistribution:**
 
@@ -56,7 +55,7 @@ The full main Himalayan range at pre-dawn, from satellite altitude. The peaks gl
 | 12 | Moraine Dam: Orientation | f811–f840 | 1.0s | 3 |
 | 13 | Moraine Dam: Final Hold | f841–f900 | 2.0s | 3 |
 
-> **Note on renumbering:** The original shot list had 14 shots numbered 01–14. Shot 05 (Annapurna Sanctuary) has been removed. What was Shot 06 is now Shot 05 (Kangchenjunga/Makalu), Shot 07 is now Shot 06 (Khumbu Icefall), and so on. All original shot descriptors and constraints are preserved under the new numbers. All frame numbers are updated to reflect the redistribution of 30 frames (15 to Shot 01, 15 to the new Shot 13 which was Shot 14).
+> **Note on renumbering:** The original shot list had 14 shots numbered 01–14. The Annapurna Sanctuary shot (original position 5) has been removed. The original Shot 06 is now Shot 05 (Kangchenjunga/Makalu); the original Shot 07 is now Shot 06 (Khumbu Icefall); and so on through the original final shot, which is now Shot 13 (Moraine Dam Final Hold). All original shot descriptors and constraints are preserved under the new numbers. All frame numbers are updated to reflect the redistribution of 30 frames (15 to Shot 01, 15 to the new Shot 13).
 
 ---
 
@@ -186,9 +185,9 @@ The full main Himalayan range at pre-dawn, from satellite altitude. The peaks gl
 
 **Frames:** f406–f435 | **Duration:** 1.0s | **Beat:** 1 | **Camera:** Static
 
-> **Note:** This was Shot 06 in the original shot list. Shot 05 (Annapurna Sanctuary) has been removed per BLOCKING FIX #5. This shot is now renumbered Shot 05.
+> **Note:** Renumbered from the original Shot 06 after removal of the Annapurna shot.
 
-**BLOCKING FIX #7 applied (z-fighting from removed Shot 05):** The original Shot 05 (Annapurna Sanctuary) had a conditional note about switching to orthographic if z-fighting occurred. That shot is removed. For the former Shot 06 (now this Shot 05, Kangchenjunga), the camera spec commits to **orthographic camera** as the canonical spec for this shot. Remove the conditional framing — orthographic is the production spec. Focal length equivalent: 200mm ortho scale. This eliminates any z-fighting risk at DEM terrain zoom levels for this shot.
+**BLOCKING FIX #7 applied:** For this Shot 05 (Kangchenjunga), the camera spec commits to **orthographic camera** as the canonical spec. Any conditional perspective/ortho framing from the prior version is removed — orthographic is the production spec. Focal length equivalent: 200mm ortho scale. This eliminates any z-fighting risk at DEM terrain zoom levels for this shot.
 
 **Position and optics:**
 - Camera: 87.95°E, 27.82°N, altitude ~11,000 m ASL (~8,000 m AGL). Blender: (475.8, -241.9, 11.0). **Orthographic** (canonical — see BLOCKING FIX #7). Ortho scale equivalent to 200mm perspective compression. Static.
@@ -218,7 +217,7 @@ The full main Himalayan range at pre-dawn, from satellite altitude. The peaks gl
 
 **Frames:** f436–f495 | **Duration:** 2.0s | **Beat:** 2 | **Camera:** Static
 
-> **Note:** This was Shot 07 in the original shot list, renumbered Shot 06 after removal of Annapurna.
+> **Note:** Renumbered from the original Shot 07.
 
 **Position and optics:**
 - Camera: 86.851°E, 27.967°N, altitude ~5,865 m ASL (~500 m AGL above Base Camp). Blender: (370.4, -225.7, 5.865). Perspective, 300mm. DOF enabled: focus 2.0 BU (2 km, mid-icefall), f/5.6. Static.
@@ -454,7 +453,7 @@ The full main Himalayan range at pre-dawn, from satellite altitude. The peaks gl
 
 **Frames:** f841–f900 | **Duration:** 2.0s | **Beat:** 3 | **Camera:** Static — absolute
 
-> **Note:** This was Shot 14 in the original shot list, renumbered Shot 13. Duration extended from 1.5s to 2.0s by redistribution of 15 frames from the removed Shot 05 (BLOCKING FIX #5). This is still below the Director Brief's 5-second ideal but meaningfully above the threshold at which the "pause function" (Director Brief Section 8 item 1) can operate. Any further runtime recovery should extend this shot first.
+> **Note:** Renumbered from the original final shot. Duration extended from 1.5s to 2.0s by redistribution of 15 frames from the removed Annapurna shot (BLOCKING FIX #5). This is still below the Director Brief's 5-second ideal but meaningfully above the threshold at which the "pause function" (Director Brief Section 8 item 1) can operate. Any further runtime recovery should extend this shot first.
 
 **Position and optics:**
 - Camera: 86.908°E, 27.893°N, altitude 5,210 m ASL (~200 m AGL). Blender: (375.7, -233.7, 5.21). Perspective, 85mm (normal-to-medium — dam surface close enough that individual boulder shapes are legible). Static. DOF disabled.
@@ -476,7 +475,7 @@ The full main Himalayan range at pre-dawn, from satellite altitude. The peaks gl
 **Text elements:** SILENCE — no text of any kind. The chapter does not end with a word.
 
 **Reduced-motion fallback text (BLOCKING FIX #2 applied):**
-"The moraine dam at Imja Tsho's western end. Loose rock. No bedrock foundation. Buried dead ice melting within it, causing **seasonal downward displacement of 8.5 to 9.4 centimetres per year (Brencher, Henderson & Shean, The Cryosphere, 2026)** — and lateral movement of approximately 90 cm over 2017–2024. In 2016, a controlled outlet reduced the lake level by 3.4 metres. The Early Warning System installed that year is designed to protect 71,752 people in the Everest valley. The dam holds 61.7 ± 3.7 million cubic metres of water. It looks like any other pile of rocks."
+"The moraine dam at Imja Tsho's western end. Loose rock. No bedrock foundation. Buried dead ice melting within it. **Satellite InSAR and SAR feature tracking show that a 0.3 km² area of the moraine dam cumulatively subsided about 90 centimetres over 2017–2024, with seasonal coherence changes indicating buried ice within the dam (Brencher, Henderson & Shean, 2026).** In 2016, a controlled outlet reduced the lake level by 3.4 metres. The Early Warning System installed that year is designed to protect 71,752 people in the Everest valley. The dam holds 61.7 ± 3.7 million cubic metres of water. It looks like any other pile of rocks."
 
 **Transitions:**
 - In: Dissolve from Shot 12 (4-frame dissolve).
@@ -501,7 +500,7 @@ Seven collections. Per-object `hide_render` fcurves control visibility per shot.
 
 **Terrain_HKH:** `HKH_DEM_orbital` (SRTM 90m, bbox [70–95°E, 26–36°N], 256-quad) + `HKH_AtmosVolume` (atmospheric haze volume). Active f001–f375 (Shots 01–03). At 200 km altitude DEM reads as textured surface; 256 quads sufficient.
 
-**Terrain_Nepal:** `Nepal_DEM_regional` (CopDEM 30m, 512-quad, f301–f495) + three sub-tiles: `Langtang_DEM` (f376–f405), `Kangchenjunga_DEM` (f406–f435). Note: `Annapurna_DEM` is not required — Shot 05 (Annapurna) has been removed.
+**Terrain_Nepal:** `Nepal_DEM_regional` (CopDEM 30m, 512-quad, f301–f495) + two sub-tiles: `Langtang_DEM` (f376–f405), `Kangchenjunga_DEM` (f406–f435).
 
 **Terrain_Imja:** `Imja_Basin_DEM` (ALOS AW3D30 or SRTM 30m, bbox [86.85–87.05°E, 27.83–28.0°N], 512-quad) + `MoraineDam_Detail` (hand-modelled overlay, flat shading, includes SubsidenceHollow as boolean) + **`SubsidenceHollow` (Mesh — shallow dish ~3m diameter, 0.5m deep, boolean subtracted from MoraineDam_Detail; see BLOCKING FIX #14)** + `PrayerFlag_String` (f826–f900). Active f496–f900.
 
@@ -589,9 +588,9 @@ Four to eight 1962 lake-precursor polygons are pre-rendered as RGBA PNGs (1280×
 | `cinematic.webm` (primary) | libsvtav1 | CRF 32 | 4.5–6.75 MiB |
 | `cinematic.mp4` (fallback) | libx264 | CRF 21, -movflags +faststart | 8–12 MiB |
 | `cinematic-scrub.webm` | libvpx-vp9 | CRF 36, -g 15 (keyframe every 0.5s) | 2.5–4 MiB |
-| `poster.jpg` | libjpeg | Frame 855 (0-indexed: first frame of Shot 13, moraine dam) | < 200 KiB |
+| `poster.jpg` | libjpeg | Frame 841 (1-indexed: first frame of Shot 13, moraine dam) | < 200 KiB |
 
-All outputs < 24 MiB hard cap. Poster frame = f855 (the moraine dam final hold, the chapter's OG share card).
+All outputs < 24 MiB hard cap. Poster frame = f841 (1-indexed: the first frame of Shot 13 / moraine dam final hold, the chapter's OG share card).
 
 ### Render presets
 
@@ -678,53 +677,92 @@ fluid_mod.domain_settings.cache_type = "REPLAY"  # use pre-baked cache, do not r
 
 ---
 
-## Acceptance checklist
+## Data classification (three tiers)
 
-- [ ] All 5 panel votes resolved (all CONDITIONAL PASS → all 14 blocking issues fixed)
-- [ ] All 14 blocking issues applied and verified:
-  - [ ] BLOCKING FIX #1: Shot 09 reduced-motion fallback uses "from roughly 40 metres per year in the second half of the 20th century to over 70 metres per year in the early 2000s (1961–2006)" with period qualifiers
-  - [ ] BLOCKING FIX #2: Shot 13 reduced-motion fallback uses "seasonal downward displacement of 8.5–9.4 centimetres per year (Brencher, Henderson & Shean 2026)"
-  - [ ] BLOCKING FIX #3: Shot 01 entry contains explicit Director note: "If runtime is recovered from edits, Shot 01 is the first to benefit"
-  - [ ] BLOCKING FIX #4: Shot 11 sound design specification is "no sound design cue of any kind" — the "soft splash" phrase is deleted from all production documents
-  - [ ] BLOCKING FIX #5: Shot 05 (Annapurna Sanctuary, 1 second) removed. 30 frames redistributed: +15 to Shot 01 (7.0s→7.5s), +15 to Shot 13 (1.5s→2.0s). Storyboard has 13 shots total. Subsequent shots renumbered.
-  - [ ] BLOCKING FIX #6: TEST RENDER REQUIRED flag added to Shot 07 at the adjusted frame (f557). Verify moraine dam geometry screens lake from camera at ~800 m AGL before production render
-  - [ ] BLOCKING FIX #7: Shot 05 (Kangchenjunga, formerly Shot 06) commits to orthographic camera as canonical spec. Conditional framing removed.
-  - [ ] BLOCKING FIX #8: Mandatory 2-second text-free gap between "Imja Tsho" label fade-out and 1962 overlay fade-in. "Imja Tsho" label moved to f600–f614 within Shot 08. 1962 overlay begins at f631 (Shot 09).
-  - [ ] BLOCKING FIX #9: 1962 area display uses two typographic lines: Line 1 "a cluster of meltwater pools" (xs), Line 2 "~0.03 km²" (sm). Description before number.
-  - [ ] BLOCKING FIX #10: Compositor Text Overlay bpy API subsection added to technical spec. PNG sequence approach documented as canonical. CompositorNodeImage usage documented.
-  - [ ] BLOCKING FIX #11: Imja_IceCliff / Calving_Block geometric continuity: approach (b) pre-calving mesh swap committed. `Imja_IceCliff_Full` hidden at f785; `Imja_IceCliff_PostCalving` shown. Calving_Block separate object, hidden until f785.
-  - [ ] BLOCKING FIX #12: Mantaflow cache section added. Cache path: `data/water-cycle/calving/cache_fluid_####.vdb`. bpy API documented. Script exits with error if cache absent.
-  - [ ] BLOCKING FIX #13: 1962 pond PNG production method specified. Data prep script: `scripts/data/ch0_imja_overlays.py` using GeoPandas + Matplotlib. PNGs committed to `public/water-cycle/ch0/overlays/`.
-  - [ ] BLOCKING FIX #14: SubsidenceHollow changed from Empty to Mesh (shallow dish ~3m diameter, 0.5m deep, boolean subtracted from MoraineDam_Detail).
-- [ ] TEST RENDER at f557 (adjusted Shot 07 frame) before production render — moraine dam geometry verification
-- [ ] Pre-render data prep script `scripts/data/ch0_imja_overlays.py` produces 1962 pond PNGs committed to `public/water-cycle/ch0/overlays/`
-- [ ] Mantaflow calving cache present at `data/water-cycle/calving/` (45 VDB files, ~200–400 MiB) before render
-- [ ] Every number in the script traceable to the Data contract section above
-- [ ] Debris-covered glacier renders grey-brown (#7A6E60 range) in preview render (Shots 03, 06, 07, 10, 11)
-- [ ] Imja Tsho renders #78C8C0 (±5 units per channel) in Cycles production render (test Shot 08 center pixel)
-- [ ] Calving block ≤ 2.5 m³, wave amplitude ≤ 15 cm in simulation
-- [ ] Shot 13 (moraine dam) final hold ≥ 2.0 seconds
-- [ ] No text before frame 209 (first conditional label at Shot 04 optional label if UX requires)
-- [ ] No mandatory text before frame 571 (Imja Tsho label begins at f600 within Shot 08)
-- [ ] Poster frame = 855 (0-indexed: first frame of Shot 13 moraine dam, the chapter's last non-black frame before fade)
-- [ ] All 5 output files < 24 MiB (primary targets: cinematic.webm < 8 MiB, cinematic.mp4 < 16 MiB, scrub < 6 MiB)
-- [ ] Determinism: re-render SHA256 matches first render
-- [ ] `npm run validate:water-cycle-provenance ch0` passes
-- [ ] Chrome load test: cinematic plays, scrub is smooth, reduced-motion shows poster with full text
-- [ ] Fabrication checklist verified:
-  - [ ] Shots 03, 06, 07, 10, 11: debris-covered glacier surfaces grey-brown, NOT white
-  - [ ] Shots 08–13: Imja Tsho color #78C8C0 milky turquoise, NOT dark blue, NOT clear
-  - [ ] Shots 04, 05: No tree geometry above 3,800 m
-  - [ ] Shots 12, 13: Moraine dam is loose rock — no concrete, no engineered spillway
-  - [ ] Shot 11: Calving block volume ≤ 2.5 m³; wave amplitude ≤ 15 cm
-  - [ ] Shots 01–03: Sky uses Nishita model — gradient zenith-to-horizon, not flat blue
-  - [ ] Shot 13: Prayer flags (if included) are faded, irregular, cotton-weight — not crisp
-  - [ ] Shot 06: Base Camp structures (if visible) are dry-stone, not wooden chalets
-  - [ ] No buildings or architecture above 3,800 m unless specifically flagged
-  - [ ] Shot 11: `Imja_IceCliff_Full` covers Calving_Block volume until f785 — no visible gap in cliff face during Shots 08–10
-  - [ ] SubsidenceHollow is a Mesh object (boolean subtracted from MoraineDam_Detail), not an Empty
+| Element | Tier | Source / Justification |
+|---|---|---|
+| HKH-wide DEM | DATA-LOCKED | Copernicus GLO-30 |
+| Glacier inventory 1990, 2020 (HKH-wide) | DATA-LOCKED | ICIMOD HKH Glacier Inventory |
+| Village locations (downstream) | DATA-LOCKED | OSM (referenced for Ch 4) |
+| Vegetation altitude bands | DATA-LOCKED | ESA WorldCover + Research Brief §1 Zone 1 table |
+| Imja Glacier 1962 outline | DATA-LOCKED | Somos-Valenzuela et al. 2014, digitized Fig. 2 |
+| Imja Tsho 1992 outline | DATA-LOCKED | Same |
+| Imja Tsho 2010 outline | DATA-LOCKED | ICIMOD HKH Glacial Lake Inventory 2010 |
+| Imja Tsho 2020 polygon | SCHEMATIC | Constructed from Research Brief coordinates and area (1.56 km²); the actual 2020 outline is not in the repo's atlas data |
+| Imja Glacier 2020 terminus | SCHEMATIC | Approximated from Research Brief description |
+| Imja 1962 pond cluster overlay | SCHEMATIC | Approximation of pre-lake morphology; NOT digitized from Corona imagery |
+| Moraine dam 3D geometry | SCHEMATIC | 40–50 m height per Research Brief §2; exact 3D form is constructed |
+| SubsidenceHollow mesh | SCHEMATIC | Visual interpretation of Brencher 2026 InSAR-documented dead-ice subsidence; surface bowl is inferred, not photographed |
+| Atmosphere, haze, alpenglow, mist | ARTISTIC | Cinematic interpretation |
+| Camera movements, focal lengths, light direction | ARTISTIC | Cinematic interpretation |
+| Sound design | ARTISTIC | None — silent throughout |
+| Ice surface detail | ARTISTIC | Within scientifically valid bounds (Research Brief §5) |
+| Calving simulation | ARTISTIC (constrained) | Block ≤ 2.5 m³, wave ≤ 15 cm |
+
+The `SCHEMATIC` tier must be reflected in `provenance.json`: every SCHEMATIC `scene_layer` gets `"classification": "schematic"` and the layer description begins "Schematic reconstruction:". The frontend Provenance Peel UI will surface this tier so viewers can see which layers are measured vs. interpreted.
+
+---
+
+## Future Work
+
+- **Ch 0 v2 — Full Cinematic (2:30 runtime)**: The current 30-second Ch 0 is a *hero loop*, not a full chapter. The Director Brief's emotional arc was originally sketched for ~2:45. Expanding to 2:30 would allow proper regional dwell time on Karakoram, Langtang/Yala, Kangchenjunga/Makalu, the Khumbu Icefall, and a downstream beat that previews Ch 4. Decision deferred to after the 30s render lands.
+- **Imja Lake 2020 measured polygon ingestion**: replace the SCHEMATIC 2020 outline with a digitized polygon from a published 2020+ source (Maurer et al. or recent ICIMOD update). Promotes the layer from SCHEMATIC to DATA-LOCKED.
+- **1962 pond cluster digitization**: digitize from Corona KH-4 imagery to produce a measured pre-lake outline. Promotes from SCHEMATIC to DATA-LOCKED.
+
+---
+
+## Acceptance checklist (CANDIDATE LOCK → LOCK gate)
+
+Lock-blocking:
+- [ ] Consistency check passes: `grep -RE 'Annapurna_|Shot 14|Bhushan' docs/water-cycle/storyboards/ --exclude-dir=archive` returns nothing
+- [ ] Frame-map YAML validates against all 9 docs (shot count, frame ranges)
+- [ ] All 13 shots have data_classification tier assigned in YAML
+- [ ] Brencher subsidence language: cumulative ~90cm/2017–2024 framing applied across script + storyboard + tech-spec
+- [ ] Status: CANDIDATE LOCK
+- [ ] No reference to pixel-equality color test remains in tech-spec
+
+Post-render:
+- [ ] All 5 output files < 24 MiB
+- [ ] EXR-source masked-region median ΔE ≤ 5 against #78C8C0 for Imja Tsho
+- [ ] Poster frame = 841 (Shot 13 final hold start)
+- [ ] Determinism: sha256 stable across re-renders
+- [ ] Chrome load test: cinematic plays, reduced-motion shows poster + full text
+- [ ] No SCHEMATIC layer renders as if it were measured data (verified by Provenance Peel showing tier)
+
+---
+
+## All 14 blocking-fix verification (from panel review)
+
+- [ ] BLOCKING FIX #1: Shot 09 reduced-motion fallback uses "from roughly 40 metres per year in the second half of the 20th century to over 70 metres per year in the early 2000s (1961–2006)" with period qualifiers
+- [ ] BLOCKING FIX #2: Shot 13 reduced-motion fallback uses the cumulative-90cm/2017–2024 Brencher framing (NOT per-year)
+- [ ] BLOCKING FIX #3: Shot 01 entry contains explicit Director note: "If runtime is recovered from edits, Shot 01 is the first to benefit"
+- [ ] BLOCKING FIX #4: Shot 11 sound design specification is "no sound design cue of any kind" — the "soft splash" phrase is deleted from all production documents
+- [ ] BLOCKING FIX #5: Annapurna shot (1 second) removed. 30 frames redistributed: +15 to Shot 01 (7.0s→7.5s), +15 to the new Shot 13 (1.5s→2.0s). Storyboard has 13 shots total. Subsequent shots renumbered.
+- [ ] BLOCKING FIX #6: TEST RENDER REQUIRED flag added to Shot 07 at the adjusted frame (f557). Verify moraine dam geometry screens lake from camera at ~800 m AGL before production render
+- [ ] BLOCKING FIX #7: Shot 05 (Kangchenjunga) commits to orthographic camera as canonical spec. Conditional framing removed.
+- [ ] BLOCKING FIX #8: Mandatory 2-second text-free gap between "Imja Tsho" label fade-out and 1962 overlay fade-in. "Imja Tsho" label moved to f600–f614 within Shot 08. 1962 overlay begins at f631 (Shot 09).
+- [ ] BLOCKING FIX #9: 1962 area display uses two typographic lines: Line 1 "a cluster of meltwater pools" (xs), Line 2 "~0.03 km²" (sm). Description before number.
+- [ ] BLOCKING FIX #10: Compositor Text Overlay bpy API subsection added to technical spec. PNG sequence approach documented as canonical.
+- [ ] BLOCKING FIX #11: Imja_IceCliff / Calving_Block geometric continuity: approach (b) pre-calving mesh swap committed. `Imja_IceCliff_Full` hidden at f785; `Imja_IceCliff_PostCalving` shown. Calving_Block separate object, hidden until f785.
+- [ ] BLOCKING FIX #12: Mantaflow cache section added. Cache path: `data/water-cycle/calving/cache_fluid_####.vdb`. Script exits with error if cache absent.
+- [ ] BLOCKING FIX #13: 1962 pond PNG production method specified. Data prep script: `scripts/data/ch0_imja_overlays.py` using GeoPandas + Matplotlib. PNGs committed to `public/water-cycle/ch0/overlays/`.
+- [ ] BLOCKING FIX #14: SubsidenceHollow changed from Empty to Mesh (shallow dish ~3m diameter, 0.5m deep, boolean subtracted from MoraineDam_Detail).
+
+## Fabrication checklist (against Research Brief Section 5)
+
+- [ ] Shots 03, 06, 07, 10, 11: debris-covered glacier surfaces grey-brown, NOT white
+- [ ] Shots 08–13: Imja Tsho color #78C8C0 milky turquoise (verified by EXR masked-region median ΔE ≤ 5), NOT dark blue, NOT clear
+- [ ] Shots 04, 05: No tree geometry above 3,800 m
+- [ ] Shots 12, 13: Moraine dam is loose rock — no concrete, no engineered spillway
+- [ ] Shot 11: Calving block volume ≤ 2.5 m³; wave amplitude ≤ 15 cm
+- [ ] Shots 01–03: Sky uses Nishita model — gradient zenith-to-horizon, not flat blue
+- [ ] Shot 13: Prayer flags (if included) are faded, irregular, cotton-weight — not crisp
+- [ ] Shot 06: Base Camp structures (if visible) are dry-stone, not wooden chalets
+- [ ] No buildings or architecture above 3,800 m unless specifically flagged
+- [ ] Shot 11: `Imja_IceCliff_Full` covers Calving_Block volume until f785 — no visible gap in cliff face during Shots 08–10
+- [ ] SubsidenceHollow is a Mesh object (boolean subtracted from MoraineDam_Detail), not an Empty
 
 ---
 
 *End of Chapter 0 Master Storyboard*
-*Production coordinator sign-off: All 14 blocking issues from both panel reviews applied inline. Storyboard has 13 shots (Shot 05 Annapurna removed). Frame count remains 900/30s. All constraints from Research Brief, Director Brief, Shot List, Script, and Technical Spec are preserved or superseded only by blocking fixes. The developer implementing ch0_cinematic.py should read this document alone — the upstream documents are the record, not the contract.*
+*Production coordinator sign-off: All 14 blocking issues from both panel reviews applied inline. Storyboard has 13 shots (Annapurna shot removed). Frame count remains 900/30s. All constraints from Research Brief, Director Brief, Shot List, Script, and Technical Spec are preserved or superseded only by blocking fixes. The developer implementing ch0_cinematic.py should read this document and `ch0-frame-map.yaml` — the canonical machine-readable source of truth — together.*

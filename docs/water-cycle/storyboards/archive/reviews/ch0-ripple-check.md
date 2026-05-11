@@ -1,5 +1,8 @@
 # Ch 0 Ripple Check (v1 → v2 research brief revision)
 
+> **ARCHIVED — historical artifact**. This document captures the panel review (or v1→v2 ripple check) from the Ch 0 pipeline run. It is not canonical. Canonical sources: `ch0-storyboard.md` (human-readable) and `ch0-frame-map.yaml` (machine-readable).
+
+
 ## Summary
 
 **Total propagations found: 6** (1 directional inconsistency, 5 Bhushan citation occurrences across 4 documents)

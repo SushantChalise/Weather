@@ -1,6 +1,9 @@
 # Chapter 0 — Script
+
+> **STATUS**: Working artifact — see `ch0-storyboard.md` for canonical version, `ch0-frame-map.yaml` for machine-readable source of truth.
+
 *Role: Writer*
-*Total runtime: 30s / 900 frames @ 30fps*
+*Total runtime: 30s / 900 frames @ 30fps / 13 shots*
 *Text policy: every text element justified below*
 
 ---
@@ -9,19 +12,19 @@
 
 ---
 
-SHOT 01 — HKH Dawn: The Glory Moment (f001–f210)
+SHOT 01 — HKH Dawn: The Glory Moment (f001–f225)
 
 TEXT ELEMENTS:
-  SILENCE — no text in this shot for f001–f189.
+  SILENCE — no text in this shot for f001–f209.
 
-  [CONDITIONAL — only if UX cannot defer the title to f211:]
+  [CONDITIONAL — only if UX cannot defer the title to f226:]
   Position: bottom-left
-  Appears at frame: 190  Disappears at frame: 210  Fade in: 20 frames  Fade out: 0 frames (cut with shot)
+  Appears at frame: 210  Disappears at frame: 225  Fade in: 15 frames  Fade out: 0 frames (cut with shot)
   Font weight: light  Size: xs
   Color: #E8E4DC at opacity 0→40% only (never full white; a suggestion, not a title card)
   COPY: "Chapter 0 — The Water That Was Ice"
 
-JUSTIFICATION: Nothing appears on screen for the first 6.33 seconds. The Director Brief is explicit and the shot list codifies it: no title on the glory shot. The mountains arrive alone. If the UX requires a navigation label for the chapter, the conditional element at f190 is the minimum concession — it renders at 40% opacity, bottom-left, in the smallest legible size, so it does not interrupt the image. It identifies. It does not explain. If the UX can defer the title to f211, defer it. The constraint is: the peaks burn orange before they have a name.
+JUSTIFICATION: Nothing appears on screen for the first 7.0 seconds. The Director Brief is explicit and the shot list codifies it: no title on the glory shot. The mountains arrive alone. If the UX requires a navigation label for the chapter, the conditional element at f210 is the minimum concession — it renders at 40% opacity, bottom-left, in the smallest legible size, so it does not interrupt the image. It identifies. It does not explain. If the UX can defer the title to f226, defer it. The constraint is: the peaks burn orange before they have a name.
 
 ACCESSIBILITY:
   aria-label: "The Hindu Kush–Himalayan range at pre-dawn. The highest summits glow orange-gold where first light strikes them, while the valleys and plains below remain in darkness. The range stretches across the full width of the frame from northwest to southeast."
@@ -32,7 +35,7 @@ REDUCED-MOTION FALLBACK:
 
 ---
 
-SHOT 02 — Karakoram Vigour: The Western Arc (f211–f285)
+SHOT 02 — Karakoram Vigour: The Western Arc (f226–f300)
 
 TEXT ELEMENTS:
   SILENCE — no text in this shot.
@@ -47,7 +50,7 @@ REDUCED-MOTION FALLBACK:
 
 ---
 
-SHOT 03 — The Grey River: Arc-to-Nepal Transition (f286–f360)
+SHOT 03 — The Grey River: Arc-to-Nepal Transition (f301–f375)
 
 TEXT ELEMENTS:
   SILENCE — no text in this shot.
@@ -62,19 +65,19 @@ REDUCED-MOTION FALLBACK:
 
 ---
 
-SHOT 04 — Langtang / Yala Glacier: The Clean Reference (f361–f390)
+SHOT 04 — Langtang / Yala Glacier: The Clean Reference (f376–f405)
 
 TEXT ELEMENTS:
   [OPTIONAL — only if UX requires region identification for wayfinding:]
   Position: top-left
-  Appears at frame: 375  Disappears at frame: 390  Fade in: 5 frames  Fade out: 0 frames
+  Appears at frame: 390  Disappears at frame: 405  Fade in: 5 frames  Fade out: 0 frames
   Font weight: light  Size: xs
   Color: #E8E4DC
   COPY: "LANGTANG"
 
   All other frames: SILENCE.
 
-JUSTIFICATION: At 1 second (30 frames), this shot must declare itself on the first frame. No text can build here — it would arrive and leave before the eye settles. The label "LANGTANG" is permitted only as a cartographic waypoint if the UX requires region identification across Shots 04–06. It names, nothing more. No description, no context. Yala Glacier's unusual cleanliness — the debris-free blue-grey ice against the recently deglaciated bare rock — is legible without annotation. The bare rock foreground is the retreat scar. The viewer reads it.
+JUSTIFICATION: At 1 second (30 frames), this shot must declare itself on the first frame. No text can build here — it would arrive and leave before the eye settles. The label "LANGTANG" is permitted only as a cartographic waypoint if the UX requires region identification across Shots 04–05. It names, nothing more. No description, no context. Yala Glacier's unusual cleanliness — the debris-free blue-grey ice against the recently deglaciated bare rock — is legible without annotation. The bare rock foreground is the retreat scar. The viewer reads it.
 
 ACCESSIBILITY:
   aria-label: "Yala Glacier in the Langtang valley — one of Nepal's few debris-free glaciers. A small plateau of blue-grey ice sits in a rocky bowl. Below the glacier terminus, bare grey rock shows where the ice used to be."
@@ -84,34 +87,12 @@ REDUCED-MOTION FALLBACK:
 
 ---
 
-SHOT 05 — Annapurna Sanctuary: The Vertical Wall (f391–f420)
+SHOT 05 — Kangchenjunga / Makalu: The Eastern Extreme (f406–f435)
 
 TEXT ELEMENTS:
   [OPTIONAL — only if UX requires region identification for wayfinding:]
   Position: top-left
-  Appears at frame: 405  Disappears at frame: 420  Fade in: 5 frames  Fade out: 0 frames
-  Font weight: light  Size: xs
-  Color: #E8E4DC
-  COPY: "ANNAPURNA"
-
-  All other frames: SILENCE.
-
-JUSTIFICATION: Same logic as Shot 04. The optional label is a cartographic label only — "ANNAPURNA" not "Annapurna Massif, site of the world's tenth-highest peak." The telephoto compression of the enclosing peaks is doing all the work of communicating scale and drama. Text placed over this image would compete with the vertiginous geometry. The Sanctuary must feel like an enclosure, not an exhibit.
-
-ACCESSIBILITY:
-  aria-label: "Inside the Annapurna Sanctuary basin, looking up at a ring of peaks rising 3,000 to 4,000 metres above the basin floor. Telephoto compression stacks the concentric ridgelines into what reads as a single vertical wall. Thin spindrift plumes trail off the upper ridgelines."
-
-REDUCED-MOTION FALLBACK:
-  "The Annapurna Sanctuary. The basin floor sits at 4,100 metres; the surrounding peaks exceed 8,000 metres. Glaciers hang on near-vertical faces, continuously shedding ice as avalanches. The water eventually reaches the Kali Gandaki."
-
----
-
-SHOT 06 — Kangchenjunga / Makalu: The Eastern Extreme (f421–f450)
-
-TEXT ELEMENTS:
-  [OPTIONAL — only if UX requires region identification for wayfinding:]
-  Position: top-left
-  Appears at frame: 435  Disappears at frame: 450  Fade in: 5 frames  Fade out: 0 frames
+  Appears at frame: 420  Disappears at frame: 435  Fade in: 5 frames  Fade out: 0 frames
   Font weight: light  Size: xs
   Color: #E8E4DC
   COPY: "KANGCHENJUNGA / MAKALU"
@@ -128,7 +109,7 @@ REDUCED-MOTION FALLBACK:
 
 ---
 
-SHOT 07 — Khumbu Icefall: The Known Image (f451–f510)
+SHOT 06 — Khumbu Icefall: The Known Image (f436–f495)
 
 TEXT ELEMENTS:
   SILENCE — no text in this shot.
@@ -143,12 +124,12 @@ REDUCED-MOTION FALLBACK:
 
 ---
 
-SHOT 08 — Imja Descent: The Approach (f511–f585)
+SHOT 07 — Imja Descent: The Approach (f496–f570)
 
 TEXT ELEMENTS:
   SILENCE — no text in this shot.
 
-JUSTIFICATION: The lake must not be seen until Shot 09. The approach — grey debris, constricted valley, the moraine dam crest appearing in the final second — is the preparation that makes the colour hit of Shot 09 land. Text here would give the viewer a conceptual handle before the visual event. We are withholding the name "Imja Tsho" intentionally. The viewer arrives at the lake without knowing what it is called, and the colour hits first. The name arrives in Shot 09 as a label on something they have already felt. Do not pre-announce.
+JUSTIFICATION: The lake must not be seen until Shot 08. The approach — grey debris, constricted valley, the moraine dam crest appearing in the final second — is the preparation that makes the colour hit of Shot 08 land. Text here would give the viewer a conceptual handle before the visual event. We are withholding the name "Imja Tsho" intentionally. The viewer arrives at the lake without knowing what it is called, and the colour hits first. The name arrives in Shot 08 as a label on something they have already felt. Do not pre-announce.
 
 ACCESSIBILITY:
   aria-label: "Aerial descent toward an unseen lake in the Imja valley, Khumbu region. The glacier surface below is grey-brown debris. The valley walls are dark quartzite. A ridge of loose angular rock — a moraine dam — rises at the far end of the valley. The lake is hidden behind it."
@@ -158,18 +139,19 @@ REDUCED-MOTION FALLBACK:
 
 ---
 
-SHOT 09 — Imja Tsho: The Reveal (f586–f645)
+SHOT 08 — Imja Tsho: The Reveal (f571–f630)
 
 TEXT ELEMENTS:
   Position: bottom-right
-  Appears at frame: 630  Disappears at frame: 645  Fade in: 10 frames  Fade out: 0 frames (cut with shot)
+  Appears at frame: 600  Disappears at frame: 630  Fade in: 10 frames  Fade out: 0 frames (cut with shot)
   Font weight: light  Size: sm
   Color: #E8E4DC
   COPY: "Imja Tsho"
 
-  f586–f629: SILENCE — the colour arrives alone. No text for the first 1.47 seconds.
+  f571–f599: SILENCE — the colour arrives alone. No text for the first ~0.97 seconds.
 
-JUSTIFICATION: The colour is the event. The viewer needs the full first 1.47 seconds to encounter the milky turquoise without mediation — without a label redirecting their attention from the image to the word. The name "Imja Tsho" arrives at f630 because it is a label, not a description. "Imja Tsho" in the bottom-right corner does what "Khumbu Glacier" would do in a Planet Earth title card — it names. It does not say "Nepal's fastest-growing glacial lake" or "a lake that did not exist in 1962." That information comes in the next shot. Here the name is the minimum necessary interruption of the image: the viewer now knows what they are looking at. The colour has already told them what matters.
+JUSTIFICATION (BLOCKING FIX #8 — 2-second text-free gap):
+The colour is the event. The label is shifted to f600 (from the original f630) so that the "Imja Tsho" label fades out by f614 and there is a 2-second text-free gap before the 1962 overlay begins fading in at f631. The viewer encounters the milky turquoise without mediation for the first second — without a label redirecting their attention from the image to the word. The name "Imja Tsho" at f600 is a label, not a description. It names. It does not say "Nepal's fastest-growing glacial lake" or "a lake that did not exist in 1962." That information comes in the next shot. Here the name is the minimum necessary interruption of the image: the viewer now knows what they are looking at. The colour has already told them what matters.
 
 ACCESSIBILITY:
   aria-label: "Imja Tsho, a glacial lake in the Khumbu region at 5,010 metres elevation. The water is milky turquoise — made opaque by glacial flour, fine particles of crushed bedrock suspended in the water. The colour is unlike any ordinary mountain lake. At the far eastern end, the calving face of Imja Glacier — a wall of ice streaked with grey debris bands — meets the lake surface. At the western end, the moraine dam and the narrow outlet gap where the Imja Khola begins."
@@ -179,47 +161,48 @@ REDUCED-MOTION FALLBACK:
 
 ---
 
-SHOT 10 — 1962 Overlay: The Dissolve (f646–f720)
+SHOT 09 — 1962 Overlay: The Dissolve (f631–f705)
 
-TEXT ELEMENTS:
+TEXT ELEMENTS (BLOCKING FIX #9 — description first, then number):
   Position: bottom-center
-  Appears at frame: 646  Disappears at frame: 705  Fade in: 14 frames  Fade out: 14 frames
+  Appears at frame: 631  Disappears at frame: 689  Fade in: 14 frames  Fade out: 14 frames
   Font weight: light  Size: sm
   Color: #F5E090
   COPY: "1962"
 
   Position: bottom-center (directly below "1962")
-  Appears at frame: 646  Disappears at frame: 705  Fade in: 14 frames  Fade out: 14 frames
-  Font weight: light  Size: xs
+  Appears at frame: 631  Disappears at frame: 689  Fade in: 14 frames  Fade out: 14 frames
+  Font weight: light
   Color: #F5E090
-  COPY: "~0.03 km²  —  a cluster of meltwater pools"
+  Line 1 (xs): "a cluster of meltwater pools"
+  Line 2 (sm): "~0.03 km²"
 
   Position: bottom-center
-  Appears at frame: 691  Disappears at frame: 720  Fade in: 10 frames  Fade out: 10 frames
+  Appears at frame: 676  Disappears at frame: 705  Fade in: 10 frames  Fade out: 10 frames
   Font weight: light  Size: sm
   Color: #F5E090
   COPY: "2020"
 
   Position: bottom-center (directly below "2020")
-  Appears at frame: 691  Disappears at frame: 720  Fade in: 10 frames  Fade out: 10 frames
+  Appears at frame: 676  Disappears at frame: 705  Fade in: 10 frames  Fade out: 10 frames
   Font weight: light  Size: xs
   Color: #F5E090
   COPY: "~1.56 km²"
 
   [Graphic element — not text:]
-  The 1962 pond outlines: irregular amber polygons, scattered across the eastern two-thirds of the current lake area, each no larger than ~200 m across. Opacity 0→60% over f646–f660, holds f660–f690, dissolves out f690–f705.
+  The 1962 pond outlines: irregular amber polygons, scattered across the eastern two-thirds of the current lake area, each no larger than ~200 m across. Opacity 0→60% over f631–f645, holds f645–f675, dissolves out f675–f689.
 
-JUSTIFICATION: Two numbers. Two years. No ratio, no percentage, no growth-rate annotation. The Research Brief is precise about what is defensible: "Imja Tsho did not exist as a lake in 1962 — it was a cluster of small meltwater pools." The sub-label "a cluster of meltwater pools" is necessary because 0.03 km² is an abstraction. Without context it reads as a small lake. It was not a lake. The graphic overlay of scattered 1962 ponds over the modern lake body makes the arithmetic visible without forcing it. The viewer does the multiplication. The Director Brief is explicit: "Their arithmetic will be more powerful than ours." The 2020 label carries only the area figure — the lake itself is the 2020 state. "~1.56 km²" is the only annotation 2020 needs. The amber colour (#F5E090) carries the tone of archival imagery — it signals historical data without clinical whiteness. Both numbers fade out by f720 so the frame returns to clean lake before the cut to Shot 11.
+JUSTIFICATION: Two numbers. Two years. No ratio, no percentage, no growth-rate annotation. The Research Brief is precise about what is defensible: "Imja Tsho did not exist as a lake in 1962 — it was a cluster of small meltwater pools." The sub-label "a cluster of meltwater pools" is necessary because 0.03 km² is an abstraction. Without context it reads as a small lake. It was not a lake. Per BLOCKING FIX #9, the two-line layout puts the qualitative description first, then the abstract number below, so the reader encounters context before figure. The graphic overlay of scattered 1962 ponds over the modern lake body makes the arithmetic visible without forcing it. The viewer does the multiplication. The Director Brief is explicit: "Their arithmetic will be more powerful than ours." The 2020 label carries only the area figure — the lake itself is the 2020 state. "~1.56 km²" is the only annotation 2020 needs. The amber colour (#F5E090) carries the tone of archival imagery. Both numbers fade out by f705 so the frame returns to clean lake before the cut to Shot 10.
 
 ACCESSIBILITY:
   aria-label: "A translucent overlay shows the 1962 state of this lake basin: scattered small meltwater pools covering approximately 0.03 square kilometres, concentrated toward the far end where the glacier now calves. The overlay fades to reveal the 2020 lake: approximately 1.56 square kilometres of milky turquoise water occupying what was glacier."
 
-REDUCED-MOTION FALLBACK:
-  "1962: a cluster of meltwater pools on the glacier surface. Approximately 0.03 km². 2020: Imja Tsho. Approximately 1.56 km². In the intervening 58 years, the glacier retreated at an average of 40 to 74 metres per year. The lake is what retreat leaves behind. Source: Somos-Valenzuela et al. (2014), The Cryosphere. DOI: 10.5194/tc-8-1661-2014."
+REDUCED-MOTION FALLBACK (BLOCKING FIX #1 — period-qualified retreat rates):
+  "1962: a cluster of meltwater pools on the glacier surface. Approximately 0.03 km². 2020: Imja Tsho. Approximately 1.56 km². In the intervening 58 years, the glacier retreated — from roughly 40 metres per year in the second half of the 20th century to over 70 metres per year in the early 2000s (1961–2006, Fujita et al. 2001; Pelto citing peer-reviewed sources 2011). The lake is what retreat leaves behind. Source: Somos-Valenzuela et al. (2014), The Cryosphere. DOI: 10.5194/tc-8-1661-2014."
 
 ---
 
-SHOT 11 — Calving Front: The Lateral Track (f721–f780)
+SHOT 10 — Calving Front: The Lateral Track (f706–f765)
 
 TEXT ELEMENTS:
   SILENCE — no text in this shot.
@@ -234,12 +217,12 @@ REDUCED-MOTION FALLBACK:
 
 ---
 
-SHOT 12 — The Calving Event: Pedestrian and Quiet (f781–f825)
+SHOT 11 — The Calving Event: Pedestrian and Quiet (f766–f810)
 
 TEXT ELEMENTS:
   SILENCE — no text in this shot.
 
-JUSTIFICATION: A 2-cubic-metre block of ice pivots into a lake. The event takes 1.5 seconds. The camera does not move. There is no score. There is no text. The Director Brief specifies this with unusual precision: "Its pedestrian quality is what makes it unsettling. Underplay this or the chapter lies." A text element — any text element — would frame this event as a moment. It is not a moment. It is Tuesday. The Research Brief documents that this happens continuously. The only thing text could do here is remove that understanding. No text.
+JUSTIFICATION (BLOCKING FIX #4 — no sound design): A 2-cubic-metre block of ice pivots into a lake. The event takes 1.5 seconds. The camera does not move. There is no score. There is no text. The Director Brief specifies this with unusual precision: "Its pedestrian quality is what makes it unsettling. Underplay this or the chapter lies." A text element — any text element — would frame this event as a moment. It is not a moment. It is Tuesday. The Research Brief documents that this happens continuously. The only thing text could do here is remove that understanding. No text. No sound design cue of any kind.
 
 ACCESSIBILITY:
   aria-label: "A small section of the ice cliff — roughly two cubic metres — shears along a debris band and pivots into the lake. The block falls approximately one and a half metres. The water opens, then closes. A gentle wave, 10 to 15 centimetres high, moves outward across the milky turquoise surface. The block is briefly visible as a pale shape below the surface, then the turbidity absorbs it. The camera does not move."
@@ -249,12 +232,12 @@ REDUCED-MOTION FALLBACK:
 
 ---
 
-SHOT 13 — Moraine Dam: Orientation (f826–f855)
+SHOT 12 — Moraine Dam: Orientation (f811–f840)
 
 TEXT ELEMENTS:
   SILENCE — no text in this shot.
 
-JUSTIFICATION: At this point in the chapter, the viewer has seen the lake, understood its history, watched the mechanism of its growth. Shot 13 is the spatial orientation — the wide frame that shows the lake above, the valley below, the dam between them. The geography of the hazard must be read, not labelled. The dam appears unremarkable in this frame, which is the point: the Research Brief calls this "the terrifying banality of GLOF hazard." Text that says "moraine dam" at this moment would give the viewer a concept to file away. We want them to feel the spatial relationship first — water above, valley below, a ridge of loose rock as the only separation. The moraine dam has already been described in Shot 14's predecessor; the viewer carries that knowledge. Now they see where it sits. No text.
+JUSTIFICATION: At this point in the chapter, the viewer has seen the lake, understood its history, watched the mechanism of its growth. Shot 12 is the spatial orientation — the wide frame that shows the lake above, the valley below, the dam between them. The geography of the hazard must be read, not labelled. The dam appears unremarkable in this frame, which is the point: the Research Brief calls this "the terrifying banality of GLOF hazard." Text that says "moraine dam" at this moment would give the viewer a concept to file away. We want them to feel the spatial relationship first — water above, valley below, a ridge of loose rock as the only separation. The moraine dam has already been described in Shot 13's predecessor; the viewer carries that knowledge. Now they see where it sits. No text.
 
 ACCESSIBILITY:
   aria-label: "Wide aerial view showing the full geography of the hazard. The milky turquoise lake fills the background. Below it, a ridge of loose angular rock — the moraine dam — separates the lake from a steep narrow valley. Below the dam, the Imja Khola river flows grey-white with suspended glacial sediment. Nothing about the dam's appearance signals that it holds back a large volume of water."
@@ -264,32 +247,34 @@ REDUCED-MOTION FALLBACK:
 
 ---
 
-SHOT 14 — The Moraine Dam: Final Hold (f856–f900)
+SHOT 13 — The Moraine Dam: Final Hold (f841–f900)
 
 TEXT ELEMENTS:
   SILENCE — no text of any kind. The chapter does not end with a word.
 
-JUSTIFICATION: Everything the chapter needed to say has been said. The viewer knows the lake is milky turquoise. They know it was pools in 1962. They watched the ice become water. They saw the geography of the hazard. Now they look at the thing itself — a pile of loose rock, holding back 61.7 million cubic metres of water, making no sound, showing no sign of what it is. The Research Brief documents buried dead ice within the dam's structure, measured by InSAR satellite as subsiding 8.5 to 9.4 centimetres per year. A slight subsidence hollow is visible in the render — but it is not labelled. Nothing is labelled. The chapter subsides into black. The question the viewer carries forward is not answered here.
+JUSTIFICATION: Everything the chapter needed to say has been said. The viewer knows the lake is milky turquoise. They know it was pools in 1962. They watched the ice become water. They saw the geography of the hazard. Now they look at the thing itself — a pile of loose rock, holding back 61.7 million cubic metres of water, making no sound, showing no sign of what it is. The Research Brief documents buried dead ice within the dam's structure, measured by satellite InSAR and SAR feature tracking: a 0.3 km² area of the dam cumulatively subsided about 90 centimetres over 2017–2024, with seasonal coherence changes indicating buried ice within the dam (Brencher, Henderson & Shean, 2026). A slight subsidence hollow is visible in the render — but it is not labelled. Nothing is labelled. The chapter subsides into black. The question the viewer carries forward is not answered here.
 
 ACCESSIBILITY:
   aria-label: "Close view of the moraine dam surface — loose angular boulders, grey silt and gravel, no engineered structure of any kind. A slight bowl-shaped depression in the dam crest marks where buried ice has melted below. A faded prayer flag, one end loose, trails across the rocks. Imja Tsho fills the upper portion of the frame, milky turquoise, still. The chapter fades to black."
 
-REDUCED-MOTION FALLBACK:
-  "The moraine dam at Imja Tsho's western end. Loose rock. No bedrock foundation. Buried dead ice melting within it, causing seasonal downward displacement of 8.5 to 9.4 centimetres per year (Brencher, Henderson & Shean, 2026). In 2016, a controlled outlet reduced the lake level by 3.4 metres. The Early Warning System installed that year is designed to protect 71,752 people in the Everest valley. The dam holds 61.7 ± 3.7 million cubic metres of water. It looks like any other pile of rocks."
+REDUCED-MOTION FALLBACK (BLOCKING FIX #2 — cumulative-90cm Brencher framing):
+  "The moraine dam at Imja Tsho's western end. Loose rock. No bedrock foundation. Buried dead ice melting within it. Satellite InSAR and SAR feature tracking show that a 0.3 km² area of the moraine dam cumulatively subsided about 90 centimetres over 2017–2024, with seasonal coherence changes indicating buried ice within the dam (Brencher, Henderson & Shean, 2026). In 2016, a controlled outlet reduced the lake level by 3.4 metres. The Early Warning System installed that year is designed to protect 71,752 people in the Everest valley. The dam holds 61.7 ± 3.7 million cubic metres of water. It looks like any other pile of rocks."
 
 ---
 
 ## Silence discipline
 
-Shots with NO text: 01 (f001–f189), 02, 03, 04 (f361–f374), 05 (f391–f404), 06 (f421–f434), 07, 08, 11, 12, 13, 14
+Shots with NO text (full silence): 02, 03, 06, 07, 10, 11, 12, 13.
 
-Shots with text: 01 (conditional, f190–f210 at 40% opacity only), 04 (optional label f375–f390), 05 (optional label f405–f420), 06 (optional label f435–f450), 09 (name label f630–f645), 10 (year/area data f646–f720)
+Shots with conditional or optional text only: 01 (conditional title f210–f225 at 40% opacity), 04 (optional "LANGTANG" label f390–f405), 05 (optional "KANGCHENJUNGA / MAKALU" label f420–f435).
 
-Text-free percentage: 79% of frames carry no text element. If the three optional regional labels (Shots 04–06) are omitted, 87% of frames are text-free.
+Shots with mandatory text: 08 ("Imja Tsho" label f600–f614), 09 (year/area data f631–f705).
 
-Why the opening 7 seconds (Shots 01–02 partial) are text-free: The Director Brief frames this as the "glory moment" — twenty-five seconds of stillness (scaled to seven seconds in the compressed timeline). The constraint is not aesthetic preference; it is functional. The HKH range must be felt as alien before it is understood. The moment a title card appears, the viewer is watching a documentary. Before it appears, they are in front of something that does not know they exist. That experience — the involuntary smallness — is the emotional investment the chapter requires to make the data in Beat 2 feel like loss rather than information. Text before f190 destroys the precondition for everything that follows.
+Text-free percentage: approximately 82% of frames carry no text element. If the two optional regional labels (Shots 04–05) are omitted, approximately 89% of frames are text-free.
 
-Additionally, Shots 01–06 collectively constitute the wide-arc survey of Beat 1. The Research Brief describes Beat 1 as: "What the viewer is NOT yet told: They do not know where they are. They do not know the name of a single peak." Text in this section would violate the deliberate withholding that makes the descending specificity of Beat 2 feel earned. The first non-optional text element in the chapter is "Imja Tsho" — a name, at f630, after 20.97 seconds of moving image. Every second before that has been earned.
+Why the opening 7 seconds (Shot 01) is text-free: The Director Brief frames this as the "glory moment" — twenty-five seconds of stillness (scaled to 7.5 seconds in the compressed timeline). The constraint is not aesthetic preference; it is functional. The HKH range must be felt as alien before it is understood. The moment a title card appears, the viewer is watching a documentary. Before it appears, they are in front of something that does not know they exist. That experience — the involuntary smallness — is the emotional investment the chapter requires to make the data in Beat 2 feel like loss rather than information. Text before f210 destroys the precondition for everything that follows.
+
+Additionally, Shots 01–05 collectively constitute the wide-arc survey of Beat 1. The Research Brief describes Beat 1 as: "What the viewer is NOT yet told: They do not know where they are. They do not know the name of a single peak." Text in this section would violate the deliberate withholding that makes the descending specificity of Beat 2 feel earned. The first mandatory text element in the chapter is "Imja Tsho" — a name, at f600, after 19.97 seconds of moving image. Every second before that has been earned.
 
 ---
 
@@ -300,21 +285,21 @@ Value: ~0.03 km²  →  ~1.56 km²
 Source: Somos-Valenzuela MA, McKinney DC, Rounce DR, Byers AC (2014). DOI: 10.5194/tc-8-1661-2014
 What it MUST NOT say: "Imja Tsho grew 52-fold since 1962"
 What it DOES say: In 1962, a cluster of small meltwater pools covered approximately 0.03 km². By 2020, the unified lake covered approximately 1.56 km². The baseline (0.03 km²) was not a lake. It was pools on the glacier surface. The growth is real; the ratio is technically accurate but collapses what the baseline represents.
-Screen appearance: Shot 10, f646–f720, bottom-center, size sm + xs, color #F5E090. Presented as two separate year/value pairs — never as a ratio.
+Screen appearance: Shot 09, f631–f705, bottom-center, size sm + xs, color #F5E090. Presented as two separate year/value pairs — never as a ratio.
 
 ### Number 2
 Value: 61.7 ± 3.7 million m³
 Source: Somos-Valenzuela MA et al. (2014). DOI: 10.5194/tc-8-1661-2014; Volume measured at 2012 survey (max depth 116.3 ± 5.2 m).
 What it MUST NOT say: "enough water to flood a city" or any comparative exaggeration
 What it DOES say: The moraine dam at Imja Tsho's western outlet retains approximately 61.7 million cubic metres of water. This figure is from a 2012 survey; lake volume has grown since. The dam is loose, unconsolidated glacial debris with buried ice melting within its structure.
-Screen appearance: This number does NOT appear as on-screen text in Chapter 0. It is carried in the accessibility label for Shot 14 and in the reduced-motion fallback. The visual argument — the dam, the lake above it, the valley below — is the primary delivery mechanism. The number belongs to Chapter 1 or a data sidebar. In Chapter 0, the reader's eye on the dam is more powerful than the number in type.
+Screen appearance: This number does NOT appear as on-screen text in Chapter 0. It is carried in the accessibility label for Shot 13 and in the reduced-motion fallback. The visual argument — the dam, the lake above it, the valley below — is the primary delivery mechanism. The number belongs to Chapter 1 or a data sidebar. In Chapter 0, the reader's eye on the dam is more powerful than the number in type.
 
 ### Number 3
 Value: 1.6 billion
 Source: ICIMOD (2023). Water, Ice, Society, and Ecosystems in the Hindu Kush Himalaya (HI-WISE). Available: hkh.icimod.org/hi-wise/
 What it MUST NOT say: "2 billion people depend on glacial melt"
 What it DOES say: The Hindu Kush–Himalayan range feeds 12 of Asia's major rivers, providing water to roughly 240 million mountain people and over 1.6 billion people in downstream river basins. Not all downstream populations are primarily glacier-dependent; the figure refers to the total population in river basins whose headwaters pass through the HKH.
-Screen appearance: This number does NOT appear as on-screen text in Chapter 0. The chapter establishes the system (Shots 01–06) and then descends to the specific (Shots 07–14). The population figure is a Beat 2 or Chapter 1 data element. Placing it in Chapter 0 would shift the emotional register from intimate wonder toward abstract concern — the wrong direction for this chapter's arc. It lives in the reduced-motion fallback for accessibility and as a data caption available on request.
+Screen appearance: This number does NOT appear as on-screen text in Chapter 0. The chapter establishes the system (Shots 01–05) and then descends to the specific (Shots 06–13). The population figure is a Beat 2 or Chapter 1 data element. Placing it in Chapter 0 would shift the emotional register from intimate wonder toward abstract concern — the wrong direction for this chapter's arc. It lives in the reduced-motion fallback for accessibility and as a data caption available on request.
 
 ---
 
@@ -328,7 +313,7 @@ In the Khumbu, Imja Tsho sits at 5,010 metres. Its water is milky turquoise — 
 
 In 1962, this was a cluster of small meltwater pools on the glacier surface: approximately 0.03 km². By 2020, it had become a lake of approximately 1.56 km². The glacier retreated — from roughly 40 metres per year in the second half of the 20th century to over 70 metres per year in the early 2000s. The lake is what retreat leaves behind.
 
-At the lake's western end, a moraine dam — loose, unconsolidated glacial debris, no bedrock, no concrete — retains approximately 61.7 million cubic metres of water. Buried within its structure, dead ice melts, causing the dam to subside. The dam makes no sound. An early warning system, installed in 2016, is designed to protect 71,752 people in the Everest valley below.
+At the lake's western end, a moraine dam — loose, unconsolidated glacial debris, no bedrock, no concrete — retains approximately 61.7 million cubic metres of water. Buried within its structure, dead ice melts. Satellite InSAR and SAR feature tracking show that a 0.3 km² area of the moraine dam cumulatively subsided about 90 centimetres over 2017–2024, with seasonal coherence changes indicating buried ice within the dam (Brencher, Henderson & Shean, 2026). The dam makes no sound. An early warning system, installed in 2016, is designed to protect 71,752 people in the Everest valley below.
 
 Sources: Somos-Valenzuela et al. (2014) DOI: 10.5194/tc-8-1661-2014; ICIMOD HI-WISE (2023); Brencher, Henderson & Shean (2026) DOI: 10.5194/tc-20-67-2026.
 
@@ -338,11 +323,11 @@ Sources: Somos-Valenzuela et al. (2014) DOI: 10.5194/tc-8-1661-2014; ICIMOD HI-W
 
 Rules this script follows, derived from the Director Brief and visual references:
 
-- No text before f190 under any circumstances. The glory moment (f001–f189) is protected. The opening 6.33 seconds belong to the image. Any chapter title, if required by UX, may appear only at f190 at maximum 40% opacity in the bottom-left corner — never full-white, never centered, never over the peak line.
-- Numbers appear alone, in pairs, never competing. When "1962 / ~0.03 km²" is on screen in Shot 10, no other text element is present simultaneously. When "2020 / ~1.56 km²" appears, the 1962 pair has already faded. NYT Climate discipline: one number fills its moment, then clears.
-- Glacier names are labels, not descriptions. "Imja Tsho" appears in Shot 09. It is a name. It is not "Nepal's fastest-growing glacial lake" or "a lake formed by glacier retreat." The colour has already told the viewer what matters. The name closes the identification. Regional labels in Shots 04–06 follow the same rule — "LANGTANG" not "Langtang Valley, site of Yala Glacier, a benchmark monitoring site."
+- No text before f210 under any circumstances. The glory moment (f001–f209) is protected. The opening ~7 seconds belong to the image. Any chapter title, if required by UX, may appear only at f210 at maximum 40% opacity in the bottom-left corner — never full-white, never centered, never over the peak line.
+- Numbers appear alone, in pairs, never competing. When "1962 / ~0.03 km²" is on screen in Shot 09, no other text element is present simultaneously. When "2020 / ~1.56 km²" appears, the 1962 pair has already faded. NYT Climate discipline: one number fills its moment, then clears.
+- Glacier names are labels, not descriptions. "Imja Tsho" appears in Shot 08. It is a name. It is not "Nepal's fastest-growing glacial lake" or "a lake formed by glacier retreat." The colour has already told the viewer what matters. The name closes the identification. Regional labels in Shots 04–05 follow the same rule — "LANGTANG" not "Langtang Valley, site of Yala Glacier, a benchmark monitoring site."
 - No ratio, no multiplier, no percentage for the lake growth figure. The Research Brief is explicit: stating that the lake grew "52-fold" without explaining that the 1962 baseline was not a lake is a defensible-but-misleading construction. This script presents two measurements at two dates and lets the viewer's arithmetic operate freely.
-- The moraine dam carries no text in Shots 13 or 14. The chapter has already delivered the hazard context. The final 2.5 seconds are image only. The Director Brief: "The last image must be image, not text."
-- The calving event (Shot 12) is text-free and score-free. A text element framing a 2-cubic-metre calving event as a "moment" turns a slow catastrophe into a spectacle. The camera's stillness and the absence of text are the two constraints that keep the event honest.
+- The moraine dam carries no text in Shots 12 or 13. The chapter has already delivered the hazard context. The final 3.0 seconds are image only. The Director Brief: "The last image must be image, not text."
+- The calving event (Shot 11) is text-free and score-free. A text element framing a 2-cubic-metre calving event as a "moment" turns a slow catastrophe into a spectacle. The camera's stillness and the absence of text are the two constraints that keep the event honest.
 - "Rapidly," "alarming," "massive," "one of the largest" do not appear anywhere in this script. Where the Research Brief uses a specific figure, this script uses that figure. Where a range is the defensible form, this script uses the range: "40 to 74 metres per year," not "dramatically accelerating retreat."
 - The reduced-motion fallback is a complete narrative, not a caption list. Every fact the animation communicates must survive in the static text for users who cannot view the animation. The fallback includes primary source DOIs so the claim chain is auditable.

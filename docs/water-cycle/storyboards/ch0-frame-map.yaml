@@ -1,0 +1,584 @@
+# Chapter 0 — Frame Map (canonical machine-readable source of truth)
+#
+# Authority: this YAML is the canonical machine-readable spec for Ch 0.
+# If this file and any other doc disagree, this file wins.
+# Generated from: ch0-storyboard.md (canonical human-readable source) after
+# the Shot 05 (Annapurna Sanctuary) removal and frame redistribution
+# (BLOCKING FIX #5 from the panel review).
+
+chapter_id: ch0
+status: CANDIDATE_LOCK
+runtime_seconds: 30.0
+fps: 30
+total_frames: 900
+frame_indexing: "1-based (Blender-native: 1..900 inclusive)"
+output_resolution: [1280, 720]
+poster_frame: 841  # Shot 13 final hold start (1-indexed), per master storyboard f841
+
+shots:
+  - id: 1
+    name: "HKH Alpenglow"
+    frame_start: 1
+    frame_end: 225
+    duration_s: 7.5
+    beat: 1
+    camera:
+      lon: 84.0
+      lat: 30.0
+      alt_m_asl: 200000
+      look_bearing_deg: 160  # south-southeast
+      focal_mm: null
+      type: "orthographic"
+      ortho_scale: 2000.0
+      pitch_deg: -60
+      yaw_deg: 80
+    movement: "static"
+    objects_visible:
+      - "HKH_DEM_orbital"
+      - "HKH_AtmosVolume"
+      - "Glacier_Clean_HKH"
+      - "WC_Sun"
+      - "WC_World"
+    transition_in: "fade_from_black"  # 2-frame
+    transition_out: "cut"
+    data_layers:
+      - "terrain-hkh-orbital"
+      - "glacier-hkh-karakoram-clean"
+      - "sky-atmosphere"
+    text_overlay:
+      content: "Chapter 0 — The Water That Was Ice"
+      conditional: true
+      appear_frame: 210
+      disappear_frame: 225
+      position: "bottom-left"
+      max_opacity: 0.40
+      color: "#E8E4DC"
+
+  - id: 2
+    name: "Karakoram Lateral Drift"
+    frame_start: 226
+    frame_end: 300
+    duration_s: 2.5
+    beat: 1
+    camera:
+      lon_start: 76.0
+      lat_start: 36.0
+      alt_m_asl_start: 80000
+      lon_end: 80.0
+      lat_end: 35.5
+      alt_m_asl_end: 75000
+      look_bearing_deg: 200  # south-southwest across range
+      focal_mm: 300
+      type: "perspective"
+    movement: "lateral_drift_east"  # BEZIER with flat handles
+    objects_visible:
+      - "HKH_DEM_orbital"
+      - "HKH_AtmosVolume"
+      - "Glacier_Clean_HKH"
+    transition_in: "cut"
+    transition_out: "cut"
+    data_layers:
+      - "terrain-hkh-orbital"
+      - "glacier-hkh-karakoram-clean"
+    text_overlay:
+      content: ""
+      appear_frame: null
+      disappear_frame: null
+
+  - id: 3
+    name: "Debris Glacier Reveal (Grey River)"
+    frame_start: 301
+    frame_end: 375
+    duration_s: 2.5
+    beat: 1
+    camera:
+      lon: 84.0
+      lat: 28.5
+      alt_m_asl_start: 30000
+      alt_m_asl_end: 15000
+      look_bearing_deg: 20  # north-northeast
+      focal_mm: 200
+      type: "perspective"
+    movement: "push_toward_descending"  # LINEAR z + BEZIER x drift
+    objects_visible:
+      - "HKH_DEM_orbital"
+      - "Nepal_DEM_regional"
+      - "Glacier_Debris_Nepal"
+    transition_in: "cut"
+    transition_out: "cut"
+    data_layers:
+      - "terrain-hkh-orbital"
+      - "terrain-nepal-regional"
+      - "glacier-nepal-debris"
+    text_overlay:
+      content: ""
+      appear_frame: null
+      disappear_frame: null
+
+  - id: 4
+    name: "Langtang / Yala Glacier"
+    frame_start: 376
+    frame_end: 405
+    duration_s: 1.0
+    beat: 1
+    camera:
+      lon: 85.37
+      lat: 28.14
+      alt_m_asl: 7100
+      look_bearing_deg: 225  # south-southwest
+      focal_mm: 85
+      type: "perspective"
+    movement: "static"
+    objects_visible:
+      - "Nepal_DEM_regional"
+      - "Langtang_DEM"
+      - "Yala_Glacier"
+    transition_in: "cut"
+    transition_out: "cut"
+    data_layers:
+      - "terrain-nepal-regional"
+      - "glacier-yala-clean"
+    text_overlay:
+      content: "LANGTANG"
+      conditional: true
+      appear_frame: 390
+      disappear_frame: 405
+      position: "top-left"
+      color: "#E8E4DC"
+
+  - id: 5
+    name: "Kangchenjunga / Makalu"
+    frame_start: 406
+    frame_end: 435
+    duration_s: 1.0
+    beat: 1
+    camera:
+      lon: 87.95
+      lat: 27.82
+      alt_m_asl: 11000
+      look_bearing_deg: 100  # east-southeast
+      focal_mm: null
+      type: "orthographic"  # canonical per BLOCKING FIX #7
+      ortho_scale_equiv: 200  # equivalent compression to 200mm perspective
+    movement: "static"
+    objects_visible:
+      - "Nepal_DEM_regional"
+      - "Kangchenjunga_DEM"
+    transition_in: "cut"
+    transition_out: "cut"  # Beat 1 → Beat 2 hard geographic jump
+    data_layers:
+      - "terrain-nepal-regional"
+    text_overlay:
+      content: "KANGCHENJUNGA / MAKALU"
+      conditional: true
+      appear_frame: 420
+      disappear_frame: 435
+      position: "top-left"
+      color: "#E8E4DC"
+
+  - id: 6
+    name: "Khumbu Icefall"
+    frame_start: 436
+    frame_end: 495
+    duration_s: 2.0
+    beat: 2
+    camera:
+      lon: 86.851
+      lat: 27.967
+      alt_m_asl: 5865
+      look_bearing_deg: 155  # south-southeast
+      focal_mm: 300
+      type: "perspective"
+      dof:
+        focus_distance_bu: 2.0
+        f_stop: 5.6
+    movement: "static"
+    objects_visible:
+      - "Nepal_DEM_regional"
+      - "Glacier_Debris_Nepal"  # Base Camp moraine
+      - "Khumbu_Icefall"
+      - "Headlamp_Light"
+    transition_in: "cut"
+    transition_out: "cut"
+    data_layers:
+      - "terrain-nepal-regional"
+      - "glacier-khumbu-icefall"
+      - "glacier-nepal-debris"
+    text_overlay:
+      content: ""
+      appear_frame: null
+      disappear_frame: null
+
+  - id: 7
+    name: "Imja Descent"
+    frame_start: 496
+    frame_end: 570
+    duration_s: 2.5
+    beat: 2
+    camera:
+      lon_start: 86.867
+      lat_start: 27.933
+      alt_m_asl_start: 8000
+      lon_end: 86.920
+      lat_end: 27.898
+      alt_m_asl_end: 5810
+      look_bearing_deg: 80  # east-northeast
+      focal_mm_start: 200
+      focal_mm_end: 85
+      type: "perspective"
+    movement: "push_toward_descending"  # BEZIER all channels; animated focal length
+    objects_visible:
+      - "Imja_Basin_DEM"
+      - "Imja_Glacier_Tongue"
+      - "MoraineDam_Detail"
+      - "SuperglacialPonds"
+    transition_in: "cut"
+    transition_out: "cut"  # cut IS the lake reveal
+    data_layers:
+      - "terrain-imja-basin"
+      - "glacier-imja-tongue"
+      - "moraine-dam-imja"
+    text_overlay:
+      content: ""
+      appear_frame: null
+      disappear_frame: null
+    notes:
+      - "BLOCKING FIX #6: TEST RENDER REQUIRED at f557 to verify moraine dam screens lake before production render."
+
+  - id: 8
+    name: "Imja Tsho Reveal"
+    frame_start: 571
+    frame_end: 630
+    duration_s: 2.0
+    beat: 2
+    camera:
+      lon: 86.922
+      lat: 27.899
+      alt_m_asl: 5310
+      look_bearing_deg: 260  # west-northwest
+      focal_mm: 50
+      type: "perspective"
+    movement: "static"
+    objects_visible:
+      - "Imja_Basin_DEM"
+      - "ImjaTsho_2020"
+      - "Imja_IceCliff_Full"
+      - "MoraineDam_Detail"
+    transition_in: "cut"  # cut IS the reveal
+    transition_out: "dissolve_3frame"
+    data_layers:
+      - "terrain-imja-basin"
+      - "lake-imja-tsho-2020"
+      - "moraine-dam-imja"
+    text_overlay:
+      content: "Imja Tsho"
+      appear_frame: 600
+      disappear_frame: 614
+      position: "bottom-right"
+      color: "#E8E4DC"
+      size: "sm"
+      notes: "BLOCKING FIX #8: shifted earlier to ensure 2-second text-free gap before 1962 overlay."
+
+  - id: 9
+    name: "1962 Overlay Dissolve"
+    frame_start: 631
+    frame_end: 705
+    duration_s: 2.5
+    beat: 2
+    camera:
+      lon: 86.922
+      lat: 27.899
+      alt_m_asl: 5310
+      look_bearing_deg: 260
+      focal_mm: 50
+      type: "perspective"
+    movement: "static"
+    objects_visible:
+      - "Imja_Basin_DEM"
+      - "ImjaTsho_2020"
+      - "Imja_IceCliff_Full"
+      - "MoraineDam_Detail"
+    transition_in: "dissolve_3frame"
+    transition_out: "cut"
+    data_layers:
+      - "terrain-imja-basin"
+      - "lake-imja-tsho-2020"
+      - "lake-imja-tsho-1962-overlay"
+    text_overlay:
+      content: "1962 / a cluster of meltwater pools / ~0.03 km²  →  2020 / ~1.56 km²"
+      appear_frame: 631
+      disappear_frame: 705
+      position: "bottom-center"
+      color: "#F5E090"
+      notes: "BLOCKING FIX #9: description first, then number. Two-line layout."
+
+  - id: 10
+    name: "Calving Front Lateral Track"
+    frame_start: 706
+    frame_end: 765
+    duration_s: 2.0
+    beat: 2
+    camera:
+      lon_start: 86.934
+      lat_start: 27.900
+      alt_m_asl_start: 5030
+      lon_end: 86.920
+      lat_end: 27.900
+      alt_m_asl_end: 5030
+      look_bearing_deg: 180  # westward along cliff face
+      focal_mm: 85
+      type: "perspective"
+      dof:
+        focus_distance_bu: 0.15
+        f_stop: 8.0
+    movement: "lateral_drift_west"  # LINEAR
+    objects_visible:
+      - "Imja_Basin_DEM"
+      - "ImjaTsho_2020"
+      - "Imja_IceCliff_Full"
+      - "Imja_Glacier_Tongue"
+    transition_in: "cut"
+    transition_out: "cut"
+    data_layers:
+      - "terrain-imja-basin"
+      - "lake-imja-tsho-2020"
+      - "glacier-imja-tongue"
+    text_overlay:
+      content: ""
+      appear_frame: null
+      disappear_frame: null
+
+  - id: 11
+    name: "Calving Event (Pedestrian)"
+    frame_start: 766
+    frame_end: 810
+    duration_s: 1.5
+    beat: 2
+    camera:
+      lon: 86.930
+      lat: 27.901
+      alt_m_asl: 5030
+      look_bearing_deg: 270  # due west into north-facing calving face
+      focal_mm: 135
+      type: "perspective"
+      dof:
+        focus_distance_bu: 0.05
+        f_stop: 11.0
+    movement: "static"  # absolute — camera does not respond to event
+    objects_visible:
+      - "Imja_Basin_DEM"
+      - "ImjaTsho_2020"
+      - "Imja_IceCliff_Full"  # hidden at f785
+      - "Imja_IceCliff_PostCalving"  # visible at f785
+      - "Calving_Block"  # visible at f785
+      - "Calving_Splash"
+    transition_in: "cut"
+    transition_out: "cut"
+    data_layers:
+      - "terrain-imja-basin"
+      - "lake-imja-tsho-2020"
+    text_overlay:
+      content: ""
+      appear_frame: null
+      disappear_frame: null
+    notes:
+      - "BLOCKING FIX #4: NO sound design cue of any kind."
+      - "BLOCKING FIX #11: pre-calving mesh swap at f785 — Imja_IceCliff_Full hidden, Imja_IceCliff_PostCalving shown."
+      - "Calving block volume ≤ 2.5 m³; wave amplitude ≤ 15 cm."
+
+  - id: 12
+    name: "Moraine Dam Orientation"
+    frame_start: 811
+    frame_end: 840
+    duration_s: 1.0
+    beat: 3
+    camera:
+      lon: 86.906
+      lat: 27.892
+      alt_m_asl: 5510
+      look_bearing_deg: 60  # east-northeast
+      focal_mm: 35
+      type: "perspective"
+    movement: "static"
+    objects_visible:
+      - "Imja_Basin_DEM"
+      - "ImjaTsho_2020"
+      - "MoraineDam_Detail"
+      - "SubsidenceHollow"
+      - "ImjaKhola_Stream"
+    transition_in: "cut"
+    transition_out: "dissolve_4frame"
+    data_layers:
+      - "terrain-imja-basin"
+      - "lake-imja-tsho-2020"
+      - "moraine-dam-imja"
+    text_overlay:
+      content: ""
+      appear_frame: null
+      disappear_frame: null
+
+  - id: 13
+    name: "Moraine Dam Final Hold"
+    frame_start: 841
+    frame_end: 900
+    duration_s: 2.0
+    beat: 3
+    camera:
+      lon: 86.908
+      lat: 27.893
+      alt_m_asl: 5210
+      look_bearing_deg: 60  # east-northeast
+      focal_mm: 85
+      type: "perspective"
+    movement: "static"  # absolute
+    objects_visible:
+      - "Imja_Basin_DEM"
+      - "ImjaTsho_2020"
+      - "MoraineDam_Detail"
+      - "SubsidenceHollow"
+      - "PrayerFlag_String"
+      - "ImjaKhola_Stream"
+    transition_in: "dissolve_4frame"
+    transition_out: "fade_to_black"  # 10-frame fade f891-f900
+    data_layers:
+      - "terrain-imja-basin"
+      - "lake-imja-tsho-2020"
+      - "moraine-dam-imja"
+    text_overlay:
+      content: ""
+      appear_frame: null
+      disappear_frame: null
+    notes:
+      - "BLOCKING FIX #14: SubsidenceHollow is Mesh (shallow dish ~3m diameter, 0.5m deep), boolean subtracted from MoraineDam_Detail."
+      - "Brencher subsidence reduced-motion text: cumulative ~90cm over 2017–2024 framing (NOT per-year)."
+
+materials:
+  - id: "MAT_IceClean"
+    bpy_name: "wc_ice_clean"
+    used_on:
+      - "Glacier_Clean_HKH"
+      - "Khumbu_Icefall"
+      - "Yala_Glacier"
+      - "Imja_IceCliff_Full"
+      - "Imja_IceCliff_PostCalving"
+      - "Calving_Block"
+    base_color: "#7DD3FC"
+    classification: "ARTISTIC"  # ice grammar color is the locked atlas palette
+    notes: "Clean blue-white glacier ice; SSS for translucency."
+
+  - id: "MAT_IceDebris"
+    bpy_name: "wc_ice_debris"
+    used_on:
+      - "Glacier_Debris_Nepal"
+      - "Imja_Glacier_Tongue"
+    base_color_range: ["#6A6058", "#7A6E60"]
+    classification: "ARTISTIC"
+    notes: "Grey-brown debris-covered glacier. Supraglacial pond color #7EC8C0 mixed in via noise."
+
+  - id: "MAT_LakeWater"
+    bpy_name: "wc_lake_imja"
+    used_on:
+      - "ImjaTsho_2020"
+      - "SuperglacialPonds"
+    base_color: "#78C8C0"
+    classification: "SCHEMATIC"
+    physics_note: "Volumetric Tyndall scattering approximation of glacial flour (2–65 micron) in colloidal suspension. Surface alpha capped at 0.85."
+
+  - id: "MAT_Terrain"
+    bpy_name: "wc_terrain"
+    used_on:
+      - "HKH_DEM_orbital"
+      - "Nepal_DEM_regional"
+      - "Langtang_DEM"
+      - "Kangchenjunga_DEM"
+      - "Imja_Basin_DEM"
+    base_color: "#475569"  # mid-range slate (height ramp)
+    classification: "DATA-LOCKED"
+    notes: "Height ramp: #7A6B5A (plains) → #475569 (mid) → #94A3B8 (upper rock) → #E0F2FE (summit snow)."
+
+  - id: "MAT_MoraineDam"
+    bpy_name: "wc_moraine_dam"
+    used_on:
+      - "MoraineDam_Detail"
+      - "SubsidenceHollow"
+    base_color: "#7E7668"
+    classification: "SCHEMATIC"
+    notes: "Loose unconsolidated glacial till. Flat-shaded. SubsidenceHollow uses Roughness 0.98."
+
+data_classification:
+  data_locked:
+    - "HKH_DEM (Copernicus GLO-30 / SRTM 90m + 30m)"
+    - "Glacier_1990_HKH (ICIMOD HKH Glacier Inventory 1990)"
+    - "Glacier_2020_HKH (ICIMOD HKH Glacier Inventory 2020)"
+    - "Khumbu_Glacier_polygon (RGI 7.0)"
+    - "Village_locations (OSM)"
+    - "Vegetation_altitude_bands (ESA WorldCover + Research Brief §1 Zone 1 table)"
+    - "Imja_Glacier_1962_outline (Somos-Valenzuela et al. 2014, digitized Fig. 2)"
+    - "ImjaTsho_1992_outline (Somos-Valenzuela et al. 2014)"
+    - "ImjaTsho_2010_outline (ICIMOD HKH Glacial Lake Inventory 2010)"
+  schematic:
+    - "Imja_Lake_2020_polygon (constructed from Research Brief coordinates and 1.56 km² area; NOT the measured 2020 outline)"
+    - "Imja_Lake_1962_pond_overlay (artistic approximation of pre-lake supraglacial pond cluster; NOT digitized from Corona imagery)"
+    - "Imja_Glacier_terminus_2020 (approximated from research-brief description; NOT measured)"
+    - "Moraine_Dam_geometry (40–50m height per Research Brief §2; exact 3D form is schematic)"
+    - "SubsidenceHollow_mesh (visual interpretation of Brencher 2026 InSAR-documented dead-ice subsidence; surface bowl is inferred, not photographed)"
+  artistic:
+    - "All atmospheric haze, alpenglow, clouds, mist"
+    - "All camera movements, focal lengths, light direction"
+    - "Sound design (which is: NONE — silent throughout)"
+    - "Ice texture detail within scientifically valid bounds (Research Brief §5)"
+    - "Calving particle simulation (constrained: block ≤ 2.5 m³, wave ≤ 15 cm)"
+    - "Prayer flag (Shot 13 — incidental human-presence detail)"
+
+poster_frame_definition:
+  frame: 841
+  frame_1_indexed: 841
+  frame_0_indexed: 840
+  shot_id: 13
+  reason: "First frame of Shot 13 (Moraine Dam Final Hold). The moraine dam in tight 85mm framing. Imja Tsho #78C8C0 in upper background. Fade-to-black has not yet started (begins f891)."
+  alternate_note: "Some older docs reference frame 856 (the pre-redistribution Shot 14 start). After BLOCKING FIX #5 frame redistribution, Shot 13 final hold begins at f841, not f856. The canonical poster frame follows the redistributed schedule."
+
+acceptance_tests:
+  consistency_checks:
+    - description: "No Annapurna references in canonical docs"
+      command: "grep -RE 'SHOT 0?5.*Annapurna|Annapurna_DEM|Annapurna Sanctuary' docs/water-cycle/storyboards/ --exclude-dir=archive"
+      expect: "no matches"
+    - description: "No Shot 14 references in canonical docs"
+      command: "grep -RE 'Shot 14|SHOT 14' docs/water-cycle/storyboards/ --exclude-dir=archive"
+      expect: "no matches (only references to '900-frame total' permitted)"
+    - description: "No Bhushan references outside archive"
+      command: "grep -RE 'Bhushan' docs/water-cycle/storyboards/ --exclude-dir=archive"
+      expect: "no matches"
+    - description: "No pixel-equality test in tech-spec"
+      command: "grep -RE 'pixel.*equal|center.pixel' docs/water-cycle/storyboards/ --exclude-dir=archive"
+      expect: "no matches in technical-spec.md (replaced with masked-region median)"
+
+  color_gate:
+    layer: "exr_source"
+    method: "masked_region_median"
+    target_hex: "#78C8C0"
+    tolerance_delta_e: 5
+    delta_e_method: "CIE ΔE2000"
+    mask_source: "ImjaTsho_2020 object render pass"
+    stages:
+      - stage: "exr_source"
+        method: "masked_region_median"
+        target: "#78C8C0"
+        tolerance: "ΔE ≤ 5"
+      - stage: "poster_jpg"
+        method: "visual_diff_vs_expected"
+        target: "expected/poster-frame-841.jpg"
+        tolerance: "mean ΔE ≤ 8"
+      - stage: "encoded_webm_mp4"
+        method: "visual_qa_only"
+        tolerance: "no automated pixel test (Mother review)"
+
+  determinism:
+    method: "sha256(cinematic.webm) on two successive renders with identical seed.py state"
+
+  provenance_validation:
+    command: "npm run validate:water-cycle-provenance ch0"
+    expect: "exit code 0"
+
+# Verification — totals sum check
+# 225 + 75 + 75 + 30 + 30 + 60 + 75 + 60 + 75 + 60 + 45 + 30 + 60 = 900 frames ✓
