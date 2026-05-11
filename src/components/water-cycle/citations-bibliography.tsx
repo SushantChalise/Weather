@@ -5,14 +5,19 @@
  * serving), then renders a sortable + searchable table.
  *
  * Spec compliance:
- *   - §7 color grammar: terrain #475569 for non-emphasized cells, active-water #38BDF8
- *     for active sort header.
+ *   - §7 color grammar: terrain #475569 for graphical/SVG elements only. For text,
+ *     we use text-slate-400 (#94a3b8, ~6.8:1 contrast on slate-950) per WCAG 2.1 AA.
+ *     active-water #38BDF8 for active sort header.
  *   - WCAG 2.1 AA: keyboard nav (Tab), focus rings on sort headers + search + chips,
  *     aria-sort attribute on column headers, aria-label on buttons.
  *   - Sort: DOI / Name / Year with toggle asc/desc on header click.
  *   - Search: debounced 150 ms, filters by DOI or dataset name.
  *   - "Cited in" chips link to /atlas/water-cycle#ch{N}.
  *   - Anchor: id="bibliography" at section root for #bibliography deep-link.
+ *
+ * NOTE on §7 terrain color (#475569): the terrain token is defined for visual
+ * map elements (SVG strokes, swatch fills). Using it for body text (#475569 on
+ * #0f172a = 2.7:1 contrast) fails WCAG AA. Text uses slate-400 (#94a3b8) instead.
  */
 "use client";
 
@@ -129,7 +134,7 @@ function SortHeader({ label, sortKey, currentKey, dir, onSort }: SortHeaderProps
         onClick={() => onSort(sortKey)}
         className="inline-flex items-center gap-1 rounded px-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
         style={{
-          color: isActive ? "#38BDF8" : "#475569",
+          color: isActive ? "#38BDF8" : "#94a3b8",
         }}
         aria-label={`Sort by ${label}${isActive ? ` (${dir === "asc" ? "ascending" : "descending"})` : ""}`}
       >
@@ -211,12 +216,12 @@ export function CitationsBibliography() {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <h2 className="text-white text-2xl font-bold mb-2">Data sources</h2>
-        <p className="text-sm mb-2" style={{ color: "#475569" }}>
+        <p className="text-sm mb-2 text-slate-400">
           Every visual claim in this page is traceable to a primary dataset. All figures have been
           cross-referenced against ICIMOD HKH Cryosphere Assessment 2026.
         </p>
         {data && (
-          <p className="text-xs mb-6" style={{ color: "#475569" }}>
+          <p className="text-xs mb-6 text-slate-400">
             {data.n_unique_datasets} unique datasets · {data.n_headline_citations} headline
             citations · generated {new Date(data.generated_at).toLocaleDateString()}
           </p>
@@ -265,7 +270,7 @@ export function CitationsBibliography() {
                 aria-controls="bib-table"
               />
               {search && visibleDatasets.length === 0 && (
-                <p className="mt-2 text-sm" style={{ color: "#475569" }}>
+                <p className="mt-2 text-sm text-slate-400">
                   No datasets match &ldquo;{search}&rdquo;
                 </p>
               )}
@@ -303,15 +308,13 @@ export function CitationsBibliography() {
                     />
                     <th
                       scope="col"
-                      className="text-left py-2 pr-4 font-semibold text-xs uppercase tracking-wider"
-                      style={{ color: "#475569" }}
+                      className="text-left py-2 pr-4 font-semibold text-xs uppercase tracking-wider text-slate-400"
                     >
                       License
                     </th>
                     <th
                       scope="col"
-                      className="text-left py-2 font-semibold text-xs uppercase tracking-wider"
-                      style={{ color: "#475569" }}
+                      className="text-left py-2 font-semibold text-xs uppercase tracking-wider text-slate-400"
                     >
                       Cited in
                     </th>
@@ -343,30 +346,23 @@ export function CitationsBibliography() {
                             href={`https://doi.org/${d.doi}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="font-mono text-xs underline hover:text-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded"
-                            style={{ color: "#475569" }}
+                            className="font-mono text-xs underline hover:text-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded text-slate-400"
                           >
                             {d.doi}
                           </a>
                         ) : (
-                          <span className="text-xs italic" style={{ color: "#334155" }}>
-                            No DOI
-                          </span>
+                          <span className="text-xs italic text-slate-500">No DOI</span>
                         )}
                       </td>
 
                       {/* Year */}
                       <td className="py-3 pr-4 align-top">
-                        <span className="text-xs" style={{ color: "#475569" }}>
-                          {d.year ?? "—"}
-                        </span>
+                        <span className="text-xs text-slate-400">{d.year ?? "—"}</span>
                       </td>
 
                       {/* License */}
                       <td className="py-3 pr-4 align-top">
-                        <span className="text-xs" style={{ color: "#475569" }}>
-                          {d.license ?? "—"}
-                        </span>
+                        <span className="text-xs text-slate-400">{d.license ?? "—"}</span>
                       </td>
 
                       {/* Cited in — chapter chips */}
@@ -378,7 +374,7 @@ export function CitationsBibliography() {
                               href={`/atlas/water-cycle#${ch}`}
                               className="inline-block rounded px-2 py-0.5 text-xs font-medium border transition-colors hover:text-sky-300 hover:border-sky-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
                               style={{
-                                color: "#475569",
+                                color: "#94a3b8",
                                 borderColor: "#334155",
                                 backgroundColor: "rgba(51,65,85,0.3)",
                               }}
@@ -397,7 +393,7 @@ export function CitationsBibliography() {
             </div>
 
             {/* Download link */}
-            <p className="mt-4 text-xs" style={{ color: "#334155" }}>
+            <p className="mt-4 text-xs text-slate-400">
               <a
                 href="/water-cycle/citations.json"
                 download="water-cycle-citations.json"

@@ -76,7 +76,9 @@ export function Ch3Overlay({ provenance, onShowProvenance }: Props) {
           <SankeyLegendItem color="#0E7490" label="Glacial lake storage" value="~8" />
           <SankeyLegendItem color="#38BDF8" label="River discharge" value="~112" />
         </ul>
-        <p className="text-white/30 text-xs mt-2">Source: ICIMOD HIMAP 2019 (placeholder values)</p>
+        <p className="text-slate-400 text-xs mt-2">
+          Source: ICIMOD HIMAP 2019 (placeholder values)
+        </p>
       </div>
 
       <CitationChip

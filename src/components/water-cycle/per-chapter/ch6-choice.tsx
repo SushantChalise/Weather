@@ -80,7 +80,7 @@ export function Ch6Overlay({ provenance, onShowProvenance }: Props) {
         <p className="text-white/80 text-sm">
           The ghost-glacier overlay in the worst case is the volume of our indecision.
         </p>
-        <p className="text-white/40 text-xs mt-1">
+        <p className="text-slate-400 text-xs mt-1">
           Rounce et al. 2023 · doi:10.1126/science.abo1324
         </p>
       </div>
