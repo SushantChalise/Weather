@@ -37,8 +37,14 @@
   ],
   "headline_numbers": [
     {
-      "value": "~4–6 weeks",
-      "label": "earlier peak meltwater arrival projected 1990 → 2070",
+      "value": "~30 days",
+      "label": "earlier peak meltwater 1990 → 2070 SSP5-8.5 (mid-June → mid-May)",
+      "citation": "doi:10.5067/P8BN9VO9N5C7",
+      "uncertainty": "±1–2 weeks depending on GCM ensemble member"
+    },
+    {
+      "value": "4–6 weeks",
+      "label": "total projected shift in peak meltwater timing across HKH under SSP5-8.5",
       "citation": "doi:10.1126/science.abo1324"
     }
   ],
