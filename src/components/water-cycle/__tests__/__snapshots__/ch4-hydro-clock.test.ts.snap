@@ -1,0 +1,96 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Ch4 provenance.json — fixture validation > fixture matches full snapshot (regression guard) 1`] = `
+{
+  "blender_version": "placeholder",
+  "bpy_script_hash": "0000000000000000000000000000000000000000000000000000000000000004",
+  "camera_path": {
+    "keyframes": [
+      {
+        "alt_m": 5000,
+        "lat": 27.95,
+        "lon": 86.93,
+        "pitch_deg": -30,
+        "t": 0,
+        "yaw_deg": 0,
+      },
+      {
+        "alt_m": 4000,
+        "lat": 27.95,
+        "lon": 86.93,
+        "pitch_deg": -25,
+        "t": 20,
+        "yaw_deg": 0,
+      },
+    ],
+  },
+  "caption_text": "Glacier melt peaks weeks earlier than it did in 1990. Water arrives when farmers don't need it — and is gone when they do. The hydrological clock is shifting.",
+  "chapter_id": "ch4",
+  "duration_s": 20,
+  "fps": 30,
+  "frames": 600,
+  "generated_at": "2026-05-11T00:00:00Z",
+  "headline_numbers": [
+    {
+      "citation": "doi:10.5067/P8BN9VO9N5C7",
+      "label": "earlier peak meltwater 1990 → 2070 SSP5-8.5 (mid-June → mid-May)",
+      "uncertainty": "±1–2 weeks depending on GCM ensemble member",
+      "value": "~30 days",
+    },
+    {
+      "citation": "doi:10.1126/science.abo1324",
+      "label": "total projected shift in peak meltwater timing across HKH under SSP5-8.5",
+      "value": "4–6 weeks",
+    },
+  ],
+  "resolution": {
+    "h": 720,
+    "w": 1280,
+  },
+  "scene_layers": [
+    {
+      "color": "#FCD34D",
+      "id": "imja-station",
+      "render_geometry_id": "blender-collection://imja-station",
+      "source": {
+        "dataset": "ICIMOD Imja Tsho monitoring station",
+        "filter": "Imja Tsho water level gauge, 5010m asl",
+        "url": "https://rds.icimod.org/",
+      },
+      "type": "station-pin",
+    },
+    {
+      "color": "#FCD34D",
+      "id": "pyramid-lab",
+      "render_geometry_id": "blender-collection://pyramid-lab",
+      "source": {
+        "dataset": "Pyramid International Laboratory Observatory (~5000m)",
+        "filter": "Khumbu Valley meteorological station",
+        "url": "https://evk2.isac.cnr.it/",
+      },
+      "type": "station-pin",
+    },
+  ],
+  "shot_id": "hydrological-clock",
+}
+`;
+
+exports[`Clock hand Cartesian positions > tip coordinates snapshot (regression guard) 1`] = `
+{
+  "tip1990": {
+    "x": 117.80276915640944,
+    "y": 157.2980052913153,
+  },
+  "tip2070": {
+    "x": 140.12566547475683,
+    "y": 137.61556818935358,
+  },
+}
+`;
+
+exports[`HydroClockProps — default values > props snapshot 1`] = `
+{
+  "baseline1990DayOfYear": 165,
+  "projected2070DayOfYear": 135,
+}
+`;
