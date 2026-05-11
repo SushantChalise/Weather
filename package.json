@@ -9,7 +9,7 @@
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "prebuild": "tsx scripts/check/public-asset-budget.ts",
+    "prebuild": "tsx scripts/transform/water-cycle/build-citations.ts && tsx scripts/check/public-asset-budget.ts",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "lint": "biome check --write src/",
@@ -33,7 +33,8 @@
     "transform:water-cycle-imja": "tsx scripts/transform/water-cycle/digitize-imja.ts",
     "transform:water-cycle-kaspari": "tsx scripts/transform/water-cycle/validate-kaspari.ts",
     "transform:water-cycle-rounce": "tsx scripts/transform/water-cycle/build-rounce-projections.ts",
-    "validate:water-cycle-provenance": "tsx scripts/transform/water-cycle/validate-provenance.ts"
+    "validate:water-cycle-provenance": "tsx scripts/transform/water-cycle/validate-provenance.ts",
+    "build:water-cycle-citations": "tsx scripts/transform/water-cycle/build-citations.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

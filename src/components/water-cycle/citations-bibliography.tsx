@@ -1,165 +1,412 @@
 /**
- * citations-bibliography.tsx — Full bibliography at page bottom
+ * citations-bibliography.tsx — Full bibliography at page bottom.
  *
- * Aggregates all unique datasets across all 7 chapters' provenance.
- * Deduplicates by DOI. Provides download links.
- * WCAG 2.1 AA: semantic <dl>/<dt>/<dd>, skip to citation via anchor.
+ * Loads /water-cycle/citations.json at runtime (client-side fetch via Next.js static
+ * serving), then renders a sortable + searchable table.
+ *
+ * Spec compliance:
+ *   - §7 color grammar: terrain #475569 for non-emphasized cells, active-water #38BDF8
+ *     for active sort header.
+ *   - WCAG 2.1 AA: keyboard nav (Tab), focus rings on sort headers + search + chips,
+ *     aria-sort attribute on column headers, aria-label on buttons.
+ *   - Sort: DOI / Name / Year with toggle asc/desc on header click.
+ *   - Search: debounced 150 ms, filters by DOI or dataset name.
+ *   - "Cited in" chips link to /atlas/water-cycle#ch{N}.
+ *   - Anchor: id="bibliography" at section root for #bibliography deep-link.
  */
-import type { Provenance } from "@/lib/water-cycle/types";
+"use client";
 
-type ChapterId = "ch0" | "ch1" | "ch2" | "ch3" | "ch4" | "ch5" | "ch6";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-type Props = {
-  provenance: Record<ChapterId, Provenance>;
-};
+// ============================================================
+// Types (mirroring public/water-cycle/citations.json schema)
+// ============================================================
 
-type CitationEntry = {
-  dataset: string;
-  doi?: string;
+interface CitationsDataset {
+  doi: string;
+  name: string;
   url: string;
-  chapters: string[];
+  license?: string;
+  year?: number;
+  cited_in_chapters: string[];
+}
+
+interface CitationsJson {
+  generated_at: string;
+  n_unique_datasets: number;
+  n_headline_citations: number;
+  datasets: CitationsDataset[];
+  headlines: Array<{
+    value: string;
+    label: string;
+    citation: string;
+    chapters: string[];
+  }>;
+}
+
+// ============================================================
+// Chapter display helpers
+// ============================================================
+
+const CHAPTER_LABELS: Record<string, string> = {
+  ch0: "Ch 0 — The reservoir",
+  ch1: "Ch 1 — The retreat",
+  ch2: "Ch 2 — The lake bloom",
+  ch3: "Ch 3 — Where it went",
+  ch4: "Ch 4 — When it comes",
+  ch5: "Ch 5 — The feedback loop",
+  ch6: "Ch 6 — The choice",
 };
 
-function buildBibliography(provenance: Record<ChapterId, Provenance>): CitationEntry[] {
-  const byDoi = new Map<string, CitationEntry>();
-  const byDataset = new Map<string, CitationEntry>();
+function chapterLabel(ch: string): string {
+  return CHAPTER_LABELS[ch] ?? ch;
+}
 
-  for (const [chId, prov] of Object.entries(provenance)) {
-    for (const layer of prov.scene_layers) {
-      const key = layer.source.doi ?? layer.source.dataset;
-      const existing = layer.source.doi ? byDoi.get(key) : byDataset.get(key);
-      if (existing) {
-        if (!existing.chapters.includes(chId)) {
-          existing.chapters.push(chId);
-        }
-      } else {
-        const entry: CitationEntry = {
-          dataset: layer.source.dataset,
-          doi: layer.source.doi,
-          url: layer.source.url,
-          chapters: [chId],
-        };
-        if (layer.source.doi) {
-          byDoi.set(key, entry);
-        } else {
-          byDataset.set(key, entry);
-        }
-      }
+// ============================================================
+// Sorting
+// ============================================================
+
+type SortKey = "doi" | "name" | "year";
+type SortDir = "asc" | "desc";
+
+function sortDatasets(
+  datasets: CitationsDataset[],
+  key: SortKey,
+  dir: SortDir,
+): CitationsDataset[] {
+  return [...datasets].sort((a, b) => {
+    let cmp = 0;
+    if (key === "doi") {
+      cmp = (a.doi || "zzz").localeCompare(b.doi || "zzz");
+    } else if (key === "name") {
+      cmp = a.name.localeCompare(b.name);
+    } else if (key === "year") {
+      const ay = a.year ?? 9999;
+      const by = b.year ?? 9999;
+      cmp = ay - by;
     }
-  }
+    return dir === "asc" ? cmp : -cmp;
+  });
+}
 
-  return [...byDoi.values(), ...byDataset.values()].sort((a, b) =>
-    a.dataset.localeCompare(b.dataset),
+// ============================================================
+// Debounce hook
+// ============================================================
+
+function useDebounce<T>(value: T, delay: number): T {
+  const [debounced, setDebounced] = useState<T>(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+  return debounced;
+}
+
+// ============================================================
+// SortHeader sub-component
+// ============================================================
+
+interface SortHeaderProps {
+  label: string;
+  sortKey: SortKey;
+  currentKey: SortKey;
+  dir: SortDir;
+  onSort: (key: SortKey) => void;
+}
+
+function SortHeader({ label, sortKey, currentKey, dir, onSort }: SortHeaderProps) {
+  const isActive = currentKey === sortKey;
+  const ariaSort = isActive ? (dir === "asc" ? "ascending" : "descending") : "none";
+
+  return (
+    <th
+      scope="col"
+      aria-sort={ariaSort}
+      className="text-left py-2 pr-4 font-semibold text-xs uppercase tracking-wider select-none"
+    >
+      <button
+        type="button"
+        onClick={() => onSort(sortKey)}
+        className="inline-flex items-center gap-1 rounded px-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+        style={{
+          color: isActive ? "#38BDF8" : "#475569",
+        }}
+        aria-label={`Sort by ${label}${isActive ? ` (${dir === "asc" ? "ascending" : "descending"})` : ""}`}
+      >
+        {label}
+        <span aria-hidden="true" className="text-[10px] w-3 inline-block text-center">
+          {isActive ? (dir === "asc" ? "▲" : "▼") : "⇅"}
+        </span>
+      </button>
+    </th>
   );
 }
 
-/** Default citations when provenance files are stubs (pre-render) */
-const STATIC_CITATIONS: CitationEntry[] = [
-  {
-    dataset: "ICIMOD HKH Glacier Inventory 1990 & 2020",
-    doi: "10.26066/rds.1972729",
-    url: "https://rds.icimod.org/Home/DataDetail?metadataId=1972729",
-    chapters: ["ch0", "ch1"],
-  },
-  {
-    dataset: "ICIMOD Glacial Lake Inventory 2024",
-    doi: "10.26066/rds.9362830",
-    url: "https://rds.icimod.org/Home/DataDetail?metadataId=9362830",
-    chapters: ["ch0", "ch2"],
-  },
-  {
-    dataset: "Farinotti 2019 consensus ice thickness",
-    doi: "10.5194/tc-13-665-2019",
-    url: "https://doi.org/10.5194/tc-13-665-2019",
-    chapters: ["ch0"],
-  },
-  {
-    dataset: "Somos-Valenzuela 2014 — Imja Tsho historical outlines",
-    doi: "10.5194/tc-8-1297-2014",
-    url: "https://doi.org/10.5194/tc-8-1297-2014",
-    chapters: ["ch1", "ch2"],
-  },
-  {
-    dataset: "Rounce et al. 2023 — PyGEM SSP projections",
-    doi: "10.1126/science.abo1324",
-    url: "https://doi.org/10.1126/science.abo1324",
-    chapters: ["ch4", "ch6"],
-  },
-  {
-    dataset: "Kaspari 2014 — Light-absorbing impurities Solu-Khumbu",
-    url: "https://doi.org/10.3189/2014JoG13J153",
-    chapters: ["ch5"],
-  },
-  {
-    dataset: "Miles et al. 2021 — Downstream water-scarce populations",
-    doi: "10.1038/s41467-021-23073-4",
-    url: "https://doi.org/10.1038/s41467-021-23073-4",
-    chapters: ["ch0"],
-  },
-];
+// ============================================================
+// Main component
+// ============================================================
 
-export function CitationsBibliography({ provenance }: Props) {
-  const hasRealData = Object.values(provenance).some((p) => p.scene_layers.length > 0);
-  const citations = hasRealData ? buildBibliography(provenance) : STATIC_CITATIONS;
+export function CitationsBibliography() {
+  const [data, setData] = useState<CitationsJson | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [sortKey, setSortKey] = useState<SortKey>("name");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [searchRaw, setSearchRaw] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  const search = useDebounce(searchRaw, 150);
+
+  // Load citations.json at runtime (served as a Next.js static file)
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/water-cycle/citations.json")
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json() as Promise<CitationsJson>;
+      })
+      .then((json) => {
+        if (!cancelled) setData(json);
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load citations");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Sort handler — toggle direction if same key, reset to asc for new key
+  const handleSort = useCallback(
+    (key: SortKey) => {
+      if (key === sortKey) {
+        setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+      } else {
+        setSortKey(key);
+        setSortDir("asc");
+      }
+    },
+    [sortKey],
+  );
+
+  // Filtered + sorted datasets
+  const visibleDatasets = useMemo<CitationsDataset[]>(() => {
+    if (!data) return [];
+    const q = search.toLowerCase().trim();
+    const filtered = q
+      ? data.datasets.filter(
+          (d) => d.doi.toLowerCase().includes(q) || d.name.toLowerCase().includes(q),
+        )
+      : data.datasets;
+    return sortDatasets(filtered, sortKey, sortDir);
+  }, [data, search, sortKey, sortDir]);
+
+  // ---- Render ----
 
   return (
     <section
       id="bibliography"
-      className="bg-slate-950 border-t border-white/10 px-8 py-16"
-      aria-label="Full bibliography"
+      aria-label="Full bibliography — all data sources used in this page"
+      className="bg-slate-950 border-t border-white/10 px-4 sm:px-8 py-16"
     >
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
         <h2 className="text-white text-2xl font-bold mb-2">Data sources</h2>
-        <p className="text-slate-400 text-sm mb-8">
+        <p className="text-sm mb-2" style={{ color: "#475569" }}>
           Every visual claim in this page is traceable to a primary dataset. All figures have been
           cross-referenced against ICIMOD HKH Cryosphere Assessment 2026.
         </p>
-
-        {citations.length === 0 ? (
-          <p className="text-slate-500 text-sm">
-            Bibliography will be populated when chapter provenance files are generated by Blender
-            render tasks.
+        {data && (
+          <p className="text-xs mb-6" style={{ color: "#475569" }}>
+            {data.n_unique_datasets} unique datasets · {data.n_headline_citations} headline
+            citations · generated {new Date(data.generated_at).toLocaleDateString()}
           </p>
-        ) : (
-          <dl className="space-y-6">
-            {citations.map((c) => (
-              <div key={c.doi ?? c.dataset} className="flex gap-4">
-                {/* Coloured left bar — terrain/neutral for bibliography */}
-                <div
-                  className="flex-shrink-0 w-1 rounded-full"
-                  style={{ backgroundColor: "#475569" }}
-                  aria-hidden="true"
-                />
-                <div>
-                  <dt className="text-white text-sm font-semibold leading-snug">{c.dataset}</dt>
-                  <dd className="mt-1 space-y-1">
-                    {c.doi && (
-                      <p className="text-xs text-slate-400">
-                        doi:{" "}
+        )}
+
+        {/* Error state */}
+        {error && (
+          <p className="text-red-400 text-sm mb-6" role="alert">
+            Could not load bibliography: {error}
+          </p>
+        )}
+
+        {/* Loading skeleton */}
+        {!data && !error && (
+          <div role="status" aria-label="Loading bibliography">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                // biome-ignore lint/suspicious/noArrayIndexKey: skeleton rows have no identity
+                key={i}
+                className="h-8 rounded mb-3 animate-pulse"
+                style={{ backgroundColor: "rgba(71,85,105,0.3)" }}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Search box */}
+        {data && (
+          <>
+            <div className="mb-4">
+              <label htmlFor="bib-search" className="sr-only">
+                Search bibliography by DOI or dataset name
+              </label>
+              <input
+                id="bib-search"
+                ref={searchRef}
+                type="search"
+                placeholder="Search by DOI or dataset name…"
+                value={searchRaw}
+                onChange={(e) => setSearchRaw(e.target.value)}
+                className="w-full sm:w-96 rounded border px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                style={{
+                  backgroundColor: "rgba(15,23,42,0.8)",
+                  borderColor: "#334155",
+                }}
+                aria-controls="bib-table"
+              />
+              {search && visibleDatasets.length === 0 && (
+                <p className="mt-2 text-sm" style={{ color: "#475569" }}>
+                  No datasets match &ldquo;{search}&rdquo;
+                </p>
+              )}
+            </div>
+
+            {/* Table */}
+            <div className="overflow-x-auto rounded-lg border border-white/10">
+              <table
+                id="bib-table"
+                className="w-full text-sm border-collapse"
+                aria-label="Bibliography table"
+              >
+                <thead>
+                  <tr className="border-b border-white/10" style={{ backgroundColor: "#0f172a" }}>
+                    <SortHeader
+                      label="Dataset"
+                      sortKey="name"
+                      currentKey={sortKey}
+                      dir={sortDir}
+                      onSort={handleSort}
+                    />
+                    <SortHeader
+                      label="DOI"
+                      sortKey="doi"
+                      currentKey={sortKey}
+                      dir={sortDir}
+                      onSort={handleSort}
+                    />
+                    <SortHeader
+                      label="Year"
+                      sortKey="year"
+                      currentKey={sortKey}
+                      dir={sortDir}
+                      onSort={handleSort}
+                    />
+                    <th
+                      scope="col"
+                      className="text-left py-2 pr-4 font-semibold text-xs uppercase tracking-wider"
+                      style={{ color: "#475569" }}
+                    >
+                      License
+                    </th>
+                    <th
+                      scope="col"
+                      className="text-left py-2 font-semibold text-xs uppercase tracking-wider"
+                      style={{ color: "#475569" }}
+                    >
+                      Cited in
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleDatasets.map((d, idx) => (
+                    <tr
+                      key={d.doi || d.name}
+                      className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                      style={{ backgroundColor: idx % 2 === 1 ? "rgba(15,23,42,0.4)" : undefined }}
+                    >
+                      {/* Dataset name */}
+                      <td className="py-3 pr-4 align-top max-w-xs">
                         <a
-                          href={`https://doi.org/${c.doi}`}
+                          href={d.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="underline decoration-slate-600 hover:text-sky-300 hover:decoration-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400 rounded"
+                          className="text-white hover:text-sky-300 underline decoration-slate-600 hover:decoration-sky-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded text-xs leading-snug"
                         >
-                          {c.doi}
+                          {d.name}
                         </a>
-                      </p>
-                    )}
-                    <p className="text-xs text-slate-500">Used in: {c.chapters.join(", ")}</p>
-                    <a
-                      href={c.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-sky-400 underline decoration-sky-800 hover:text-sky-300 hover:decoration-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400 rounded"
-                    >
-                      View source →
-                    </a>
-                  </dd>
-                </div>
-              </div>
-            ))}
-          </dl>
+                      </td>
+
+                      {/* DOI */}
+                      <td className="py-3 pr-4 align-top">
+                        {d.doi ? (
+                          <a
+                            href={`https://doi.org/${d.doi}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-mono text-xs underline hover:text-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded"
+                            style={{ color: "#475569" }}
+                          >
+                            {d.doi}
+                          </a>
+                        ) : (
+                          <span className="text-xs italic" style={{ color: "#334155" }}>
+                            No DOI
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Year */}
+                      <td className="py-3 pr-4 align-top">
+                        <span className="text-xs" style={{ color: "#475569" }}>
+                          {d.year ?? "—"}
+                        </span>
+                      </td>
+
+                      {/* License */}
+                      <td className="py-3 pr-4 align-top">
+                        <span className="text-xs" style={{ color: "#475569" }}>
+                          {d.license ?? "—"}
+                        </span>
+                      </td>
+
+                      {/* Cited in — chapter chips */}
+                      <td className="py-3 align-top">
+                        <div className="flex flex-wrap gap-1">
+                          {d.cited_in_chapters.map((ch) => (
+                            <a
+                              key={ch}
+                              href={`/atlas/water-cycle#${ch}`}
+                              className="inline-block rounded px-2 py-0.5 text-xs font-medium border transition-colors hover:text-sky-300 hover:border-sky-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                              style={{
+                                color: "#475569",
+                                borderColor: "#334155",
+                                backgroundColor: "rgba(51,65,85,0.3)",
+                              }}
+                              title={chapterLabel(ch)}
+                              aria-label={`Chapter: ${chapterLabel(ch)}`}
+                            >
+                              {ch.replace("ch", "Ch ")}
+                            </a>
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Download link */}
+            <p className="mt-4 text-xs" style={{ color: "#334155" }}>
+              <a
+                href="/water-cycle/citations.json"
+                download="water-cycle-citations.json"
+                className="underline hover:text-sky-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded"
+              >
+                Download citations.json
+              </a>
+            </p>
+          </>
         )}
       </div>
     </section>
