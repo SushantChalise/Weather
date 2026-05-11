@@ -189,7 +189,7 @@ def parse_args() -> argparse.Namespace:
 # ── Scene setup ───────────────────────────────────────────────────────────────
 
 def setup_scene() -> bpy.types.Scene:
-    """Clear factory default scene and configure world settings."""
+    """Clear factory default scene and configure world settings + sky lighting."""
     bpy.ops.wm.read_factory_settings(use_empty=True)
     scene = bpy.context.scene
     scene.name = "Ch0-Reservoir"
@@ -199,36 +199,17 @@ def setup_scene() -> bpy.types.Scene:
     scene.frame_end = TOTAL_FRAMES - 1  # 0-indexed: frame 899 = last
     scene.render.fps = FPS
 
-    # World: deep space / atmosphere
-    world = bpy.data.worlds.new("World")
-    scene.world = world
-    try:
-        # Blender 5.x+ API
-        world.node_tree  # triggers node_tree creation if not present
-    except AttributeError:
-        pass
-    if hasattr(world, "node_tree") and world.node_tree is not None:
-        bg = world.node_tree.nodes.get("Background")
-        if bg:
-            # Dark navy sky — distant space / thin atmosphere
-            bg.inputs["Color"].default_value = (0.004, 0.010, 0.040, 1.0)  # type: ignore[index]
-            bg.inputs["Strength"].default_value = 0.5  # type: ignore[index]
-
-    # Sun light — low-angle east (morning atmosphere feel)
-    bpy.ops.object.light_add(type="SUN", location=(2000.0, -3000.0, 800.0))
-    sun = bpy.context.active_object
-    sun.name = "Sun"
-    sun.data.energy = 5.0
-    sun.data.angle = 0.0087  # ~0.5° solar disc
-    sun.data.color = (1.0, 0.95, 0.88)  # warm sunrise
-
-    # Secondary fill light (simulates atmospheric bounce)
-    bpy.ops.object.light_add(type="AREA", location=(0.0, 0.0, 1000.0))
-    fill = bpy.context.active_object
-    fill.name = "FillLight"
-    fill.data.energy = 100_000
-    fill.data.size = 2000.0
-    fill.data.color = (0.7, 0.85, 1.0)  # cool skylight
+    # ── Sun + Nishita procedural sky ─────────────────────────────────────────
+    # setup_sky_lighting() replaces the old manual sun + fill light setup.
+    # Late-afternoon south-west sun at ~29° elevation casts oblique shadows
+    # across ridges, making the height-ramp terrain visually readable.
+    # All T3.1–T3.6 renders that call this function will inherit the same sky.
+    rs_mod.setup_sky_lighting(
+        sun_elevation_deg=29.0,   # ~50° from zenith → oblique, shadow-casting
+        sun_azimuth_deg=225.0,    # south-west (225° clockwise from north)
+        sun_strength=3.0,
+        sky_strength=1.0,
+    )
 
     return scene
 

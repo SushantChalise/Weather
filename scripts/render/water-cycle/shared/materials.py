@@ -10,7 +10,16 @@ Color grammar (from WATER_CYCLE_SPEC.md §7):
   loss       #F87171  rose / risk
   heat       #FBBF24  amber
   people     #FCD34D  gold
-  terrain    #475569  slate neutral
+  terrain    #475569  slate neutral  (BASE; ramp adds tonal variation by elevation)
+
+Terrain height ramp (elevation in metres):
+  <2,000 m   warm brown/khaki   #7A6B5A  (Indo-Gangetic plain, foothills)
+  2,000–4,000 m  slate base     #475569  (mid-range — matches the locked token)
+  4,000–6,000 m  lighter rock   #94A3B8  (high plateau / pre-summit rock)
+  >6,000 m   snow-white cyan   #E0F2FE  (permanent snow / summit zone)
+
+The ramp PASSES THROUGH the locked terrain base (#475569) at mid elevations,
+so it extends rather than replaces the locked color grammar.
 
 Two eases only (CSS, not needed in bpy but noted for reference):
   scenes     cubic-bezier(0.4, 0, 0.2, 1)   Material standard
@@ -30,10 +39,22 @@ COLORS: dict[str, tuple[float, float, float, float]] = {
     "loss":    (0.9725, 0.4431, 0.4431, 1.0),  # #F87171
     "heat":    (0.9843, 0.7490, 0.1412, 1.0),  # #FBBF24
     "people":  (0.9843, 0.8314, 0.3020, 1.0),  # #FCD34D
-    "terrain": (0.2784, 0.3333, 0.4118, 1.0),  # #475569
+    "terrain": (0.2784, 0.3333, 0.4118, 1.0),  # #475569 (locked base)
     "white":   (1.0,   1.0,   1.0,   1.0),
     "black":   (0.0,   0.0,   0.0,   1.0),
 }
+
+# Terrain height ramp stops — elevation in Blender units (1 BU = 1 km = 1000 m).
+# Stops are (elevation_km, linear_R, linear_G, linear_B).
+# The ramp passes through the locked #475569 terrain base at ~3 km (mid elevations).
+# All colour values are linear-space sRGB (gamma 2.2 conversion of the hex codes).
+TERRAIN_RAMP_STOPS: list[tuple[float, float, float, float]] = [
+    # elev_km  R        G        B
+    (0.000,  0.1899,  0.1490,  0.1106),  # #7A6B5A warm brown — plains / foothills
+    (2.000,  0.2784,  0.3333,  0.4118),  # #475569 locked slate base — mid range
+    (4.000,  0.5529,  0.6275,  0.7216),  # #94A3B8 lighter slate / upper rock
+    (8.849,  0.8784,  0.9490,  0.9882),  # #E0F2FE snow-white cyan — summit / permanent snow
+]
 
 
 def _hex_to_linear(hex_color: str) -> tuple[float, float, float, float]:
@@ -146,9 +167,90 @@ def make_lake_material(depth_m: float = 0.0) -> bpy.types.Material:
 
 
 def make_terrain_material() -> bpy.types.Material:
-    """Neutral mountain terrain material."""
+    """Height-based terrain material.
+
+    Uses a Principled BSDF so Cycles sun/sky lighting produces real shading
+    (normals affect brightness).  A ColorRamp driven by the mesh's Z coordinate
+    (Blender units = km) ramps from warm brown at plains level, through the
+    locked #475569 slate base at mid-range, up to snow-white at summit elevations.
+
+    The ramp STOPS are defined in TERRAIN_RAMP_STOPS above.  Because Blender's
+    Geometry → Position Z is in the world/object space (1 BU = 1 km), the ramp
+    input is normalised against Earth's max elevation (8.849 km = Everest).
+
+    All subsequent chapter renders that call make_terrain_material() will inherit
+    this improvement automatically.
+    """
     mat = _get_or_create("wc_terrain")
-    _set_principled_base(mat, base_color=COLORS["terrain"], roughness=0.8)
+    nodes = mat.node_tree.nodes
+    links = mat.node_tree.links
+
+    # Always rebuild node tree so the ramp is up-to-date even if material existed.
+    for n in list(nodes):
+        nodes.remove(n)
+
+    output = nodes.new("ShaderNodeOutputMaterial")
+    bsdf = nodes.new("ShaderNodeBsdfPrincipled")
+    links.new(bsdf.outputs["BSDF"], output.inputs["Surface"])
+
+    # Roughness: rocky terrain — slightly rough but not matte
+    bsdf.inputs["Roughness"].default_value = 0.75  # type: ignore[index]
+    bsdf.inputs["Metallic"].default_value = 0.0    # type: ignore[index]
+    bsdf.inputs["Alpha"].default_value = 1.0        # type: ignore[index]
+
+    # ── Height-driven Color Ramp ─────────────────────────────────────────────
+    # 1. Geometry node gives us the vertex position in object/world space.
+    geom = nodes.new("ShaderNodeNewGeometry")
+
+    # 2. Separate XYZ to isolate Z (elevation in km / Blender units).
+    sep_xyz = nodes.new("ShaderNodeSeparateXYZ")
+    links.new(geom.outputs["Position"], sep_xyz.inputs["Vector"])
+
+    # 3. Divide Z by Everest height (8.849 km) → normalise to [0, 1].
+    #    Use a Math → Divide node.
+    div_node = nodes.new("ShaderNodeMath")
+    div_node.operation = "DIVIDE"
+    div_node.inputs[1].default_value = 8.849  # type: ignore[index]
+    links.new(sep_xyz.outputs["Z"], div_node.inputs[0])
+
+    # Clamp to [0, 1] in case procedural terrain goes outside range.
+    clamp_node = nodes.new("ShaderNodeClamp")
+    clamp_node.inputs["Min"].default_value = 0.0  # type: ignore[index]
+    clamp_node.inputs["Max"].default_value = 1.0  # type: ignore[index]
+    links.new(div_node.outputs["Value"], clamp_node.inputs["Value"])
+
+    # 4. ColorRamp driven by the normalised elevation.
+    ramp = nodes.new("ShaderNodeValToRGB")
+    links.new(clamp_node.outputs["Result"], ramp.inputs["Fac"])
+
+    # Configure ramp stops from TERRAIN_RAMP_STOPS.
+    # Blender's default ramp has 2 stops; we need 4.
+    cr = ramp.color_ramp
+    cr.interpolation = "LINEAR"
+
+    # Blender initialises with exactly 2 elements (index 0 and 1).
+    # We add the extra 2 (total 4).
+    while len(cr.elements) < len(TERRAIN_RAMP_STOPS):
+        cr.elements.new(0.0)
+
+    for i, (elev_km, r, g, b) in enumerate(TERRAIN_RAMP_STOPS):
+        pos = elev_km / 8.849  # normalised position in [0, 1]
+        el = cr.elements[i]
+        el.position = pos
+        el.color = (r, g, b, 1.0)
+
+    # 5. Wire the ramp output into BSDF Base Color.
+    links.new(ramp.outputs["Color"], bsdf.inputs["Base Color"])
+
+    # ── Node layout (cosmetic — keeps the shader editor readable) ────────────
+    output.location    = (600,  0)
+    bsdf.location      = (300,  0)
+    ramp.location      = ( 0, -100)
+    clamp_node.location = (-200, -100)
+    div_node.location  = (-400, -100)
+    sep_xyz.location   = (-600, -100)
+    geom.location      = (-800, -100)
+
     return mat
 
 
