@@ -427,7 +427,12 @@ def main() -> None:
     # ── Encode ────────────────────────────────────────────────────────────
     output_dir = args.output.parent
     output_dir.mkdir(parents=True, exist_ok=True)
-    sizes = encode_mod.encode_chapter(frames_dir, output_dir, fps=FPS)
+    # Use frame 399 for the poster: orbital flyover just before the hidden cut,
+    # showing warm brown (Indo-Gangetic plain) vs white peaks — the strongest
+    # colour-grammar contrast in Ch 0 and clearest terrain silhouette.
+    # The final frame (899) is a tight Khumbu close-up at uniform high elevation
+    # which compresses to a near-featureless gray block.
+    sizes = encode_mod.encode_chapter(frames_dir, output_dir, fps=FPS, poster_frame=399)
 
     # ── Provenance ────────────────────────────────────────────────────────
     provenance_mod.write_provenance(

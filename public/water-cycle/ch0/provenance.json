@@ -141,9 +141,9 @@
       "citation": "doi:10.26066/icimod.hkh-cryosphere-2026"
     }
   ],
-  "caption_text": "Between 1990 and 2020, the Hindu Kush Himalaya lost 9% of all glacier ice — 516 km³ of water-equivalent. This reservoir is draining.",
-  "generated_at": "2026-05-10T23:24:48.851368+00:00",
+  "caption_text": "Between 1990 and 2020, the Hindu Kush Himalaya lost 9% of all glacier ice — 516 km³ of water-equivalent. This reservoir is draining.",
+  "generated_at": "2026-05-11T04:40:18.158128+00:00",
   "blender_version": "5.1.1",
-  "bpy_script_hash": "e45dd063951725285cab473d7fac8bf272d16e6d6b03d5cde531e36af3023119",
+  "bpy_script_hash": "604bd354d4ee7cb6fa67e2f3f1f4d626bed28bde0f66ec50fe434d5395072459",
   "_used_real_dem": true
 }

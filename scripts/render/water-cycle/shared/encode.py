@@ -71,6 +71,7 @@ def encode_chapter(
     frames_dir: Path,
     output_dir: Path,
     fps: int = 30,
+    poster_frame: int | None = None,
 ) -> dict[str, float]:
     """Encode all PNG frames in frames_dir to the four output formats.
 
@@ -78,7 +79,11 @@ def encode_chapter(
     - cinematic.webm   AV1, ~1.5 Mbps, production resolution
     - cinematic.mp4    H.264, ~2 Mbps, Safari fallback
     - cinematic-scrub.webm  VP9, ~600 Kbps, 854x480, dense keyframes
-    - poster.jpg       Last frame, JPEG quality 95, upscaled to 1920x1080
+    - poster.jpg       JPEG quality 95, upscaled to 1920x1080
+
+    poster_frame: which frame index to use for poster.jpg (default: last frame).
+    For chapters where the final frame is a tight close-up, pass a frame index
+    that shows recognizable terrain with visible elevation tinting.
 
     Validates each output is < 24 MiB.
 
@@ -145,8 +150,13 @@ def encode_chapter(
         str(scrub_out),
     ], "VP9 scrub master (cinematic-scrub.webm)")
 
-    # ── Poster JPG (last frame) ────────────────────────────────────────────
-    last_frame = str(frames_dir / f"{len(frame_files) - 1:04d}.png")
+    # ── Poster JPG ────────────────────────────────────────────────────────
+    # Default to last frame; caller can override with poster_frame to choose a
+    # more visually representative frame (e.g. an orbital view for Ch 0 where
+    # the last frame is a tight close-up with uniform elevation).
+    poster_idx = poster_frame if poster_frame is not None else len(frame_files) - 1
+    poster_idx = max(0, min(poster_idx, len(frame_files) - 1))
+    last_frame = str(frames_dir / f"{poster_idx:04d}.png")
     poster_out = output_dir / "poster.jpg"
     _run([
         ffmpeg, "-y",
