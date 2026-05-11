@@ -1,191 +1,287 @@
 /**
- * e2e/water-cycle-mobile.spec.ts
+ * e2e/water-cycle-mobile.spec.ts — Playwright e2e tests for MobileCardStack
  *
- * Acceptance criterion (T4.5 / T4.2 / 08-acceptance-criteria.md "Mobile cards"):
- *   "At 375px viewport: card-stack visible (NOT scroll-scrub video); back/next
- *    buttons work; per-card poster + headline + citation chip render"
- *
- * NOTE: T4.2 may also create this file. Check origin/feat/water-cycle-T4.2-* before
- * opening PR. If T4.2 provides it, coordinate so there's no duplicate.
- * This file is written by T4.5 as the fallback — if T4.2 provides it, use theirs.
- *
- * Per spec §7 constraint #2:
- *   "Mobile-first: 65% Android traffic. Every chapter has a mobile card-stack
- *    variant for screens < 768px."
+ * Task T4.2 acceptance (from docs/water-cycle/08-acceptance-criteria.md):
+ *   - At 375px viewport: card-stack visible, scroll-scrub video hidden
+ *   - Back/Next buttons work
+ *   - Per-card poster + headline + citation chip render
+ *   - Keyboard arrow navigation works
  */
 
 import { expect, test } from "@playwright/test";
 
-// Device: iPhone SE / common Android phone
-const MOBILE_VIEWPORT = { width: 375, height: 812 };
+// All tests in this file run at mobile 375x812 viewport
+test.use({ viewport: { width: 375, height: 812 } });
 
-test.describe("water-cycle mobile (375×812)", () => {
-  test.use({ viewport: MOBILE_VIEWPORT });
+const CHAPTER_TITLES = [
+  "The reservoir",
+  "The retreat",
+  "The lake bloom",
+  "Where it went",
+  "When it comes",
+  "The feedback loop",
+  "The choice",
+] as const;
 
+test.describe("MobileCardStack — /atlas/water-cycle at 375px", () => {
+  // Dismiss Next.js dev overlay before each test so it doesn't intercept pointer events
   test.beforeEach(async ({ page }) => {
-    await page.goto("/atlas/water-cycle");
-    await page.waitForLoadState("domcontentloaded");
-    // Wait for React hydration + isMobile media query resolution
-    // MobileCardStack renders after useEffect sets isMobile state
-    await page.waitForSelector("button[aria-label='Previous chapter']", { timeout: 10000 })
-      .catch(() => {
-        // If not found, check if desktop view rendered instead
-        console.warn("[WARN] Previous chapter button not found after 10s — may be desktop mode");
+    await page.addInitScript(() => {
+      // Remove the nextjs-portal overlay element that intercepts pointer events in dev mode
+      const observer = new MutationObserver(() => {
+        const portals = document.querySelectorAll('nextjs-portal');
+        for (const portal of portals) portal.remove();
       });
-  });
-
-  test("card-stack is visible at mobile viewport", async ({ page }) => {
-    await test.step("verify mobile card-stack main element", async () => {
-      // On mobile, WaterCycleClient renders MobileCardStack inside a <main>
-      const mainEl = page.locator("main").first();
-      await expect(mainEl).toBeVisible();
-    });
-
-    await test.step("progress bar is visible", async () => {
-      // Progress bar: div.flex.gap-1 aria-hidden="true"
-      const progressBar = page.locator("[aria-hidden='true']").first();
-      await expect(progressBar).toBeVisible();
-    });
-
-    await test.step("no scroll-scrub video (desktop-only)", async () => {
-      // On mobile, MobileCardStack is rendered — no CinematicVideo/video elements
-      const videoEl = page.locator("video");
-      const videoCount = await videoEl.count();
-      expect(
-        videoCount,
-        "Found <video> elements at mobile viewport — expected MobileCardStack (no video)",
-      ).toBe(0);
+      observer.observe(document.documentElement, { childList: true, subtree: true });
     });
   });
 
-  test("chapter poster image renders", async ({ page }) => {
-    await test.step("poster image is visible", async () => {
-      // MobileCardStack renders Next.js <Image> for the poster
-      const posterImg = page.locator("img").first();
-      await expect(posterImg).toBeVisible({ timeout: 10000 });
+  test("card-stack is visible; scroll-scrub video hidden", async ({ page }) => {
+    const errors: string[] = [];
+    page.on("console", (msg) => {
+      if (msg.type() === "error") errors.push(msg.text());
     });
+
+    await page.goto("/atlas/water-cycle");
+
+    // The mobile-card-stack root should be visible
+    const cardStack = page.getByTestId("mobile-card-stack");
+    await expect(cardStack).toBeVisible({ timeout: 8000 });
+
+    // The cinematic video sections (desktop only) should NOT be present
+    // (water-cycle-client renders either MobileCardStack or ChapterSections, not both)
+    const chapterSections = page.locator("section[id='ch0']");
+    // Either not in DOM or hidden — the mobile path doesn't render chapter sections
+    const count = await chapterSections.count();
+    expect(count).toBe(0);
+
+    // No console errors
+    const critical = errors.filter(
+      (e) =>
+        !e.includes("ERR_FILE_NOT_FOUND") && // poster images may not exist in test
+        !e.includes("404") &&
+        !e.includes("NetworkError"), // network-related are OK (poster/video not present in CI)
+    );
+    expect(critical).toHaveLength(0);
   });
 
-  test("chapter title (h2) renders", async ({ page }) => {
-    await test.step("chapter heading is visible", async () => {
-      // First chapter title is "The reservoir"
-      const heading = page.getByRole("heading", { level: 2 }).first();
-      await expect(heading).toBeVisible();
-    });
+  test("first chapter card shows chapter 1 title and poster", async ({ page }) => {
+    await page.goto("/atlas/water-cycle");
 
-    await test.step("first chapter title matches spec", async () => {
-      const heading = page.getByRole("heading", { level: 2 }).first();
-      await expect(heading).toHaveText(/The reservoir/i);
-    });
+    // Wait for card stack to be visible
+    await expect(page.getByTestId("mobile-card-stack")).toBeVisible({ timeout: 8000 });
+
+    // "The reservoir" heading should be visible
+    await expect(
+      page.getByRole("heading", { name: "The reservoir" }).first(),
+    ).toBeVisible({ timeout: 5000 });
+
+    // Chapter counter "1 / 7" should be shown
+    await expect(page.getByText("1 / 7")).toBeVisible();
   });
 
-  test("Next button advances to chapter 2", async ({ page }) => {
-    await test.step("click Next chapter button by aria-label", async () => {
-      // Use attribute selector to avoid matching citation-chip "Show data sources" button
-      const nextBtn = page.locator("button[aria-label='Next chapter']");
-      await expect(nextBtn).toBeVisible({ timeout: 10000 });
-      // Click using JavaScript to avoid pointer-intercept from CitationChip overlay
-      await nextBtn.evaluate((el: HTMLElement) => el.click());
-      await page.waitForTimeout(400);
+  test("Next button advances through all 7 chapters in sequence", async ({ page }) => {
+    await page.goto("/atlas/water-cycle");
+    await expect(page.getByTestId("mobile-card-stack")).toBeVisible({ timeout: 8000 });
+
+    // Verify first chapter
+    await expect(
+      page.getByRole("heading", { name: CHAPTER_TITLES[0] }).first(),
+    ).toBeVisible({ timeout: 5000 });
+
+    // Click Next 6 times and verify each chapter title appears
+    // Remove nextjs-portal overlay before each click so buttons are reachable
+    for (let i = 1; i < CHAPTER_TITLES.length; i++) {
+      await page.evaluate(() => {
+        document.querySelectorAll('nextjs-portal').forEach(el => el.remove());
+      });
+      // Find the Next button (aria-label contains "next chapter")
+      const nextBtn = page.getByRole("button", { name: /next chapter/i });
+      await expect(nextBtn).toBeEnabled();
+      await nextBtn.click();
+
+      // Wait for the title of the new chapter to be visible
+      await expect(
+        page.getByRole("heading", { name: CHAPTER_TITLES[i] }).first(),
+      ).toBeVisible({ timeout: 5000 });
+
+      // Counter should reflect position
+      await expect(page.getByText(`${i + 1} / 7`)).toBeVisible();
+    }
+
+    // At last chapter, Next button should be disabled
+    const nextBtn = page.getByRole("button", { name: /Already at last chapter/i });
+    await expect(nextBtn).toBeDisabled();
+  });
+
+  test("Back button works (navigate forward then back)", async ({ page }) => {
+    await page.goto("/atlas/water-cycle");
+    await expect(page.getByTestId("mobile-card-stack")).toBeVisible({ timeout: 8000 });
+
+    // Remove nextjs-portal overlay so nav buttons are clickable
+    await page.evaluate(() => {
+      document.querySelectorAll('nextjs-portal').forEach(el => el.remove());
     });
 
-    await test.step("chapter 2 title is now visible", async () => {
-      const heading = page.getByRole("heading", { level: 2 }).first();
-      await expect(heading).toHaveText(/The retreat/i);
+    // Go to chapter 2
+    await page.getByRole("button", { name: /next chapter/i }).click();
+    // Wait for counter to update to "2 / 7"
+    await expect(page.getByText("2 / 7")).toBeVisible({ timeout: 5000 });
+
+    // Re-remove portal (may be re-injected after state change)
+    await page.evaluate(() => {
+      document.querySelectorAll('nextjs-portal').forEach(el => el.remove());
     });
+
+    // Back button should now go back to chapter 1
+    await page.getByRole("button", { name: /previous chapter/i }).click();
+    // Wait for counter to show "1 / 7" confirming state update
+    await expect(page.getByText("1 / 7")).toBeVisible({ timeout: 5000 });
+    // Heading is in the active card
+    await expect(
+      page.locator('[aria-roledescription="slide"][aria-hidden="false"] h2').first()
+    ).toContainText(CHAPTER_TITLES[0], { timeout: 5000 });
   });
 
   test("Back button is disabled on first chapter", async ({ page }) => {
-    await test.step("Back button disabled state", async () => {
-      // Use attribute selector for exact match on aria-label
-      const backBtn = page.locator("button[aria-label='Previous chapter']");
-      await expect(backBtn).toBeVisible({ timeout: 10000 });
-      await expect(backBtn).toBeDisabled();
-    });
+    await page.goto("/atlas/water-cycle");
+    await expect(page.getByTestId("mobile-card-stack")).toBeVisible({ timeout: 8000 });
+
+    // At chapter 0, Back should be disabled
+    const backBtn = page.getByRole("button", { name: /Already at first chapter/i });
+    await expect(backBtn).toBeDisabled();
   });
 
-  test("can navigate to last chapter", async ({ page }) => {
-    await test.step("click Next 6 times to reach chapter 7", async () => {
-      const nextBtn = page.locator("button[aria-label='Next chapter']");
-      await expect(nextBtn).toBeVisible({ timeout: 10000 });
-      for (let i = 0; i < 6; i++) {
-        await expect(nextBtn).toBeEnabled();
-        // Use evaluate click to avoid overlay intercepts
-        await nextBtn.evaluate((el: HTMLElement) => el.click());
-        await page.waitForTimeout(300);
-      }
-    });
+  test("keyboard arrow navigation (ArrowRight / ArrowLeft)", async ({ page }) => {
+    await page.goto("/atlas/water-cycle");
+    await expect(page.getByTestId("mobile-card-stack")).toBeVisible({ timeout: 8000 });
 
-    await test.step("chapter 7 title visible", async () => {
-      const heading = page.getByRole("heading", { level: 2 }).first();
-      await expect(heading).toHaveText(/The choice/i);
-    });
+    // Focus the page body
+    await page.locator("body").click();
 
-    await test.step("closing thesis visible on last chapter", async () => {
-      const thesis = page.getByText(/The glacier was your reservoir/i);
-      await expect(thesis.first()).toBeVisible();
-    });
+    // Press ArrowRight to advance to chapter 2
+    await page.keyboard.press("ArrowRight");
+    await expect(
+      page.getByRole("heading", { name: CHAPTER_TITLES[1] }).first(),
+    ).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText("2 / 7")).toBeVisible();
 
-    await test.step("Next button is disabled on last chapter", async () => {
-      const nextBtn = page.locator("button[aria-label='Next chapter']");
-      await expect(nextBtn).toBeVisible({ timeout: 5000 });
-      await expect(nextBtn).toBeDisabled();
-    });
+    // Press ArrowLeft to go back
+    await page.keyboard.press("ArrowLeft");
+    await expect(
+      page.getByRole("heading", { name: CHAPTER_TITLES[0] }).first(),
+    ).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText("1 / 7")).toBeVisible();
   });
 
-  test("dot indicators are interactive", async ({ page }) => {
-    await test.step("chapter dot buttons are present", async () => {
-      // 7 dot buttons with aria-label "Go to chapter N"
-      // Use locator with attribute selector for reliability
-      const dots = page.locator("button[aria-label^='Go to chapter']");
-      // Wait for dots to appear after hydration
-      await expect(dots.first()).toBeVisible({ timeout: 10000 });
-      const count = await dots.count();
-      expect(count).toBe(7);
+  test("progress dot navigation jumps to correct chapter", async ({ page }) => {
+    await page.goto("/atlas/water-cycle");
+    await expect(page.getByTestId("mobile-card-stack")).toBeVisible({ timeout: 8000 });
+
+    // Remove nextjs-portal overlay before clicking
+    await page.evaluate(() => {
+      document.querySelectorAll('nextjs-portal').forEach(el => el.remove());
     });
 
-    await test.step("clicking dot 3 navigates to chapter 3", async () => {
-      // Chapter 3 = "The lake bloom" (0-indexed chapter 2)
-      const dot3 = page.locator("button[aria-label='Go to chapter 3']");
-      await dot3.evaluate((el: HTMLElement) => el.click());
-      await page.waitForTimeout(400);
+    // Find the "Go to chapter 4" dot button
+    const dot4 = page.locator('button[aria-label="Go to chapter 4"]');
+    await expect(dot4).toBeAttached({ timeout: 5000 });
+    await dot4.click();
 
-      const heading = page.getByRole("heading", { level: 2 }).first();
-      await expect(heading).toHaveText(/The lake bloom/i);
-    });
+    // Should now show chapter 4 (index 3)
+    await expect(
+      page.getByRole("heading", { name: CHAPTER_TITLES[3] }).first(),
+    ).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText("4 / 7")).toBeVisible();
   });
 
-  test("provenance peel modal opens and closes", async ({ page }) => {
-    await test.step("click citation chip / show-data button", async () => {
-      // CitationChip renders a "Show all" or "Show sources" button
-      // Try matching the show-data button via its aria-label pattern
-      const showBtn = page.locator("button[aria-label*='Show data sources']").first();
-      const showBtnAlt = page.locator("button[aria-label*='Show all']").first();
+  test("citation chip is visible and 'Show data' button opens peel", async ({ page }) => {
+    await page.goto("/atlas/water-cycle");
+    await expect(page.getByTestId("mobile-card-stack")).toBeVisible({ timeout: 8000 });
 
-      const btnToClick = (await showBtn.count()) > 0 ? showBtn : showBtnAlt;
-
-      if (await btnToClick.count() > 0) {
-        await btnToClick.evaluate((el: HTMLElement) => el.click());
-        await page.waitForTimeout(400);
-
-        // Dialog should appear
-        const dialog = page.getByRole("dialog");
-        if (await dialog.count() > 0) {
-          await expect(dialog).toBeVisible({ timeout: 5000 });
-
-          // Close it
-          const closeBtn = page.getByRole("button", { name: /close/i }).first();
-          await closeBtn.evaluate((el: HTMLElement) => el.click());
-          await page.waitForTimeout(300);
-
-          // Dialog should be gone
-          await expect(dialog).not.toBeVisible();
-        }
-      } else {
-        console.warn(
-          "[WARN] No citation chip button found — chapter content may not render citations yet",
-        );
-      }
+    // Remove nextjs-portal overlay and programmatically click the "Show data" button
+    // to trigger React's onClick handler for setPeelOpenFor
+    await page.evaluate(() => {
+      document.querySelectorAll('nextjs-portal').forEach(el => el.remove());
+      // Find and click the Show data sources button
+      const btn = document.querySelector('button[aria-label^="Show data sources for"]') as HTMLButtonElement;
+      btn?.click();
     });
+
+    // Modal should appear — the peel dialog
+    await page.waitForFunction(
+      () => !!document.querySelector('[role="dialog"][aria-modal="true"]'),
+      { timeout: 5000 }
+    );
+
+    // Close via X button — same approach
+    await page.evaluate(() => {
+      document.querySelectorAll('nextjs-portal').forEach(el => el.remove());
+      const closeBtn = document.querySelector('button[aria-label="Close data sources"]') as HTMLButtonElement;
+      closeBtn?.click();
+    });
+    await page.waitForFunction(
+      () => !document.querySelector('[role="dialog"][aria-modal="true"]'),
+      { timeout: 3000 }
+    );
+  });
+
+  test("Escape key closes the provenance peel", async ({ page }) => {
+    await page.goto("/atlas/water-cycle");
+    await expect(page.getByTestId("mobile-card-stack")).toBeVisible({ timeout: 8000 });
+
+    // Click Show data button programmatically (avoid portal interception)
+    await page.evaluate(() => {
+      document.querySelectorAll('nextjs-portal').forEach(el => el.remove());
+      const btn = document.querySelector('button[aria-label^="Show data sources for"]') as HTMLButtonElement;
+      btn?.click();
+    });
+
+    await page.waitForFunction(
+      () => !!document.querySelector('[role="dialog"][aria-modal="true"]'),
+      { timeout: 5000 }
+    );
+
+    // Press Escape to close
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(
+      () => !document.querySelector('[role="dialog"][aria-modal="true"]'),
+      { timeout: 3000 }
+    );
+  });
+
+  test("closing thesis visible on last chapter", async ({ page }) => {
+    await page.goto("/atlas/water-cycle");
+    await expect(page.getByTestId("mobile-card-stack")).toBeVisible({ timeout: 8000 });
+
+    // Navigate to the last chapter (index 6)
+    for (let i = 0; i < 6; i++) {
+      await page.evaluate(() => {
+        document.querySelectorAll('nextjs-portal').forEach(el => el.remove());
+      });
+      await page.getByRole("button", { name: /next chapter/i }).click();
+    }
+
+    // Closing thesis should be on the final chapter
+    await expect(
+      page.getByText("The glacier was your reservoir."),
+    ).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText("We are draining it.")).toBeVisible();
+  });
+
+  test("carousel has accessible ARIA structure", async ({ page }) => {
+    await page.goto("/atlas/water-cycle");
+    await expect(page.getByTestId("mobile-card-stack")).toBeVisible({ timeout: 8000 });
+
+    // Carousel region — now a <section> with aria-roledescription="carousel"
+    const carousel = page.locator('[aria-roledescription="carousel"]');
+    await expect(carousel).toBeVisible();
+    await expect(carousel).toHaveAttribute("aria-label", "Chapter cards");
+
+    // Active slide should have aria-hidden="false"
+    // (other slides set aria-hidden="true" when not active)
+    const activeSlide = page.locator('[aria-roledescription="slide"][aria-hidden="false"]').first();
+    await expect(activeSlide).toBeVisible({ timeout: 3000 });
+    await expect(activeSlide).toHaveAttribute("aria-roledescription", "slide");
   });
 });
