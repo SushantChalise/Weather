@@ -1,0 +1,172 @@
+{
+  "generated_at": "2026-05-11T03:38:49.467Z",
+  "n_unique_datasets": 7,
+  "n_headline_citations": 12,
+  "_input_hash": "457537013d853236",
+  "datasets": [
+    {
+      "doi": "10.26066/rds.1972729",
+      "name": "ICIMOD HKH Glacier Inventory 1990",
+      "url": "https://rds.icimod.org/Home/DataDetail?metadataId=1972729",
+      "license": "CC-BY 4.0",
+      "cited_in_chapters": [
+        "ch0",
+        "ch1"
+      ]
+    },
+    {
+      "doi": "10.26066/rds.9362830",
+      "name": "Imja Tsho keyframes (digitized from Somos-Valenzuela 2014 + ICIMOD 2024)",
+      "url": "https://rds.icimod.org/Home/DataDetail?metadataId=9362830",
+      "license": "CC-BY 4.0",
+      "cited_in_chapters": [
+        "ch0",
+        "ch2"
+      ]
+    },
+    {
+      "doi": "10.1126/science.abo1324",
+      "name": "Rounce et al. 2023 — PyGEM SSP1-2.6 projection 2100",
+      "url": "https://doi.org/10.1126/science.abo1324",
+      "license": "All Rights Reserved",
+      "cited_in_chapters": [
+        "ch6"
+      ]
+    },
+    {
+      "doi": "10.5194/tc-8-1297-2014",
+      "name": "Somos-Valenzuela 2014 — Imja Glacier 1962",
+      "url": "https://doi.org/10.5194/tc-8-1297-2014",
+      "license": "CC-BY 3.0",
+      "year": 2014,
+      "cited_in_chapters": [
+        "ch1",
+        "ch2"
+      ]
+    },
+    {
+      "doi": "10.5069/G9445JDF",
+      "name": "SRTM 30m DEM (OpenTopography SRTMGL1_E) — procedural fallback if file absent",
+      "url": "https://portal.opentopography.org/raster?opentopoID=OTSRTM.082015.4326.1",
+      "cited_in_chapters": [
+        "ch0"
+      ]
+    },
+    {
+      "doi": "",
+      "name": "ICIMOD Imja Tsho monitoring station",
+      "url": "https://rds.icimod.org/",
+      "license": "CC-BY 4.0",
+      "cited_in_chapters": [
+        "ch4"
+      ]
+    },
+    {
+      "doi": "",
+      "name": "Pyramid International Laboratory Observatory (~5000m)",
+      "url": "https://evk2.isac.cnr.it/",
+      "license": "Institutional",
+      "cited_in_chapters": [
+        "ch4"
+      ]
+    }
+  ],
+  "headlines": [
+    {
+      "value": "516 km³",
+      "label": "water-equivalent ice lost 1990–2020",
+      "citation": "doi:10.26066/icimod.hkh-cryosphere-2026",
+      "chapters": [
+        "ch0"
+      ]
+    },
+    {
+      "value": "~9%",
+      "label": "of all HKH ice lost 1990–2020",
+      "citation": "doi:10.26066/icimod.hkh-cryosphere-2026",
+      "chapters": [
+        "ch0"
+      ]
+    },
+    {
+      "value": "~0.5 trillion tonnes",
+      "label": "total ice mass lost across Hindu Kush Himalaya",
+      "citation": "doi:10.26066/icimod.hkh-cryosphere-2026",
+      "chapters": [
+        "ch0"
+      ]
+    },
+    {
+      "value": "~30 years",
+      "label": "of synchronized retreat across Khumbu, Yala, Annapurna I, Imja",
+      "citation": "doi:10.26066/rds.1972729",
+      "chapters": [
+        "ch1"
+      ]
+    },
+    {
+      "value": "35×",
+      "label": "growth: 0.04 km² (1962) → 1.4 km² (2020)",
+      "citation": "doi:10.5194/tc-8-1297-2014",
+      "chapters": [
+        "ch2"
+      ]
+    },
+    {
+      "value": "~60 m",
+      "label": "maximum depth of Imja Tsho",
+      "citation": "doi:10.26066/rds.9362830",
+      "chapters": [
+        "ch2"
+      ]
+    },
+    {
+      "value": "~120 km³/yr",
+      "label": "glacier meltwater runoff to rivers (HKH total)",
+      "citation": "doi:10.1038/s41467-021-23073-4",
+      "chapters": [
+        "ch3"
+      ]
+    },
+    {
+      "value": "~250 million",
+      "label": "people in water-scarce IGB zones dependent on glacier melt",
+      "citation": "doi:10.1038/s41467-021-23073-4",
+      "chapters": [
+        "ch3"
+      ]
+    },
+    {
+      "value": "~4–6 weeks",
+      "label": "earlier peak meltwater arrival projected 1990 → 2070",
+      "citation": "doi:10.1126/science.abo1324",
+      "chapters": [
+        "ch4"
+      ]
+    },
+    {
+      "value": "6–10%",
+      "label": "albedo reduction from black carbon (Kaspari 2014)",
+      "citation": "doi:10.3189/2014JoG13J153",
+      "chapters": [
+        "ch5"
+      ]
+    },
+    {
+      "value": "dominant",
+      "label": "role of dust vs BC in Solu-Khumbu region",
+      "citation": "doi:10.3189/2014JoG13J153",
+      "chapters": [
+        "ch5"
+      ]
+    },
+    {
+      "value": "~50% vs ~25%",
+      "label": "ice remaining by 2100: SSP1-2.6 vs SSP5-8.5",
+      "citation": "doi:10.1126/science.abo1324",
+      "chapters": [
+        "ch6"
+      ]
+    }
+  ]
+}

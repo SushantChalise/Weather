@@ -4,14 +4,26 @@
     {
       "name": "weather-dev",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd /d C:\\Users\\ACER\\Projects\\Weather && npm run dev -- --port 3001"],
+      "runtimeArgs": ["/c", "cd /d C:\Users\ACER\Projects\Weather && npm run dev -- --port 3001"],
       "port": 3001
     },
     {
       "name": "weather-worktree",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd /d C:\\Users\\ACER\\Projects\\Weather && npm run dev -- --port 3002"],
+      "runtimeArgs": ["/c", "cd /d C:\Users\ACER\Projects\Weather && npm run dev -- --port 3002"],
       "port": 3002
+    },
+    {
+      "name": "weather-T4.1",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd /d C:\Users\ACER\Projects\Weather\.claude\worktrees\agent-ad069603890801bcb && npm run dev -- --port 3006"],
+      "port": 3006
+    },
+    {
+      "name": "weather-T4.2",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd /d C:\Users\ACER\Projects\Weather\.claude\worktrees\agent-a7728390c34a5218a && npm run dev -- --port 3005"],
+      "port": 3005
     }
   ]
 }

@@ -110,8 +110,8 @@ export function WaterCycleClient({ provenance }: Props) {
       {/* Closing thesis */}
       <ClosingThesis />
 
-      {/* Full bibliography */}
-      <CitationsBibliography provenance={provenance} />
+      {/* Full bibliography — loads /water-cycle/citations.json at runtime */}
+      <CitationsBibliography />
     </main>
   );
 }

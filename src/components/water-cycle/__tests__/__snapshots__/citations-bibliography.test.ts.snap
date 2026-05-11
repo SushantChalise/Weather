@@ -1,0 +1,201 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`CitationsBibliography — sort logic > sorted by name asc snapshot 1`] = `
+[
+  "ICIMOD HKH Glacier Inventory 1990",
+  "ICIMOD Imja Tsho monitoring station",
+  "Imja Tsho keyframes (digitized from Somos-Valenzuela 2014 + ICIMOD 2024)",
+  "Pyramid International Laboratory Observatory (~5000m)",
+  "Rounce et al. 2023 — PyGEM SSP1-2.6 projection 2100",
+  "Somos-Valenzuela 2014 — Imja Glacier 1962",
+  "SRTM 30m DEM (OpenTopography SRTMGL1_E) — procedural fallback if file absent",
+]
+`;
+
+exports[`citations.json — dataset entries > datasets snapshot (names + chapters) 1`] = `
+[
+  {
+    "chapters": [
+      "ch0",
+      "ch1",
+    ],
+    "doi": "10.26066/rds.1972729",
+    "name": "ICIMOD HKH Glacier Inventory 1990",
+  },
+  {
+    "chapters": [
+      "ch0",
+      "ch2",
+    ],
+    "doi": "10.26066/rds.9362830",
+    "name": "Imja Tsho keyframes (digitized from Somos-Valenzuela 2014 + ICIMOD 2024)",
+  },
+  {
+    "chapters": [
+      "ch6",
+    ],
+    "doi": "10.1126/science.abo1324",
+    "name": "Rounce et al. 2023 — PyGEM SSP1-2.6 projection 2100",
+  },
+  {
+    "chapters": [
+      "ch1",
+      "ch2",
+    ],
+    "doi": "10.5194/tc-8-1297-2014",
+    "name": "Somos-Valenzuela 2014 — Imja Glacier 1962",
+  },
+  {
+    "chapters": [
+      "ch0",
+    ],
+    "doi": "10.5069/G9445JDF",
+    "name": "SRTM 30m DEM (OpenTopography SRTMGL1_E) — procedural fallback if file absent",
+  },
+  {
+    "chapters": [
+      "ch4",
+    ],
+    "doi": "",
+    "name": "ICIMOD Imja Tsho monitoring station",
+  },
+  {
+    "chapters": [
+      "ch4",
+    ],
+    "doi": "",
+    "name": "Pyramid International Laboratory Observatory (~5000m)",
+  },
+]
+`;
+
+exports[`citations.json — file structure > full structure snapshot 1`] = `
+{
+  "dataset_names": [
+    "ICIMOD HKH Glacier Inventory 1990",
+    "ICIMOD Imja Tsho monitoring station",
+    "Imja Tsho keyframes (digitized from Somos-Valenzuela 2014 + ICIMOD 2024)",
+    "Pyramid International Laboratory Observatory (~5000m)",
+    "Rounce et al. 2023 — PyGEM SSP1-2.6 projection 2100",
+    "SRTM 30m DEM (OpenTopography SRTMGL1_E) — procedural fallback if file absent",
+    "Somos-Valenzuela 2014 — Imja Glacier 1962",
+  ],
+  "headline_values": [
+    "35×",
+    "516 km³",
+    "6–10%",
+    "dominant",
+    "~0.5 trillion tonnes",
+    "~120 km³/yr",
+    "~250 million",
+    "~30 years",
+    "~4–6 weeks",
+    "~50% vs ~25%",
+    "~60 m",
+    "~9%",
+  ],
+  "n_headline_citations": 12,
+  "n_unique_datasets": 7,
+}
+`;
+
+exports[`citations.json — headlines > headlines snapshot 1`] = `
+[
+  {
+    "chapters": [
+      "ch0",
+    ],
+    "citation": "doi:10.26066/icimod.hkh-cryosphere-2026",
+    "label": "water-equivalent ice lost 1990–2020",
+    "value": "516 km³",
+  },
+  {
+    "chapters": [
+      "ch0",
+    ],
+    "citation": "doi:10.26066/icimod.hkh-cryosphere-2026",
+    "label": "of all HKH ice lost 1990–2020",
+    "value": "~9%",
+  },
+  {
+    "chapters": [
+      "ch0",
+    ],
+    "citation": "doi:10.26066/icimod.hkh-cryosphere-2026",
+    "label": "total ice mass lost across Hindu Kush Himalaya",
+    "value": "~0.5 trillion tonnes",
+  },
+  {
+    "chapters": [
+      "ch1",
+    ],
+    "citation": "doi:10.26066/rds.1972729",
+    "label": "of synchronized retreat across Khumbu, Yala, Annapurna I, Imja",
+    "value": "~30 years",
+  },
+  {
+    "chapters": [
+      "ch2",
+    ],
+    "citation": "doi:10.5194/tc-8-1297-2014",
+    "label": "growth: 0.04 km² (1962) → 1.4 km² (2020)",
+    "value": "35×",
+  },
+  {
+    "chapters": [
+      "ch2",
+    ],
+    "citation": "doi:10.26066/rds.9362830",
+    "label": "maximum depth of Imja Tsho",
+    "value": "~60 m",
+  },
+  {
+    "chapters": [
+      "ch3",
+    ],
+    "citation": "doi:10.1038/s41467-021-23073-4",
+    "label": "glacier meltwater runoff to rivers (HKH total)",
+    "value": "~120 km³/yr",
+  },
+  {
+    "chapters": [
+      "ch3",
+    ],
+    "citation": "doi:10.1038/s41467-021-23073-4",
+    "label": "people in water-scarce IGB zones dependent on glacier melt",
+    "value": "~250 million",
+  },
+  {
+    "chapters": [
+      "ch4",
+    ],
+    "citation": "doi:10.1126/science.abo1324",
+    "label": "earlier peak meltwater arrival projected 1990 → 2070",
+    "value": "~4–6 weeks",
+  },
+  {
+    "chapters": [
+      "ch5",
+    ],
+    "citation": "doi:10.3189/2014JoG13J153",
+    "label": "albedo reduction from black carbon (Kaspari 2014)",
+    "value": "6–10%",
+  },
+  {
+    "chapters": [
+      "ch5",
+    ],
+    "citation": "doi:10.3189/2014JoG13J153",
+    "label": "role of dust vs BC in Solu-Khumbu region",
+    "value": "dominant",
+  },
+  {
+    "chapters": [
+      "ch6",
+    ],
+    "citation": "doi:10.1126/science.abo1324",
+    "label": "ice remaining by 2100: SSP1-2.6 vs SSP5-8.5",
+    "value": "~50% vs ~25%",
+  },
+]
+`;
