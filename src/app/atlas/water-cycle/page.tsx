@@ -54,8 +54,14 @@ export default async function WaterCyclePage() {
   const provenance = await loadAllProvenance();
 
   return (
-    <Suspense fallback={<WaterCycleSkeleton />}>
-      <WaterCycleClient provenance={provenance} />
-    </Suspense>
+    <>
+      {/* sr-only h1 ensures heading hierarchy is correct before React hydration.
+          Screen readers and axe-core can find the page title in SSR HTML even
+          while WaterCycleClient is still hydrating (isMobile === null guard). */}
+      <h1 className="sr-only">The Water Cycle — Himalayan Atlas</h1>
+      <Suspense fallback={<WaterCycleSkeleton />}>
+        <WaterCycleClient provenance={provenance} />
+      </Suspense>
+    </>
   );
 }

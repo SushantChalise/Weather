@@ -19,7 +19,7 @@ export function ClosingThesis() {
           <br />
           <span style={{ color: "#F87171" }}>We are draining it.</span>
         </blockquote>
-        <p className="mt-6 text-white/40 text-sm">
+        <p className="mt-6 text-slate-400 text-sm">
           Hindu Kush Himalaya · 9% of all ice lost · 516 km³ · 1990–2020
         </p>
       </div>

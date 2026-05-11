@@ -15,29 +15,21 @@
  * @axe-core/playwright to inject the axe engine into the page and check for
  * violations — zero violations is the pass condition.
  *
- * KNOWN COMPONENT BUGS (marked test.fixme — fix in separate PR):
- *   1. color-contrast: provenance-citations.tsx uses text-white/30 and text-white/40
- *      (contrast ratio ~2.5, below WCAG AA 4.5:1). Fix: raise to text-white/70+.
- *   2. definition-list / dlitem: <dt>/<dd> not wrapped in <dl> in provenance-citations.tsx
- *      — they're inside a flex <div>, which is invalid HTML structure.
- *   3. heading hierarchy: page renders null during SSR (isMobile === null guard),
- *      so headings may not be present at initial load.
- *
- * These are component-side bugs filed as a separate task. Tests are marked
- * test.fixme() so they are tracked in the report but do not block CI until fixed.
+ * Fixed in fix/water-cycle-a11y-violations (converted from test.fixme):
+ *   1. color-contrast: raised text-white/30 and text-white/40 to text-slate-400 in
+ *      ch3-sankey.tsx, closing-thesis.tsx, ch6-choice.tsx, and provenance-citations.tsx.
+ *   2. dlitem: fixed <dt> contrast (text-slate-600 → text-slate-400) inside <dl>.
+ *   3. heading hierarchy: added sr-only <h1> in page.tsx before the Suspense boundary
+ *      so heading structure is present in SSR HTML before hydration completes.
  */
 
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test.describe("water-cycle accessibility (WCAG 2.1 AA)", () => {
-  test.fixme(
+  test(
     "page has zero WCAG 2.1 AA violations",
     async ({ page }) => {
-      // FIXME: Component bugs block this test:
-      //   - color-contrast violations in provenance-citations.tsx (text-white/30, /40)
-      //   - definition-list / dlitem: <dt>/<dd> not inside <dl> in provenance-citations.tsx
-      // Fix tracked in: fix/water-cycle-a11y-violations branch
       await test.step("navigate to water-cycle route", async () => {
         await page.goto("/atlas/water-cycle");
         await page.waitForLoadState("networkidle", { timeout: 30000 });
@@ -78,11 +70,9 @@ test.describe("water-cycle accessibility (WCAG 2.1 AA)", () => {
     },
   );
 
-  test.fixme(
+  test(
     "page has zero critical a11y violations",
     async ({ page }) => {
-      // FIXME: color-contrast + dlitem are "serious" impact — component fix required
-      // Fix tracked in: fix/water-cycle-a11y-violations branch
       await test.step("navigate to water-cycle route", async () => {
         await page.goto("/atlas/water-cycle");
         await page.waitForLoadState("domcontentloaded");
@@ -161,12 +151,11 @@ test.describe("water-cycle accessibility (WCAG 2.1 AA)", () => {
     });
   });
 
-  test.fixme(
+  test(
     "heading hierarchy is logical",
     async ({ page }) => {
-      // FIXME: Page renders null until hydration (isMobile===null guard in WaterCycleClient).
-      // Headings appear after React hydration but not in initial DOM scan.
-      // Fix: ensure SSR renders at least the chapter headings server-side.
+      // page.tsx now renders a sr-only <h1> outside the Suspense boundary so
+      // the heading is present in the initial SSR HTML before hydration.
       await test.step("navigate to water-cycle route", async () => {
         await page.goto("/atlas/water-cycle");
         await page.waitForLoadState("domcontentloaded");

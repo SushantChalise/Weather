@@ -255,19 +255,19 @@ export function RenderMetadata({ provenance }: RenderMetadataProps) {
       <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
         Render info
       </h4>
-      <dl className="text-xs text-slate-500 space-y-1">
+      <dl className="text-xs text-slate-400 space-y-1">
         <div className="flex gap-2">
-          <dt className="text-slate-600">Generated</dt>
+          <dt className="text-slate-400 shrink-0">Generated</dt>
           <dd>
             <time dateTime={provenance.generated_at}>{formattedDate}</time>
           </dd>
         </div>
         <div className="flex gap-2">
-          <dt className="text-slate-600">Blender</dt>
+          <dt className="text-slate-400 shrink-0">Blender</dt>
           <dd>{provenance.blender_version}</dd>
         </div>
         <div className="flex gap-2">
-          <dt className="text-slate-600">Script hash</dt>
+          <dt className="text-slate-400 shrink-0">Script hash</dt>
           <dd>
             <code className="font-mono" title={provenance.bpy_script_hash}>
               {shortHash}…
