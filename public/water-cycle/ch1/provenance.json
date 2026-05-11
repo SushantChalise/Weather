@@ -1,53 +1,178 @@
 {
   "chapter_id": "ch1",
-  "shot_id": "glacier-retreat-grid",
+  "shot_id": "four-glacier-grid",
   "duration_s": 25,
   "frames": 750,
   "fps": 30,
   "resolution": { "w": 1280, "h": 720 },
   "camera_path": {
+    "notes": "4-up grid: one fixed top-down orthographic camera per panel. No animation.",
     "keyframes": [
-      { "t": 0, "lon": 86.83, "lat": 27.98, "alt_m": 6000, "pitch_deg": -30, "yaw_deg": 0 },
-      { "t": 25, "lon": 86.93, "lat": 27.95, "alt_m": 4000, "pitch_deg": -20, "yaw_deg": 5 }
+      { "t": 0,   "lon": 86.850, "lat": 27.975, "alt_m": 10000, "pitch_deg": -90, "yaw_deg": 0 },
+      { "t": 0,   "lon": 85.620, "lat": 28.255, "alt_m": 10000, "pitch_deg": -90, "yaw_deg": 0 },
+      { "t": 0,   "lon": 83.830, "lat": 28.580, "alt_m": 10000, "pitch_deg": -90, "yaw_deg": 0 },
+      { "t": 0,   "lon": 86.935, "lat": 27.910, "alt_m": 10000, "pitch_deg": -90, "yaw_deg": 0 }
     ]
   },
   "scene_layers": [
     {
-      "id": "glacier-retreat-imja-1962",
+      "id": "khumbu-1990",
       "type": "polygon-flat",
       "source": {
-        "dataset": "Somos-Valenzuela 2014 — Imja Glacier 1962",
-        "url": "https://doi.org/10.5194/tc-8-1297-2014",
-        "doi": "10.5194/tc-8-1297-2014",
-        "year_keyframe": 1962,
-        "filter": "Imja Glacier outline, digitized from Fig. 2"
+        "dataset": "ICIMOD HKH Glacier Inventory 1990",
+        "url": "https://rds.icimod.org/Home/DataDetail?metadataId=1972729",
+        "doi": "10.26066/rds.1972729",
+        "year_keyframe": 1990,
+        "filter": "glaciers within Khumbu region (lon 86.78-86.92, lat 27.92-27.99)",
+        "n_features": 15,
+        "preprocessing": ["public/glaciers/hkh/1990-points.geojson (existing atlas data)"]
       },
-      "render_geometry_id": "blender-collection://imja-1962",
+      "render_geometry_id": "Khumbu-1990",
       "color": "#7DD3FC"
     },
     {
-      "id": "glacier-retreat-imja-2020",
+      "id": "khumbu-2020",
       "type": "polygon-flat",
       "source": {
         "dataset": "ICIMOD HKH Glacier Inventory 2020",
         "url": "https://rds.icimod.org/Home/DataDetail?metadataId=1972729",
         "doi": "10.26066/rds.1972729",
         "year_keyframe": 2020,
-        "filter": "Imja Glacier (RGI 15-10316)"
+        "filter": "glaciers within Khumbu region (lon 86.78-86.92, lat 27.92-27.99)",
+        "n_features": 15,
+        "preprocessing": ["public/glaciers/hkh/2020-points.geojson (existing atlas data)"]
       },
-      "render_geometry_id": "blender-collection://imja-2020",
+      "render_geometry_id": "Khumbu-2020",
       "color": "#7DD3FC"
+    },
+    {
+      "id": "yala-1990",
+      "type": "polygon-flat",
+      "source": {
+        "dataset": "ICIMOD HKH Glacier Inventory 1990",
+        "url": "https://rds.icimod.org/Home/DataDetail?metadataId=1972729",
+        "doi": "10.26066/rds.1972729",
+        "year_keyframe": 1990,
+        "filter": "glaciers within Yala/Langtang region (lon 85.57-85.67, lat 28.18-28.28)",
+        "n_features": 25,
+        "preprocessing": ["public/glaciers/hkh/1990-points.geojson (existing atlas data)"]
+      },
+      "render_geometry_id": "Yala-1990",
+      "color": "#7DD3FC"
+    },
+    {
+      "id": "yala-2020",
+      "type": "polygon-flat",
+      "source": {
+        "dataset": "ICIMOD HKH Glacier Inventory 2020",
+        "url": "https://rds.icimod.org/Home/DataDetail?metadataId=1972729",
+        "doi": "10.26066/rds.1972729",
+        "year_keyframe": 2020,
+        "filter": "glaciers within Yala/Langtang region (lon 85.57-85.67, lat 28.18-28.28)",
+        "n_features": 25,
+        "preprocessing": ["public/glaciers/hkh/2020-points.geojson (existing atlas data)"]
+      },
+      "render_geometry_id": "Yala-2020",
+      "color": "#7DD3FC"
+    },
+    {
+      "id": "annapurna-i-1990",
+      "type": "polygon-flat",
+      "source": {
+        "dataset": "ICIMOD HKH Glacier Inventory 1990",
+        "url": "https://rds.icimod.org/Home/DataDetail?metadataId=1972729",
+        "doi": "10.26066/rds.1972729",
+        "year_keyframe": 1990,
+        "filter": "glaciers within Annapurna I region (lon 83.77-83.87, lat 28.54-28.64)",
+        "n_features": 23,
+        "preprocessing": ["public/glaciers/hkh/1990-points.geojson (existing atlas data)"]
+      },
+      "render_geometry_id": "AnnapurnaI-1990",
+      "color": "#7DD3FC"
+    },
+    {
+      "id": "annapurna-i-2020",
+      "type": "polygon-flat",
+      "source": {
+        "dataset": "ICIMOD HKH Glacier Inventory 2020",
+        "url": "https://rds.icimod.org/Home/DataDetail?metadataId=1972729",
+        "doi": "10.26066/rds.1972729",
+        "year_keyframe": 2020,
+        "filter": "glaciers within Annapurna I region (lon 83.77-83.87, lat 28.54-28.64)",
+        "n_features": 25,
+        "preprocessing": ["public/glaciers/hkh/2020-points.geojson (existing atlas data)"]
+      },
+      "render_geometry_id": "AnnapurnaI-2020",
+      "color": "#7DD3FC"
+    },
+    {
+      "id": "imja-1990",
+      "type": "polygon-flat",
+      "source": {
+        "dataset": "ICIMOD HKH Glacier Inventory 1990",
+        "url": "https://rds.icimod.org/Home/DataDetail?metadataId=1972729",
+        "doi": "10.26066/rds.1972729",
+        "year_keyframe": 1990,
+        "filter": "glaciers within Imja region (lon 86.88-86.98, lat 27.88-27.93)",
+        "n_features": 7,
+        "preprocessing": ["public/glaciers/hkh/1990-points.geojson (existing atlas data)"]
+      },
+      "render_geometry_id": "Imja-1990",
+      "color": "#7DD3FC"
+    },
+    {
+      "id": "imja-2020",
+      "type": "polygon-flat",
+      "source": {
+        "dataset": "ICIMOD HKH Glacier Inventory 2020",
+        "url": "https://rds.icimod.org/Home/DataDetail?metadataId=1972729",
+        "doi": "10.26066/rds.1972729",
+        "year_keyframe": 2020,
+        "filter": "glaciers within Imja region (lon 86.88-86.98, lat 27.88-27.93)",
+        "n_features": 7,
+        "preprocessing": ["public/glaciers/hkh/2020-points.geojson (existing atlas data)"]
+      },
+      "render_geometry_id": "Imja-2020",
+      "color": "#7DD3FC"
+    },
+    {
+      "id": "terrain-panels",
+      "type": "raster",
+      "source": {
+        "dataset": "SRTM 30m DEM (OpenTopography SRTMGL1_E) — procedural fallback if file absent",
+        "url": "https://portal.opentopography.org/raster?opentopoID=OTSRTM.082015.4326.1",
+        "doi": "10.5069/G9445JDF",
+        "filter": "four sub-regions: Khumbu, Yala/Langtang, Annapurna I, Imja"
+      },
+      "render_geometry_id": "PanelDEMs",
+      "color": "#475569"
     }
   ],
   "headline_numbers": [
     {
-      "value": "~30 years",
-      "label": "of synchronized retreat across Khumbu, Yala, Annapurna I, Imja",
+      "value": "-19.3%",
+      "label": "Yala glacier area lost 1990-2020",
+      "citation": "doi:10.26066/rds.1972729",
+      "uncertainty": "±5% (ICIMOD inventory precision)"
+    },
+    {
+      "value": "-17.6%",
+      "label": "Annapurna I glacier area lost 1990-2020",
+      "citation": "doi:10.26066/rds.1972729"
+    },
+    {
+      "value": "-12.4%",
+      "label": "Imja glacier area lost 1990-2020",
+      "citation": "doi:10.26066/rds.1972729"
+    },
+    {
+      "value": "-2.3%",
+      "label": "Khumbu glacier area lost 1990-2020",
       "citation": "doi:10.26066/rds.1972729"
     }
   ],
-  "caption_text": "Four glaciers — Khumbu, Yala, Annapurna I, and Imja — simultaneously retreating. The year ticker drives home synchronized loss across the Himalayan arc.",
+  "caption_text": "Four Himalayan glaciers shrinking simultaneously, 1990 to 2020. Yala lost 19% of its area; Annapurna I lost 18%; Imja lost 12%; Khumbu lost 2%. These are the names.",
   "generated_at": "2026-05-11T00:00:00Z",
-  "blender_version": "placeholder",
-  "bpy_script_hash": "0000000000000000000000000000000000000000000000000000000000000001"
+  "blender_version": "5.1.1",
+  "bpy_script_hash": "94c61c857c93fbd8b93c322dd590a4e0d84a77c3042f54deb80387c08c76cb4d"
 }
