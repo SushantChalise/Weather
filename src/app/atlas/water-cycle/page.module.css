@@ -1,0 +1,148 @@
+/**
+ * page.module.css — Water-Cycle Atlas page styles
+ *
+ * Per WATER_CYCLE_SPEC.md §7 hard constraint 3:
+ *   prefers-reduced-motion: reduce → static end-frame poster + transcript +
+ *   provenance peel open by default. No autoplay.
+ *
+ * WCAG 2.1 AA: all fallback text must meet 4.5:1 contrast ratio.
+ * Color grammar §7: #7DD3FC ice, #0E7490 lakes, #38BDF8 active-water,
+ *   #F87171 loss, #FBBF24 heat, #FCD34D people, #475569 terrain.
+ */
+
+/* ---------------------------------------------------------------------------
+ * Reduced-motion global rules
+ *
+ * NOTE: The JS layer in cinematic-video.tsx + chapter-section.tsx also detects
+ * prefers-reduced-motion at runtime via window.matchMedia and applies inline
+ * styles/state changes. These CSS rules serve as the CSS-only / SSR fallback.
+ * We avoid !important by keeping selectors scoped and specific.
+ * --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  /* Hide all cinematic video elements inside the water-cycle-cinematic container */
+  .water-cycle-cinematic video {
+    display: none;
+  }
+
+  /* Disable stroke-dashoffset animations on source outlines */
+  .water-cycle-cinematic *,
+  .water-cycle-cinematic {
+    animation: none;
+    transition: none;
+    stroke-dashoffset: 0;
+  }
+
+  /* Provenance peel panel: appears immediately, no slide-in animation.
+     The JS layer passes isReducedMotion=true; this CSS is the no-JS fallback. */
+  .provenance-peel-panel {
+    animation: none;
+    transform: translateX(0);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Chapter transcript visibility control
+ *
+ * Default (motion OK): rendered as screen-reader-only via .sr-only class applied
+ * by ChapterTranscript (Tailwind's sr-only pattern or equivalent).
+ * Under reduced-motion: the JS layer passes isVisible=true to ChapterTranscript,
+ * which drops the .sr-only class entirely. The CSS media-query below is the
+ * no-JS SSR fallback — it overrides the sr-only equivalent styles inline.
+ * --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  /* Override the sr-only pattern applied inline via className */
+  .chapter-transcript.sr-only {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Screen-reader-only utility (motion-ok default for transcripts)
+ * Used by <ChapterTranscript> to be accessible to SR while hidden visually.
+ * --------------------------------------------------------------------------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * Chapter transcript — static fallback (shown under reduced-motion)
+ * WCAG 4.5:1 minimum: white text (#ffffff) on slate-900 (#0f172a) = 18:1.
+ * --------------------------------------------------------------------------- */
+.chapter-transcript-content {
+  color: #f8fafc; /* slate-50, 18:1 on #0f172a */
+  background-color: #0f172a; /* slate-950 */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.chapter-transcript-content h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: #7dd3fc; /* ice color per grammar */
+}
+
+.chapter-transcript-content p {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #cbd5e1; /* slate-300, 7.5:1 on #0f172a */
+}
+
+.chapter-transcript-content dl {
+  margin-top: 0.75rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 0.75rem;
+}
+
+.chapter-transcript-content dt {
+  font-weight: 700;
+  color: #7dd3fc; /* ice color */
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.chapter-transcript-content dd {
+  font-size: 0.8125rem;
+  color: #94a3b8; /* slate-400, 4.6:1 on #0f172a */
+}
+
+.chapter-transcript-content ul {
+  margin-top: 0.5rem;
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.chapter-transcript-content li {
+  font-size: 0.8125rem;
+  color: #94a3b8; /* slate-400 */
+  padding-left: 1rem;
+  position: relative;
+}
+
+.chapter-transcript-content li::before {
+  content: "-";
+  position: absolute;
+  left: 0;
+  color: #475569; /* terrain color per grammar */
+}

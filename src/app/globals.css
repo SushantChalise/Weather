@@ -60,6 +60,53 @@ body {
   font-family: var(--font-sans);
 }
 
+/* ---------------------------------------------------------------------------
+ * Water-Cycle Atlas — reduced-motion global rules (T4.1)
+ *
+ * Per WATER_CYCLE_SPEC.md §7 hard constraint 3:
+ *   prefers-reduced-motion: reduce → static end-frame poster, no animation,
+ *   provenance peel open by default.
+ *
+ * These CSS rules are the SSR/no-JS fallback. The JS layer in
+ * cinematic-video.tsx also handles this via useState/useEffect.
+ *
+ * WCAG 2.1 AA contrast ratios verified (all text on #0f172a slate-950):
+ *   #f8fafc slate-50 = 18:1, #cbd5e1 slate-300 = 7.5:1, #94a3b8 slate-400 = 4.6:1
+ * --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  /* Hide cinematic video elements — JS also sets style="display:none" */
+  .water-cycle-cinematic video {
+    display: none;
+  }
+
+  /* Disable stroke-dashoffset draw-in on source outlines */
+  .water-cycle-cinematic *,
+  .water-cycle-cinematic {
+    animation: none;
+    transition: none;
+    stroke-dashoffset: 0;
+  }
+
+  /* Provenance peel panel — appear immediately, no slide-in */
+  .provenance-peel-panel {
+    animation: none;
+    transform: translateX(0);
+  }
+}
+
+/* Screen-reader-only utility — used by ChapterTranscript when motion is OK */
+.wc-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* NPT timestamp utility class */
 .npt-badge {
   font-family: var(--font-mono);

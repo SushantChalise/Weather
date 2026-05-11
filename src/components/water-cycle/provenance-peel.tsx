@@ -52,13 +52,25 @@ export type ProvenancePeelProps = {
   provenance: Provenance;
   isOpen: boolean;
   onClose: () => void;
+  /**
+   * When true (prefers-reduced-motion: reduce), the peel renders without
+   * animations — no slide-in, no layer animations.  The panel is immediately
+   * visible.  Per WATER_CYCLE_SPEC.md §7 hard constraint 3.
+   */
+  isReducedMotion?: boolean;
 };
 
 // ---------------------------------------------------------------------------
 // ProvenancePeel
 // ---------------------------------------------------------------------------
 
-export function ProvenancePeel({ chapterId, provenance, isOpen, onClose }: ProvenancePeelProps) {
+export function ProvenancePeel({
+  chapterId,
+  provenance,
+  isOpen,
+  onClose,
+  isReducedMotion = false,
+}: ProvenancePeelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   // Track whether we paused the video (so we don't resume one we didn't pause)
   const didPauseRef = useRef(false);
@@ -125,9 +137,11 @@ export function ProvenancePeel({ chapterId, provenance, isOpen, onClose }: Prove
 
   // -------------------------------------------------------------------------
   // Reduced-motion: peel is open by default (per spec §7 & §06)
-  // The parent component is responsible for passing isOpen=true when
-  // prefers-reduced-motion: reduce is detected.  ProvenancePeel itself does
-  // NOT force open — the parent controls state.
+  // The parent component (ChapterSection) is responsible for passing
+  // isOpen=true and isReducedMotion=true when prefers-reduced-motion: reduce
+  // is detected.  ProvenancePeel itself does NOT force open — the parent
+  // controls state.  When isReducedMotion=true, slide-in animations are
+  // suppressed and the panel renders immediately.
   // -------------------------------------------------------------------------
 
   if (!isOpen) return null;
@@ -171,11 +185,21 @@ export function ProvenancePeel({ chapterId, provenance, isOpen, onClose }: Prove
           // Mobile: full-width
           "right-0 w-full md:w-80",
           // Slide-in animation: CSS transform, 300ms gentle-out
+          // Skipped under reduced-motion (isReducedMotion) per spec §7 hard constraint 3
+          "provenance-peel-panel",
         ].join(" ")}
-        style={{
-          // 400ms delay matches end of layer animations
-          animation: "wc-panel-slide-in 300ms cubic-bezier(0.16, 1, 0.3, 1) 400ms both",
-        }}
+        style={
+          isReducedMotion
+            ? {
+                // No animation under reduced-motion — panel appears immediately
+                transform: "translateX(0)",
+                animation: "none",
+              }
+            : {
+                // 400ms delay matches end of layer animations
+                animation: "wc-panel-slide-in 300ms cubic-bezier(0.16, 1, 0.3, 1) 400ms both",
+              }
+        }
       >
         {/* Panel header */}
         <div className="sticky top-0 z-10 bg-slate-900/95 backdrop-blur-sm border-b border-white/10 px-4 py-3 flex items-center justify-between">

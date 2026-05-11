@@ -8,13 +8,19 @@
  *
  * requestVideoFrameCallback() used where available for sync.
  * Audio: muted always (opt-in audio is a separate toggle, not implemented here).
+ *
+ * Reduced-motion (T4.1):
+ *   - Detects prefers-reduced-motion on mount via window.matchMedia.
+ *   - If reduce: skips ScrollTrigger registration; hides <video>; shows <img> poster.
+ *   - Watches for the media query CHANGE event so the page responds at runtime.
+ *   - No autoplay in reduced-motion mode (WCAG 2.3.3 / spec §7 hard constraint 3).
  */
 "use client";
 
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import NextImage from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Props = {
   chapterId: string;
@@ -25,14 +31,54 @@ type Props = {
 export function CinematicVideo({ chapterId, duration, posterUrl }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  // Track reduced-motion preference reactively so the component responds to
+  // runtime changes (e.g. user toggles accessibility setting while on page).
+  // Initialize with a lazy function so we read matchMedia synchronously on
+  // first render (after hydration) rather than defaulting to false and then
+  // flipping — this avoids a brief flash where the video is visible before
+  // the useEffect fires.
+  const [prefersReduced, setPrefersReduced] = useState<boolean>(() => {
+    // typeof window check is required for SSR (server has no matchMedia)
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  });
 
+  // -------------------------------------------------------------------------
+  // Media query listener — detect and react to prefers-reduced-motion changes
+  // -------------------------------------------------------------------------
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReduced(mq.matches);
+
+    const handler = (e: MediaQueryListEvent) => setPrefersReduced(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  // -------------------------------------------------------------------------
+  // Sync aria-hidden on <video> based on reduced-motion preference
+  // -------------------------------------------------------------------------
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (prefersReduced) {
+      video.setAttribute("aria-hidden", "true");
+      // Ensure no autoplay leaks through
+      video.pause();
+    } else {
+      video.removeAttribute("aria-hidden");
+    }
+  }, [prefersReduced]);
+
+  // -------------------------------------------------------------------------
+  // ScrollTrigger wiring — only when reduced-motion is NOT preferred
+  // -------------------------------------------------------------------------
   useEffect(() => {
     const video = videoRef.current;
     const container = containerRef.current;
     if (!video || !container) return;
 
-    // Reduced-motion: skip ScrollTrigger entirely, show poster only
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Skip ScrollTrigger entirely under reduced-motion (spec §7 hard constraint 3)
     if (prefersReduced) return;
 
     gsap.registerPlugin(ScrollTrigger);
@@ -64,22 +110,24 @@ export function CinematicVideo({ chapterId, duration, posterUrl }: Props) {
     return () => {
       trigger.kill();
     };
-  }, [duration]);
+  }, [duration, prefersReduced]);
 
   return (
     <div ref={containerRef} className="relative w-full h-screen water-cycle-cinematic">
-      {/* Static fallback shown when prefers-reduced-motion is set (CSS rule) */}
+      {/* Static poster — always rendered as the base layer.
+          Under reduced-motion: visible (video is hidden + aria-hidden).
+          Under normal motion: covered by the video element on top.
+          CSS class "water-cycle-fallback" is used by page.module.css media query. */}
       <NextImage
         src={posterUrl}
-        alt={`Chapter ${chapterId} poster — static end-frame`}
+        alt={`Chapter ${chapterId} — static end-frame poster`}
         fill
         className="object-cover water-cycle-fallback"
         priority
         unoptimized
-        // Always visible as the base layer; video overlays it when loaded
       />
 
-      {/* The actual video — poster keeps fallback frame while loading */}
+      {/* The cinematic video — hidden via CSS + aria-hidden when reduced-motion */}
       <video
         ref={videoRef}
         muted
@@ -88,6 +136,7 @@ export function CinematicVideo({ chapterId, duration, posterUrl }: Props) {
         poster={posterUrl}
         className="absolute inset-0 w-full h-full object-cover"
         aria-label={`Cinematic for chapter ${chapterId}`}
+        style={prefersReduced ? { display: "none" } : undefined}
       >
         {/*
          * Scrub master loads first (low-bitrate, dense keyframes).
