@@ -55,7 +55,16 @@ A task is "available" if:
 
 Pick the first available task (Phase 1 before Phase 2 before Phase 3, etc.).
 
-If multiple Phase-N tasks are independent, you can spawn them in parallel — but cap parallelism at **2 simultaneous Sonnet workers** for sanity.
+**Concurrency cap (revised 2026-05-11, see WATER_CYCLE_SPEC.md §16)**:
+
+- **Render workers** (Phase-3 chapter renders T3.0–T3.6, T3.0c material polish, future T3.x re-renders): **cap 1 simultaneous** — single OPTIX GPU saturates at one Blender Cycles render.
+- **Non-render workers** (Phase-1 data, Phase-2 frontend, Phase-4 polish, doc PRs, fix PRs): **cap 4 simultaneous**.
+- **Total active**: max 5 (1 render + 4 non-render, or any combination respecting both caps).
+
+Examples:
+- T3.0c rendering → can ALSO spawn T4.1 + T4.2 + T4.4 + T4.5 in parallel (4 non-render).
+- No render in flight → can spawn 4 non-render workers.
+- Two renders queued → spawn the first, queue the second; fill 4 non-render slots in the meantime.
 
 ### STEP 3 — Spawn worker
 
@@ -147,7 +156,7 @@ PR title: <see task spec>
 - ❌ Don't introduce new datasets / animations / chapters that aren't in 07-task-graph.md without a council loop. v7 is locked.
 - ❌ Don't skip the manual review on render tasks even if CI passes. Numbers can be right and the cinematic still wrong.
 - ❌ Don't skip the manual Chrome review on frontend tasks even if CI passes. Layouts can be right in code and wrong in the browser.
-- ❌ Don't run more than 2 Sonnet workers in parallel (sanity).
+- ❌ Don't run more than 1 render worker simultaneously (GPU constraint) or more than 4 non-render workers (Mother review-queue + API rate-limit sanity). Total active cap is 5. See WATER_CYCLE_SPEC.md §16.
 - ❌ Don't poll. Use ScheduleWakeup(180-1800) appropriate to the wait expected.
 
 ---

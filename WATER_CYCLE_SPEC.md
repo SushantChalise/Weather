@@ -340,6 +340,8 @@ Each phase's tasks are detailed in [docs/water-cycle/07-task-graph.md](docs/wate
 | 2026-05-10 | Cap each video < 25 MiB (Workers asset cap) | Cloudflare hard limit | Codex v5 review |
 | 2026-05-10 | Hydrological Clock stays 2D HTML/SVG, NOT 3D monolith | Timing precision needs axes/labels | Codex v5 review |
 | 2026-05-11 | Every frontend element must be loaded in Chrome and interactively tested before merge (see §15) | T2.2 ProvenancePeel shipped with all unit tests green but Layer 1 rendered as giant overlapping text labels — only visible by loading the live page. Snapshot + lint + tsc + build do not prove visual correctness. | User directive after live inspection of /atlas/water-cycle |
+| 2026-05-11 | §15 "under resource contention" clause: structural Chrome verification may substitute for visual screenshot when a GPU render is competing for resources, with a deferred re-verify required | PR #100 (T2.2c) MOTHER_REVIEW: `preview_screenshot` timed out under T3.0c GPU contention. Programmatic DOM probing confirmed Layer 1 rendered 4 polygon paths matching scene_layers. | Mother (operational learning) |
+| 2026-05-11 | Worker concurrency raised from "2 simultaneous (sanity)" to render-1 + non-render-4 (max 5 total). See §16 | Original cap was a starting heuristic. Real bottleneck is the single OPTIX GPU (1 Blender render at a time); CPU/RAM has headroom for 4-6 concurrent non-render workers. Mother's review queue + Sonnet API rate limits are the soft cap beyond 5. | User directive 2026-05-11 |
 
 When Mother (or any future plan revision) overrides one of these: append a new row, don't edit existing rows.
 
@@ -426,3 +428,39 @@ Even if the worker self-reported all-green, Mother re-runs the protocol on the P
 **A frontend PR without Mother's Chrome verification is NOT mergeable**. Same gate as render PRs needing MOTHER_REVIEW on the cinematic.
 
 **Why this rule exists**: tools like lint, tsc, and Vitest snapshot ensure the component compiles, types correctly, and produces a stable serialization — none of those catch a layout bug, an oversized text overlay, a color grammar violation, or a broken responsive breakpoint. Only loading the page does.
+
+**Under resource contention (added 2026-05-11 from PR #100 review)**:
+
+When a GPU-bound render task is running in parallel with frontend MOTHER_REVIEW, dev server hydration and `preview_screenshot` can intermittently stall (the screenshot subprocess shares CPU/RAM with Blender Cycles). If, after a reasonable wait (≥ 60s after navigation), the screenshot tool times out or the page DOM doesn't fully hydrate, Mother MAY substitute **structural Chrome verification** for the full visual screenshot:
+
+- `preview_eval` to probe DOM state (button counts, section counts, SVG path counts matching expected scene_layer counts)
+- `preview_inspect` on representative elements for computed colors / sizing
+- `preview_console_logs --level error` for runtime errors
+- Programmatic `.click()` via `preview_eval` to exercise interactions and verify state transitions
+
+…AND must schedule a deferred visual re-verification once the contention resolves (e.g., after the parallel render task lands). The PR comment must explicitly note the substitution + the planned re-verify.
+
+Structural verification alone (without later visual confirmation) is NOT sufficient. The screenshot deferral is a timing accommodation, not a waiver.
+
+---
+
+## 16. Worker concurrency policy
+
+Codified 2026-05-11 after observing real bottlenecks across 14 merged PRs. The original "2 simultaneous Sonnet workers (sanity)" was a starting heuristic, not a measured limit.
+
+**Caps**:
+
+- **Render workers** (Phase-3 chapter renders T3.0–T3.6, T3.0c material polish, future T3.x re-renders): **cap 1 simultaneous**. The single NVIDIA OPTIX GPU saturates at one Blender Cycles render at production sampling. Two concurrent renders would OOM VRAM.
+- **Non-render workers** (Phase-1 data staging, Phase-2 frontend, Phase-4 polish, doc PRs, fix PRs, T*.c follow-ups touching `src/`): **cap 4 simultaneous**. CPU/RAM/disk have substantial headroom for 4-6 concurrent Node/TS/Python jobs.
+- **Total active**: up to **5 simultaneously** (1 render + 4 non-render, or 4 non-render with no render in flight, or any combination respecting both caps).
+
+**Practical consequences**:
+
+- During Phase-3 fan-out, Mother queues chapter renders sequentially (T3.0c → T3.1 → T3.2 → ...) on the GPU. Each takes 30-90 min at scrub preset. Mother can fill the 4 non-render slots with Phase-4 polish tasks running in parallel on every render iteration.
+- After all renders land, Mother spawns Phase-4 + Phase-5 at full 4-non-render throughput.
+
+**Resource-contention awareness**: when a render is GPU-bound and a frontend MOTHER_REVIEW dev server is up, expect `preview_screenshot` to occasionally time out. Follow §15 "Under resource contention" clause.
+
+**Why not higher?** Sonnet API rate limits + Mother's per-PR Chrome-test review pass are the soft caps beyond 5. Each frontend PR's MOTHER_REVIEW is serial work for Mother (dev server boot → navigate → exercise → inspect → screenshot). 4 frontend PRs in flight means Mother queues 4 reviews back-to-back. Going to 6-8 frontend workers in parallel risks PRs piling up faster than Mother can review them.
+
+**When to revisit**: if Mother's review queue persistently has >3 PRs waiting and CPU/RAM/disk have idle headroom, lift non-render cap to 6. If review queue is consistently empty and workers are sitting idle on dependencies, the cap was the wrong dial.
